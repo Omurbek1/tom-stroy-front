@@ -1,7 +1,8 @@
 'use client';
 
 import { InboxOutlined } from '@ant-design/icons';
-import { Upload, Typography, message } from 'antd';
+import { Upload, Typography } from 'antd';
+import { message } from '@shared/lib/antd-static';
 import type { UploadProps, RcFile } from 'antd/es/upload';
 import { useState } from 'react';
 import { uploadFile } from '../api';

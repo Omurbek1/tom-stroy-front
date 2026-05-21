@@ -1,6 +1,7 @@
 'use client';
 
-import { Button, Card, DatePicker, Space, Statistic, Table, Tag, message } from 'antd';
+import { Button, Card, DatePicker, Space, Statistic, Table, Tag } from 'antd';
+import { message } from '@shared/lib/antd-static';
 import { DownloadOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs, { Dayjs } from 'dayjs';

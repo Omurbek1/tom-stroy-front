@@ -8,8 +8,8 @@ import {
   Input,
   InputNumber,
   Select,
-  message,
 } from 'antd';
+import { message } from '@shared/lib/antd-static';
 import { PlusOutlined } from '@ant-design/icons';
 import dayjs, { Dayjs } from 'dayjs';
 import { useState } from 'react';

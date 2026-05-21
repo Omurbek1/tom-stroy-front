@@ -12,8 +12,8 @@ import {
   Table,
   Tag,
   Typography,
-  message,
 } from 'antd';
+import { message } from '@shared/lib/antd-static';
 import { FilePdfOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 import type { ColumnsType } from 'antd/es/table';

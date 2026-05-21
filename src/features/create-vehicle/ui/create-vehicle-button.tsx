@@ -1,6 +1,7 @@
 'use client';
 
-import { Button, Drawer, Form, Input, InputNumber, Select, message } from 'antd';
+import { Button, Drawer, Form, Input, InputNumber, Select } from 'antd';
+import { message } from '@shared/lib/antd-static';
 import { PlusOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 import { useCreateVehicle } from '@entities/vehicle/hooks';

@@ -1,6 +1,7 @@
 'use client';
 
-import { Button, Drawer, Form, InputNumber, Select, Typography, message } from 'antd';
+import { Button, Drawer, Form, InputNumber, Select, Typography } from 'antd';
+import { message } from '@shared/lib/antd-static';
 import { useEffect } from 'react';
 import { useAddPayment } from '@entities/payroll/hooks';
 import type { Payroll, PaymentMethod } from '@entities/payroll/types';

@@ -1,6 +1,7 @@
 'use client';
 
-import { Button, message } from 'antd';
+import { Button } from 'antd';
+import { message } from '@shared/lib/antd-static';
 import { DownloadOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 import { downloadFile } from '@shared/lib/download';

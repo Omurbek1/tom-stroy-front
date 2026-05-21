@@ -1,6 +1,7 @@
 'use client';
 
-import { Button, Card, Form, Input, Typography, message } from 'antd';
+import { Button, Card, Form, Input, Typography } from 'antd';
+import { message } from '@shared/lib/antd-static';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { login, LoginRequest } from '../api';

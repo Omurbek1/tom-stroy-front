@@ -12,8 +12,8 @@ import {
   Row,
   Select,
   Space,
-  message,
 } from 'antd';
+import { message } from '@shared/lib/antd-static';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import dayjs, { Dayjs } from 'dayjs';
 import { useCreateDailyReport } from '@entities/daily-report/hooks';

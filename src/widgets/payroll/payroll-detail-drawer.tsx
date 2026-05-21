@@ -14,8 +14,8 @@ import {
   Statistic,
   Table,
   Tag,
-  message,
 } from 'antd';
+import { message } from '@shared/lib/antd-static';
 import { DollarOutlined, FilePdfOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { useState } from 'react';

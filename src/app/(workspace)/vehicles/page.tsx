@@ -1,6 +1,7 @@
 'use client';
 
-import { Button, DatePicker, Space, Tabs, message } from 'antd';
+import { Button, DatePicker, Space, Tabs } from 'antd';
+import { message } from '@shared/lib/antd-static';
 import { DownloadOutlined } from '@ant-design/icons';
 import dayjs, { Dayjs } from 'dayjs';
 import { useState } from 'react';

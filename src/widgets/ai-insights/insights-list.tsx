@@ -1,6 +1,7 @@
 'use client';
 
-import { Alert, Button, Card, Empty, List, Skeleton, Space, Tag, message } from 'antd';
+import { Alert, Button, Card, Empty, List, Skeleton, Space, Tag } from 'antd';
+import { message } from '@shared/lib/antd-static';
 import { ReloadOutlined, ThunderboltOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { useInsights, useRunInsightsScan } from '@entities/ai-insight/hooks';
