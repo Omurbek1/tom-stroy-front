@@ -34,6 +34,37 @@ export interface DailyReport {
   _count?: { works: number; attendance: number; photos: number };
 }
 
+export interface DailyReportPhoto {
+  id: string;
+  kind: 'before' | 'after';
+  url: string;        // storage key
+  previewUrl: string; // presigned GET URL (15 min)
+}
+
+export interface DailyReportWorkRow {
+  id: string;
+  workType: WorkType;
+  unit: WorkUnit;
+  volume: number;
+  price: number;
+  amount: number;
+  comment?: string | null;
+  employee?: { id: string; fullName: string } | null;
+}
+
+export interface DailyReportAttendanceRow {
+  id: string;
+  hours: number;
+  status: AttendanceStatus;
+  employee?: { id: string; fullName: string } | null;
+}
+
+export interface DailyReportDetail extends DailyReport {
+  works: DailyReportWorkRow[];
+  attendance: DailyReportAttendanceRow[];
+  photos: DailyReportPhoto[];
+}
+
 export interface DailyReportWorkInput {
   employeeId?: string;
   workType: WorkType;

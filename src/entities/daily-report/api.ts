@@ -1,7 +1,7 @@
 import { http } from '@shared/api/http';
 import { apiRoutes } from '@shared/api/routes';
 import type { ItemResponse, PaginatedResponse } from '@shared/types/api';
-import type { CreateDailyReportPayload, DailyReport } from './types';
+import type { CreateDailyReportPayload, DailyReport, DailyReportDetail } from './types';
 
 export interface ListDailyReportsParams {
   projectId?: string;
@@ -18,6 +18,11 @@ export async function listDailyReports(
     params,
   });
   return res.data;
+}
+
+export async function getDailyReport(id: string): Promise<DailyReportDetail> {
+  const res = await http.get<ItemResponse<DailyReportDetail>>(apiRoutes.dailyReports.detail(id));
+  return res.data.data;
 }
 
 export async function createDailyReport(
