@@ -40,6 +40,7 @@ export function FinanceTimeseriesChart({ from, to, projectId, title }: Props) {
               <Line type="monotone" dataKey="revenue" name="Доход" stroke="#52c41a" strokeWidth={2} dot={false} />
               <Line type="monotone" dataKey="materials" name="Материалы" stroke="#fa8c16" strokeWidth={1.5} dot={false} />
               <Line type="monotone" dataKey="labor" name="ФОТ" stroke="#1677ff" strokeWidth={1.5} dot={false} />
+              <Line type="monotone" dataKey="equipment" name="Техника" stroke="#13c2c2" strokeWidth={1.5} dot={false} />
               <Line type="monotone" dataKey="other" name="Прочее" stroke="#722ed1" strokeWidth={1.5} dot={false} />
               <Line type="monotone" dataKey="profit" name="Прибыль" stroke="#cf1322" strokeWidth={2} dot={false} />
             </LineChart>

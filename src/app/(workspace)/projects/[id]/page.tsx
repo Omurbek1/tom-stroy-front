@@ -18,6 +18,7 @@ import { ExpensesTable } from '@widgets/finance/expenses-table';
 import { IncomesTable } from '@widgets/finance/incomes-table';
 import { ExportPnlButton } from '@features/export-pnl/ui/export-pnl-button';
 import { InsightsList } from '@widgets/ai-insights/insights-list';
+import { UsagesTable } from '@widgets/vehicles/usages-table';
 import { formatDate, formatMoney } from '@shared/lib/format';
 import { useProjectRealtime } from '@shared/hooks/use-project-realtime';
 
@@ -88,6 +89,11 @@ export default function ProjectDetailPage(props: {
               key: 'materials',
               label: 'Материалы',
               children: <TransactionsTable projectId={id} />,
+            },
+            {
+              key: 'vehicles',
+              label: 'Техника',
+              children: <UsagesTable projectId={id} />,
             },
             {
               key: 'finance',

@@ -2,6 +2,7 @@ export interface PnlSummary {
   revenue: number;
   materialsCost: number;
   laborCost: number;
+  equipmentCost: number;
   otherExpensesTotal: number;
   expensesByCategory: Record<string, number>;
   totalCost: number;
@@ -14,6 +15,7 @@ export interface TimeseriesPoint {
   revenue: number;
   labor: number;
   materials: number;
+  equipment: number;
   other: number;
   profit: number;
 }

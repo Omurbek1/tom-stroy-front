@@ -52,6 +52,12 @@ export const apiRoutes = {
     payrollXlsx: '/reports/payroll.xlsx',
     pnlXlsx: '/reports/pnl.xlsx',
   },
+  vehicles: {
+    list: '/vehicles',
+    create: '/vehicles',
+    update: (id: string) => `/vehicles/${id}`,
+    usages: '/vehicles/usages',
+  },
 } as const;
 
 export const appRoutes = {

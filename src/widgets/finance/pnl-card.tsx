@@ -21,26 +21,29 @@ export function PnlCard({ from, to, projectId }: Props) {
   return (
     <Card title="P&L за период">
       <Row gutter={[16, 16]}>
-        <Col xs={12} md={6}>
+        <Col xs={12} md={8}>
           <Statistic
             title="Доход"
             value={formatMoney(data.revenue)}
             prefix={<ArrowUpOutlined style={{ color: '#52c41a' }} />}
           />
         </Col>
-        <Col xs={12} md={6}>
+        <Col xs={12} md={8}>
           <Statistic title="Материалы" value={formatMoney(data.materialsCost)} />
         </Col>
-        <Col xs={12} md={6}>
+        <Col xs={12} md={8}>
           <Statistic title="Работы (ФОТ)" value={formatMoney(data.laborCost)} />
         </Col>
-        <Col xs={12} md={6}>
+        <Col xs={12} md={8}>
+          <Statistic title="Техника" value={formatMoney(data.equipmentCost)} />
+        </Col>
+        <Col xs={12} md={8}>
           <Statistic title="Прочее" value={formatMoney(data.otherExpensesTotal)} />
         </Col>
-        <Col xs={24} md={12}>
+        <Col xs={12} md={8}>
           <Statistic title="Все расходы" value={formatMoney(data.totalCost)} />
         </Col>
-        <Col xs={24} md={12}>
+        <Col xs={24}>
           <Statistic
             title={`Прибыль (${formatNumber(data.margin)}%)`}
             value={formatMoney(data.profit)}
