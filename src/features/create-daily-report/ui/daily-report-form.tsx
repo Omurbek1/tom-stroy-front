@@ -16,8 +16,13 @@ import {
 import { message } from '@shared/lib/antd-static';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import dayjs, { Dayjs } from 'dayjs';
-import { memo, useMemo } from 'react';
-import { useCreateDailyReport } from '@entities/daily-report/hooks';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  useCreateDailyReport,
+  useDeleteReportDraft,
+  useReportDraft,
+  useSaveReportDraft,
+} from '@entities/daily-report/hooks';
 import type {
   CreateDailyReportPayload,
   DailyReportAttendanceInput,
@@ -25,13 +30,17 @@ import type {
   DailyReportWorkInput,
   WorkUnit,
 } from '@entities/daily-report/types';
+import type { WorkTemplate } from '@entities/work-template/types';
 import { PhotoUploader, UploadedPhoto } from '@features/upload-document/ui/photo-uploader';
+import { ApplyTemplateButton } from '@features/apply-work-template/ui/apply-template-button';
+import { AiSummaryBlock } from '@features/ai-report-summary/ui/ai-summary-block';
+import type { SummarizeReportInput } from '@entities/ai-insight/api';
 import { FormSection } from '@shared/ui/form-section';
 import { EmployeeSelect } from '@shared/ui/employee-select';
 import { BrigadeSelect } from '@shared/ui/brigade-select';
 import { MaterialSelect } from '@shared/ui/material-select';
 import { WorkTypeSelect } from '@shared/ui/work-type-select';
-import { DEFAULT_UNIT_FOR_TYPE } from '@shared/constants/work-type';
+import { DEFAULT_UNIT_FOR_TYPE, formatWorkType } from '@shared/constants/work-type';
 import { WORK_UNIT_OPTIONS, formatWorkUnit } from '@shared/constants/work-unit';
 import { ATTENDANCE_STATUS_OPTIONS } from '@shared/constants/attendance-status';
 import { formatMoney } from '@shared/lib/format';
@@ -53,6 +62,8 @@ interface FormShape {
   photosBefore?: UploadedPhoto[];
   photosAfter?: UploadedPhoto[];
 }
+
+type DraftSnapshot = Omit<FormShape, 'date'> & { date?: string };
 
 interface WorkRowProps {
   fieldKey: number;
@@ -270,9 +281,20 @@ function RowHeader({ cells }: { cells: Array<{ flex: string; label: string; alig
   );
 }
 
+type AutosaveState = 'idle' | 'saving' | 'saved' | 'error';
+
 export function DailyReportForm({ projectId, onDone }: Props) {
   const [form] = Form.useForm<FormShape>();
   const mutation = useCreateDailyReport(projectId);
+  const draftQuery = useReportDraft(projectId);
+  const saveDraftMutation = useSaveReportDraft(projectId);
+  const deleteDraftMutation = useDeleteReportDraft(projectId);
+
+  const [autosaveState, setAutosaveState] = useState<AutosaveState>('idle');
+  const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
+  const [draftVersion, setDraftVersion] = useState<number>(0);
+  const [hasConflict, setHasConflict] = useState(false);
+  const draftRestoredRef = useRef(false);
 
   const works = Form.useWatch('works', form);
   const totalWorks = useMemo(
@@ -284,6 +306,71 @@ export function DailyReportForm({ projectId, onDone }: Props) {
       ),
     [works],
   );
+  const brigadeId = Form.useWatch('brigadeId', form);
+
+  // Restore draft once after fetch
+  useEffect(() => {
+    if (draftRestoredRef.current) return;
+    if (draftQuery.isLoading) return;
+    draftRestoredRef.current = true;
+    setDraftVersion(draftQuery.data?.version ?? 0);
+    const draft = draftQuery.data?.payload as DraftSnapshot | undefined;
+    if (!draft) return;
+    const values: FormShape = {
+      ...draft,
+      date: draft.date ? dayjs(draft.date) : dayjs(),
+    };
+    form.setFieldsValue(values);
+    setLastSavedAt(new Date(draftQuery.data?.updatedAt ?? Date.now()).getTime());
+    setAutosaveState('saved');
+  }, [draftQuery.isLoading, draftQuery.data, form]);
+
+  // Debounced autosave on form changes. Carries `draftVersion` for
+  // optimistic locking so two concurrent writers don't silently clobber.
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const handleValuesChange = useCallback(
+    (_changed: Partial<FormShape>, all: FormShape) => {
+      if (!draftRestoredRef.current) return;
+      if (hasConflict) return; // stop writing until user reloads
+      setAutosaveState('saving');
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = setTimeout(() => {
+        const snapshot: DraftSnapshot = {
+          ...all,
+          date: all.date ? all.date.toISOString() : undefined,
+        };
+        saveDraftMutation.mutate(
+          {
+            payload: snapshot as unknown as Record<string, unknown>,
+            version: draftVersion,
+          },
+          {
+            onSuccess: (res) => {
+              setLastSavedAt(new Date(res.updatedAt).getTime());
+              setDraftVersion(res.version);
+              setAutosaveState('saved');
+            },
+            onError: (err: unknown) => {
+              const status = (err as { response?: { status?: number } })?.response?.status;
+              if (status === 409) {
+                setHasConflict(true);
+                setAutosaveState('error');
+              } else {
+                setAutosaveState('error');
+              }
+            },
+          },
+        );
+      }, 1500);
+    },
+    [saveDraftMutation, draftVersion, hasConflict],
+  );
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    };
+  }, []);
 
   const onFinish = async (values: FormShape) => {
     const photos = [
@@ -311,6 +398,7 @@ export function DailyReportForm({ projectId, onDone }: Props) {
     };
     try {
       await mutation.mutateAsync(payload);
+      await deleteDraftMutation.mutateAsync().catch(() => undefined);
       message.success('Отчёт сохранён');
       form.resetFields();
       onDone?.();
@@ -321,6 +409,46 @@ export function DailyReportForm({ projectId, onDone }: Props) {
       message.error(typeof detail === 'string' ? detail : 'Ошибка сохранения отчёта');
     }
   };
+
+  const onApplyTemplate = (tpl: WorkTemplate) => {
+    const current = (form.getFieldValue('works') as DailyReportWorkInput[] | undefined) ?? [];
+    form.setFieldValue('works', [
+      ...current,
+      {
+        workType: tpl.workType,
+        unit: tpl.unit,
+        volume: tpl.typicalVolume ?? 0,
+        price: tpl.defaultPrice,
+      },
+    ]);
+  };
+
+  const buildSummaryInput = useCallback((): SummarizeReportInput | null => {
+    const values = form.getFieldsValue() as FormShape;
+    return {
+      projectId,
+      summary: values.summary,
+      problems: values.problems,
+      works: (values.works ?? []).map((w) => ({
+        workType: w.workType ? formatWorkType(w.workType) : '',
+        unit: w.unit ?? '',
+        volume: Number(w.volume ?? 0),
+        price: Number(w.price ?? 0),
+        employeeId: w.employeeId,
+      })),
+      materials: (values.materials ?? []).map((m) => ({
+        itemId: m.itemId,
+        qty: Number(m.qty ?? 0),
+        unit: undefined,
+        unitCost: m.unitCost,
+      })),
+      attendance: (values.attendance ?? []).map((a) => ({
+        employeeId: a.employeeId,
+        hours: a.hours,
+        status: a.status,
+      })),
+    };
+  }, [form, projectId]);
 
   const workHeaderCells = [
     { flex: '200px', label: 'Тип работ' },
@@ -345,14 +473,45 @@ export function DailyReportForm({ projectId, onDone }: Props) {
     { flex: '32px', label: '' },
   ];
 
+  const autosaveLabel =
+    autosaveState === 'saving'
+      ? 'Сохраняется…'
+      : autosaveState === 'saved' && lastSavedAt
+        ? `Сохранено ${dayjs(lastSavedAt).format('HH:mm:ss')}`
+        : autosaveState === 'error'
+          ? 'Не удалось сохранить черновик'
+          : '';
+
   return (
     <Form<FormShape>
       form={form}
       layout="vertical"
       onFinish={onFinish}
+      onValuesChange={handleValuesChange}
       initialValues={{ date: dayjs() }}
       requiredMark={false}
     >
+      {hasConflict && (
+        <Alert
+          type="warning"
+          showIcon
+          message="Черновик изменён в другой вкладке"
+          description="Чтобы не потерять данные, перезагрузите страницу — будет показана последняя сохранённая версия."
+          action={
+            <Button
+              size="small"
+              onClick={() => {
+                draftRestoredRef.current = false;
+                setHasConflict(false);
+                draftQuery.refetch();
+              }}
+            >
+              Перезагрузить
+            </Button>
+          }
+          style={{ marginBottom: 16 }}
+        />
+      )}
       <FormSection title="Основная информация">
         <Row gutter={12}>
           <Col xs={24} md={8}>
@@ -394,7 +553,10 @@ export function DailyReportForm({ projectId, onDone }: Props) {
       <FormSection
         title="Работы"
         extra={
-          totalWorks > 0 && <Tag color="blue">Итого: {formatMoney(totalWorks)}</Tag>
+          <Space size={6}>
+            <ApplyTemplateButton brigadeId={brigadeId} onApply={onApplyTemplate} />
+            {totalWorks > 0 && <Tag color="blue">Итого: {formatMoney(totalWorks)}</Tag>}
+          </Space>
         }
       >
         <Form.List name="works">
@@ -470,7 +632,7 @@ export function DailyReportForm({ projectId, onDone }: Props) {
         </Form.List>
       </FormSection>
 
-      <FormSection title="Фото" subtitle="JPEG/PNG/WEBP, до 10 МБ">
+      <FormSection title="Фото" subtitle="JPEG/PNG/WEBP — на сервер уходит сжатая версия">
         <Row gutter={12}>
           <Col xs={24} md={12}>
             <Form.Item
@@ -495,6 +657,10 @@ export function DailyReportForm({ projectId, onDone }: Props) {
             </Form.Item>
           </Col>
         </Row>
+      </FormSection>
+
+      <FormSection title="AI-резюме" subtitle="Опционально — проверка черновика">
+        <AiSummaryBlock buildInput={buildSummaryInput} />
       </FormSection>
 
       {mutation.isError && (
@@ -524,10 +690,23 @@ export function DailyReportForm({ projectId, onDone }: Props) {
           zIndex: 2,
         }}
       >
-        <Space size="small">
+        <Space size="small" style={{ flexWrap: 'wrap' }}>
           <span style={{ fontSize: 12, color: 'var(--ant-color-text-secondary, #8c8c8c)' }}>
             {(works ?? []).length > 0 && `Работ: ${(works ?? []).length}`}
           </span>
+          {autosaveLabel && (
+            <span
+              style={{
+                fontSize: 12,
+                color:
+                  autosaveState === 'error'
+                    ? 'var(--ant-color-error, #cf1322)'
+                    : 'var(--ant-color-text-secondary, #8c8c8c)',
+              }}
+            >
+              {autosaveLabel}
+            </span>
+          )}
         </Space>
         <Space>
           <Button onClick={onDone}>Отмена</Button>

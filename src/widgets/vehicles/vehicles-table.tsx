@@ -1,11 +1,10 @@
 'use client';
 
-import { Card, Space, Table, Tag } from 'antd';
+import { Card, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useVehicles } from '@entities/vehicle/hooks';
 import type { Vehicle } from '@entities/vehicle/types';
 import { formatNumber } from '@shared/lib/format';
-import { CreateVehicleButton } from '@features/create-vehicle/ui/create-vehicle-button';
 
 const STATUS_COLOR: Record<string, string> = {
   idle: 'default',
@@ -42,14 +41,7 @@ const columns: ColumnsType<Vehicle> = [
 export function VehiclesTable() {
   const { data, isLoading } = useVehicles();
   return (
-    <Card
-      title="Парк техники"
-      extra={
-        <Space>
-          <CreateVehicleButton />
-        </Space>
-      }
-    >
+    <Card title="Парк техники">
       <Table<Vehicle>
         rowKey="id"
         size="small"

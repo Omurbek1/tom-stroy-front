@@ -1,11 +1,13 @@
 'use client';
 
-import { Card, Input, Progress, Space, Table } from 'antd';
+import { Card, Progress, Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import Link from 'next/link';
 import { useState } from 'react';
 import { PageHeader } from '@shared/ui/page-header';
 import { PageContainer } from '@shared/ui/page-container';
+import { PageToolbar } from '@shared/ui/page-toolbar';
+import { PageSearch } from '@shared/ui/page-search';
 import { StatusBadge, ProjectStatus } from '@shared/ui/status-badge';
 import { useProjectsList } from '@entities/project/hooks';
 import type { Project } from '@entities/project/types';
@@ -63,29 +65,31 @@ export default function ProjectsListPage() {
       <PageHeader
         title="Объекты"
         subtitle="Все стройки компании"
-        extra={<CreateProjectButton />}
+      />
+      <PageToolbar
+        search={
+          <PageSearch
+            placeholder="Поиск объекта..."
+            value={search}
+            onSearch={setSearch}
+            onClear={() => setSearch('')}
+          />
+        }
+        actions={<CreateProjectButton />}
       />
       <PageContainer>
         <Card>
-          <Space direction="vertical" style={{ width: '100%' }} size="middle">
-            <Input.Search
-              placeholder="Поиск по названию"
-              allowClear
-              onSearch={setSearch}
-              style={{ maxWidth: 360 }}
+          <div className="table-shell">
+            <Table<Project>
+              rowKey="id"
+              columns={columns}
+              dataSource={data?.data ?? []}
+              loading={isLoading}
+              pagination={false}
+              sticky
+              scroll={{ x: 1000 }}
             />
-            <div className="table-shell">
-              <Table<Project>
-                rowKey="id"
-                columns={columns}
-                dataSource={data?.data ?? []}
-                loading={isLoading}
-                pagination={false}
-                sticky
-                scroll={{ x: 1000 }}
-              />
-            </div>
-          </Space>
+          </div>
         </Card>
       </PageContainer>
     </>

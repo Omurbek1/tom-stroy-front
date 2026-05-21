@@ -7,6 +7,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { useMemo, useState } from 'react';
 import { PageHeader } from '@shared/ui/page-header';
 import { PageContainer } from '@shared/ui/page-container';
+import { PageToolbar } from '@shared/ui/page-toolbar';
 import { PnlCard } from '@widgets/finance/pnl-card';
 import { ExpensesTable } from '@widgets/finance/expenses-table';
 import { IncomesTable } from '@widgets/finance/incomes-table';
@@ -53,14 +54,18 @@ export default function FinancePage() {
       <PageHeader
         title="Финансы"
         subtitle="P&L, доходы и расходы по компании"
-        extra={
+      />
+      <PageToolbar
+        dateRange={
+          <DatePicker.RangePicker
+            value={range}
+            onChange={(v) => v && setRange(v as [Dayjs, Dayjs])}
+            format="DD.MM.YYYY"
+            allowClear={false}
+          />
+        }
+        actions={
           <Space>
-            <DatePicker.RangePicker
-              value={range}
-              onChange={(v) => v && setRange(v as [Dayjs, Dayjs])}
-              format="DD.MM.YYYY"
-              allowClear={false}
-            />
             <Button icon={<DownloadOutlined />} onClick={onExport} loading={downloading}>
               P&L Excel
             </Button>

@@ -5,7 +5,6 @@ import type { ColumnsType } from 'antd/es/table';
 import { useUsages } from '@entities/vehicle/hooks';
 import type { VehicleUsage } from '@entities/vehicle/types';
 import { formatDate, formatMoney, formatNumber } from '@shared/lib/format';
-import { RecordUsageButton } from '@features/record-vehicle-usage/ui/record-usage-button';
 
 const columns: ColumnsType<VehicleUsage> = [
   {
@@ -51,10 +50,7 @@ const columns: ColumnsType<VehicleUsage> = [
 export function UsagesTable({ projectId }: { projectId?: string } = {}) {
   const { data, isLoading } = useUsages({ projectId, limit: 100 });
   return (
-    <Card
-      title="Использование техники"
-      extra={<RecordUsageButton projectId={projectId} />}
-    >
+    <Card title="Использование техники">
       <Table<VehicleUsage>
         rowKey="id"
         size="small"

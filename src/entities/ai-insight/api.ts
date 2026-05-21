@@ -24,3 +24,45 @@ export async function runInsightsScan(): Promise<{ scanned: number; created: num
   );
   return res.data.data;
 }
+
+export interface SummarizeReportInput {
+  projectId: string;
+  summary?: string;
+  problems?: string;
+  works?: Array<{
+    workType: string;
+    unit: string;
+    volume: number;
+    price: number;
+    /** Pass employeeId — backend resolves to display name. */
+    employeeId?: string;
+    employeeName?: string;
+  }>;
+  materials?: Array<{
+    /** Pass itemId — backend resolves to display name + unit. */
+    itemId?: string;
+    itemName?: string;
+    qty: number;
+    unit?: string;
+    unitCost?: number;
+  }>;
+  attendance?: Array<{
+    employeeId?: string;
+    employeeName?: string;
+    hours?: number;
+    status?: string;
+  }>;
+}
+
+export interface ReportSummary {
+  summary: string;
+  risks: string[];
+}
+
+export async function summarizeReport(input: SummarizeReportInput): Promise<ReportSummary> {
+  const res = await http.post<ItemResponse<ReportSummary>>(
+    apiRoutes.ai.summarizeReport,
+    input,
+  );
+  return res.data.data;
+}

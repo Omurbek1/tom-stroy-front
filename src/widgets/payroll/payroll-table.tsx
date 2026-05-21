@@ -1,18 +1,9 @@
 'use client';
 
-import { Button, Card, DatePicker, Space, Statistic, Table, Tag } from 'antd';
-import { message } from '@shared/lib/antd-static';
-import { DownloadOutlined } from '@ant-design/icons';
+import { Card, Space, Statistic, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import dayjs, { Dayjs } from 'dayjs';
-import { useState } from 'react';
-import { Popconfirm } from 'antd';
-import { LockOutlined } from '@ant-design/icons';
-import { useClosePeriod, usePayrollPreview } from '@entities/payroll/hooks';
 import type { PayrollPreviewRow, PayType } from '@entities/payroll/types';
 import { formatMoney, formatNumber } from '@shared/lib/format';
-import { downloadFile } from '@shared/lib/download';
-import { apiRoutes } from '@shared/api/routes';
 
 const PAY_TYPE_LABEL: Record<PayType, string> = {
   PER_CUBE: 'За куб',
@@ -57,95 +48,27 @@ const columns: ColumnsType<PayrollPreviewRow> = [
   },
 ];
 
-export function PayrollTable() {
-  const [range, setRange] = useState<[Dayjs, Dayjs]>([
-    dayjs().startOf('month'),
-    dayjs().endOf('month'),
-  ]);
+interface Props {
+  rows: PayrollPreviewRow[];
+  isLoading: boolean;
+}
 
-  const { data, isLoading } = usePayrollPreview({
-    from: range[0].startOf('day').toISOString(),
-    to: range[1].endOf('day').toISOString(),
-  });
-
-  const totalAccrued = (data ?? []).reduce((s, r) => s + Number(r.worksAccrued), 0);
-  const totalHours = (data ?? []).reduce((s, r) => s + Number(r.hoursWorked), 0);
-
-  const closeMutation = useClosePeriod();
-  const onClose = async () => {
-    try {
-      const res = await closeMutation.mutateAsync({
-        from: range[0].startOf('day').toISOString(),
-        to: range[1].endOf('day').toISOString(),
-      });
-      message.success(`Закрыто записей: ${res.closed}`);
-    } catch {
-      message.error('Не удалось закрыть период');
-    }
-  };
-
-  const [downloading, setDownloading] = useState(false);
-  const onExport = async () => {
-    setDownloading(true);
-    try {
-      await downloadFile(
-        apiRoutes.reports.payrollXlsx,
-        {
-          from: range[0].startOf('day').toISOString(),
-          to: range[1].endOf('day').toISOString(),
-        },
-        'payroll.xlsx',
-      );
-    } catch {
-      message.error('Не удалось скачать файл');
-    } finally {
-      setDownloading(false);
-    }
-  };
+export function PayrollTable({ rows, isLoading }: Props) {
+  const totalAccrued = rows.reduce((s, r) => s + Number(r.worksAccrued), 0);
+  const totalHours = rows.reduce((s, r) => s + Number(r.hoursWorked), 0);
 
   return (
-    <Card
-      title="Ведомость (предпросмотр)"
-      extra={
-        <Space>
-          <DatePicker.RangePicker
-            value={range}
-            onChange={(v) => v && setRange(v as [Dayjs, Dayjs])}
-            format="DD.MM.YYYY"
-            allowClear={false}
-          />
-          <Button icon={<DownloadOutlined />} onClick={onExport} loading={downloading}>
-            Excel
-          </Button>
-          <Popconfirm
-            title="Закрыть период?"
-            description="Будут созданы ведомости для всех сотрудников с начислениями за выбранный диапазон."
-            okText="Закрыть"
-            cancelText="Отмена"
-            onConfirm={onClose}
-          >
-            <Button
-              type="primary"
-              icon={<LockOutlined />}
-              loading={closeMutation.isPending}
-              disabled={(data?.length ?? 0) === 0}
-            >
-              Закрыть период
-            </Button>
-          </Popconfirm>
-        </Space>
-      }
-    >
+    <Card title="Ведомость (предпросмотр)">
       <Space size="large" style={{ marginBottom: 16 }}>
         <Statistic title="К начислению" value={formatMoney(totalAccrued)} />
         <Statistic title="Всего часов" value={formatNumber(totalHours)} />
-        <Statistic title="Сотрудников" value={data?.length ?? 0} />
+        <Statistic title="Сотрудников" value={rows.length} />
       </Space>
       <Table<PayrollPreviewRow>
         rowKey="employeeId"
         size="small"
         columns={columns}
-        dataSource={data ?? []}
+        dataSource={rows}
         loading={isLoading}
         pagination={false}
         sticky

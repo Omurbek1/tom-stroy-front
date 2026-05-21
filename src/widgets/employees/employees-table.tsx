@@ -1,7 +1,7 @@
 'use client';
 
-import { Button, Card, Input, Space, Tag } from 'antd';
-import { EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button, Card, Tag } from 'antd';
+import { EditOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { useState } from 'react';
 import { useEmployees } from '@entities/employee/hooks';
@@ -37,11 +37,13 @@ const PAY_LABEL: Record<PayType, string> = {
   SALARY_PLUS_PERCENT: 'Оклад + %',
 };
 
-export function EmployeesTable() {
-  const [search, setSearch] = useState('');
+interface Props {
+  search: string;
+}
+
+export function EmployeesTable({ search }: Props) {
   const { data, isLoading } = useEmployees(search || undefined);
   const [edit, setEdit] = useState<Employee | null>(null);
-  const [createOpen, setCreateOpen] = useState(false);
 
   const columns: ColumnsType<Employee> = [
     { title: 'ФИО', dataIndex: 'fullName', key: 'fullName' },
@@ -90,36 +92,16 @@ export function EmployeesTable() {
   ];
 
   return (
-    <Card
-      title="Сотрудники"
-      extra={
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateOpen(true)}>
-          Новый сотрудник
-        </Button>
-      }
-    >
-      <Space direction="vertical" style={{ width: '100%' }} size="middle">
-        <Input.Search
-          placeholder="Поиск по ФИО"
-          allowClear
-          onSearch={setSearch}
-          style={{ maxWidth: 360 }}
-        />
-        <DataTable<Employee>
-          rowKey="id"
-          columns={columns}
-          dataSource={data?.data ?? []}
-          loading={isLoading}
-          minWidth={960}
-          scrollY={520}
-          emptyTitle="Нет сотрудников"
-          emptyDescription={search ? 'Попробуйте другой запрос' : 'Добавьте первого сотрудника'}
-        />
-      </Space>
-      <EmployeeFormDrawer
-        employee={null}
-        open={createOpen}
-        onClose={() => setCreateOpen(false)}
+    <Card title="Сотрудники">
+      <DataTable<Employee>
+        rowKey="id"
+        columns={columns}
+        dataSource={data?.data ?? []}
+        loading={isLoading}
+        minWidth={960}
+        scrollY={520}
+        emptyTitle="Нет сотрудников"
+        emptyDescription={search ? 'Попробуйте другой запрос' : 'Добавьте первого сотрудника'}
       />
       <EmployeeFormDrawer employee={edit} open={!!edit} onClose={() => setEdit(null)} />
     </Card>

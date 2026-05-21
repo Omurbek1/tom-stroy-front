@@ -3,10 +3,13 @@ import { apiRoutes } from '@shared/api/routes';
 import type { ItemResponse, PaginatedResponse } from '@shared/types/api';
 import type { Brigade, BrigadeDetail, CreateBrigadePayload } from './types';
 
-export async function listBrigades(params: {
-  limit?: number;
-  cursor?: string;
-} = {}): Promise<PaginatedResponse<Brigade>> {
+export async function listBrigades(
+  params: {
+    limit?: number;
+    cursor?: string;
+    search?: string;
+  } = {},
+): Promise<PaginatedResponse<Brigade>> {
   const res = await http.get<PaginatedResponse<Brigade>>(apiRoutes.brigades.list, { params });
   return res.data;
 }

@@ -3,32 +3,46 @@
 import { ReactNode } from 'react';
 import { create } from 'zustand';
 
-interface PageMetaState {
+export interface Crumb {
+  href?: string;
+  label: string;
+}
+
+interface Meta {
   title: string;
   subtitle?: string;
   actions?: ReactNode;
-  set: (meta: { title: string; subtitle?: string; actions?: ReactNode }) => void;
+  breadcrumbs?: Crumb[];
+}
+
+interface PageMetaState extends Meta {
+  set: (meta: Meta) => void;
   reset: () => void;
 }
 
 /**
- * Cross-tree page meta. Pages declare their title/subtitle/actions via
- * `<PageMeta>`; `<UniversalHeader>` reads from the same store. This lets
- * the header live above the content while the page still controls its
- * own title declaratively.
- *
- * Updates are cheap (zustand bare set) — header re-renders only when
- * meta actually changes thanks to selectors.
+ * Cross-tree page meta. Pages declare their title/subtitle/actions/
+ * breadcrumbs via `<PageMeta>`; `<UniversalHeader>` reads from the same
+ * store. Updates are cheap zustand set — header re-renders only when the
+ * selected slice actually changes thanks to selectors.
  */
 export const usePageMetaStore = create<PageMetaState>((set) => ({
   title: '',
   subtitle: undefined,
   actions: undefined,
+  breadcrumbs: undefined,
   set: (meta) =>
     set({
       title: meta.title,
       subtitle: meta.subtitle,
       actions: meta.actions,
+      breadcrumbs: meta.breadcrumbs,
     }),
-  reset: () => set({ title: '', subtitle: undefined, actions: undefined }),
+  reset: () =>
+    set({
+      title: '',
+      subtitle: undefined,
+      actions: undefined,
+      breadcrumbs: undefined,
+    }),
 }));

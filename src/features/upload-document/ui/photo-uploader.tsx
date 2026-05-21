@@ -5,7 +5,16 @@ import { Upload, Typography } from 'antd';
 import { message } from '@shared/lib/antd-static';
 import type { UploadProps, RcFile } from 'antd/es/upload';
 import { useState } from 'react';
+import imageCompression from 'browser-image-compression';
 import { uploadFile } from '../api';
+
+const COMPRESSION_OPTIONS = {
+  maxSizeMB: 1.5,
+  maxWidthOrHeight: 2000,
+  useWebWorker: true,
+  fileType: 'image/jpeg',
+  initialQuality: 0.85,
+};
 
 export interface UploadedPhoto {
   storageKey: string;
@@ -42,10 +51,25 @@ export function PhotoUploader({
   const items = value ?? [];
 
   const handle: UploadProps['customRequest'] = async (options) => {
-    const file = options.file as RcFile;
+    const original = options.file as RcFile;
     setUploading((n) => n + 1);
     try {
-      const uploaded = await uploadFile(file, {
+      let toUpload: File = original;
+      if (original.type.startsWith('image/') && original.size > 500_000) {
+        try {
+          const compressed = await imageCompression(original, COMPRESSION_OPTIONS);
+          if (compressed.size < original.size) {
+            toUpload = new File([compressed], original.name, {
+              type: compressed.type,
+              lastModified: original.lastModified,
+            });
+          }
+        } catch {
+          // Fall back to original on compression failure
+        }
+      }
+
+      const uploaded = await uploadFile(toUpload as RcFile, {
         kind: 'PHOTO',
         projectId,
         onProgress: (pct) => options.onProgress?.({ percent: pct }),

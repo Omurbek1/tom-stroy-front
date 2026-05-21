@@ -1,11 +1,12 @@
 'use client';
 
-import { use } from 'react';
+import { use, useEffect } from 'react';
 import { Card, Descriptions, Skeleton, Space, Tabs } from 'antd';
 import dayjs from 'dayjs';
-import { PageHeader } from '@shared/ui/page-header';
+import { PageMeta } from '@shared/ui/page-meta';
 import { StatusBadge, ProjectStatus } from '@shared/ui/status-badge';
 import { useProject } from '@entities/project/hooks';
+import { useRecentsStore } from '@app-init/store/recents-store';
 import { ProjectAnalyticsBlock } from '@widgets/project/project-analytics';
 import { DailyReportsTable } from '@widgets/project/daily-reports-table';
 import { ProjectBriefWidget } from '@widgets/ai-insights/project-brief';
@@ -29,6 +30,18 @@ export default function ProjectDetailPage(props: {
   const { id } = use(props.params);
   useProjectRealtime(id);
   const { data: project, isLoading } = useProject(id);
+  const pushRecent = useRecentsStore((s) => s.push);
+
+  useEffect(() => {
+    if (!project) return;
+    pushRecent({
+      id: `project-${project.id}`,
+      href: `/projects/${project.id}`,
+      title: project.name,
+      subtitle: project.address ?? project.client?.name ?? undefined,
+      group: 'Объекты',
+    });
+  }, [project, pushRecent]);
 
   if (isLoading || !project) return <Skeleton active />;
 
@@ -43,10 +56,11 @@ export default function ProjectDetailPage(props: {
 
   return (
     <>
-      <PageHeader
+      <PageMeta
         title={project.name}
         subtitle={project.address ?? undefined}
-        extra={
+        breadcrumbs={[{ href: '/projects', label: 'Объекты' }, { label: project.name }]}
+        actions={
           <Space>
             <StatusBadge status={project.status as ProjectStatus} />
             <CreateDailyReportButton projectId={id} />

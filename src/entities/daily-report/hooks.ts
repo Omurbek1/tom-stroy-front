@@ -6,6 +6,9 @@ import {
   ListDailyReportsParams,
   createDailyReport,
   getDailyReport,
+  getDraft,
+  saveDraft,
+  deleteDraft,
 } from './api';
 import { projectKeys } from '@entities/project/hooks';
 import type { CreateDailyReportPayload } from './types';
@@ -42,5 +45,33 @@ export function useCreateDailyReport(projectId: string) {
       qc.invalidateQueries({ queryKey: projectKeys.detail(projectId) });
       qc.invalidateQueries({ queryKey: projectKeys.analytics(projectId) });
     },
+  });
+}
+
+export const draftKeys = {
+  detail: (projectId: string) => ['daily-report-draft', projectId] as const,
+};
+
+export function useReportDraft(projectId: string, enabled = true) {
+  return useQuery({
+    queryKey: draftKeys.detail(projectId),
+    queryFn: () => getDraft(projectId),
+    enabled: enabled && !!projectId,
+    staleTime: Infinity,
+  });
+}
+
+export function useSaveReportDraft(projectId: string) {
+  return useMutation({
+    mutationFn: (args: { payload: Record<string, unknown>; version?: number }) =>
+      saveDraft(projectId, args.payload, args.version),
+  });
+}
+
+export function useDeleteReportDraft(projectId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => deleteDraft(projectId),
+    onSuccess: () => qc.removeQueries({ queryKey: draftKeys.detail(projectId) }),
   });
 }

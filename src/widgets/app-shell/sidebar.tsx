@@ -53,9 +53,14 @@ const GROUP_LABELS: Record<string, string> = {
 interface Props {
   collapsed: boolean;
   onToggle: () => void;
+  /**
+   * Called after a nav-item click. Used by the mobile drawer to close
+   * itself once the user has chosen a destination.
+   */
+  onNavigate?: () => void;
 }
 
-function SidebarImpl({ collapsed, onToggle }: Props) {
+function SidebarImpl({ collapsed, onToggle, onNavigate }: Props) {
   const pathname = usePathname();
   const activeKey = useMemo(() => pathname?.split('/')[1] || 'dashboard', [pathname]);
 
@@ -91,6 +96,7 @@ function SidebarImpl({ collapsed, onToggle }: Props) {
                   key={item.key}
                   href={item.href}
                   prefetch
+                  onClick={() => onNavigate?.()}
                   className={`app-sidebar__link ${active ? 'is-active' : ''}`}
                   title={collapsed ? item.label : undefined}
                 >

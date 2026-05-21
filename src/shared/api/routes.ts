@@ -19,6 +19,12 @@ export const apiRoutes = {
     detail: (id: string) => `/daily-reports/${id}`,
     create: '/daily-reports',
     pdf: (id: string) => `/daily-reports/${id}/pdf`,
+    draft: '/daily-reports/draft',
+  },
+  workTemplates: {
+    list: '/work-templates',
+    create: '/work-templates',
+    remove: (id: string) => `/work-templates/${id}`,
   },
   brigades: { list: '/brigades' },
   employees: { list: '/employees' },
@@ -49,6 +55,7 @@ export const apiRoutes = {
     projectBrief: (id: string) => `/ai/projects/${id}/brief`,
     insights: '/ai/insights',
     insightsScan: '/ai/insights/scan',
+    summarizeReport: '/ai/summarize-report',
   },
   documents: {
     list: '/documents',

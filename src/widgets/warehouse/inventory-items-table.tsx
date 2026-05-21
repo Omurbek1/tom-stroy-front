@@ -1,8 +1,7 @@
 'use client';
 
-import { Card, Input, Space, Switch, Tag, Tooltip } from 'antd';
+import { Card, Tag, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { useState } from 'react';
 import { useInventoryItems } from '@entities/inventory-item/hooks';
 import type { InventoryItem } from '@entities/inventory-item/types';
 import { DataTable } from '@shared/ui/data-table';
@@ -52,9 +51,12 @@ const columns: ColumnsType<InventoryItem> = [
   },
 ];
 
-export function InventoryItemsTable() {
-  const [search, setSearch] = useState('');
-  const [lowStockOnly, setLowStockOnly] = useState(false);
+interface Props {
+  search: string;
+  lowStockOnly: boolean;
+}
+
+export function InventoryItemsTable({ search, lowStockOnly }: Props) {
   const { data, isLoading } = useInventoryItems({
     search: search || undefined,
     lowStock: lowStockOnly || undefined,
@@ -65,30 +67,16 @@ export function InventoryItemsTable() {
 
   return (
     <Card title="Остатки">
-      <Space direction="vertical" style={{ width: '100%' }} size="middle">
-        <Space wrap>
-          <Input.Search
-            placeholder="Поиск по названию"
-            allowClear
-            onSearch={setSearch}
-            style={{ width: 320 }}
-          />
-          <Space>
-            <Switch checked={lowStockOnly} onChange={setLowStockOnly} />
-            <span>Только низкие остатки</span>
-          </Space>
-        </Space>
-        <DataTable<InventoryItem>
-          rowKey="id"
-          columns={columns}
-          dataSource={rows}
-          loading={isLoading}
-          minWidth={760}
-          scrollY={520}
-          emptyTitle="Нет товаров"
-          emptyDescription={search ? 'Попробуйте другой запрос' : 'Добавьте первый товар'}
-        />
-      </Space>
+      <DataTable<InventoryItem>
+        rowKey="id"
+        columns={columns}
+        dataSource={rows}
+        loading={isLoading}
+        minWidth={760}
+        scrollY={520}
+        emptyTitle="Нет товаров"
+        emptyDescription={search ? 'Попробуйте другой запрос' : 'Добавьте первый товар'}
+      />
     </Card>
   );
 }

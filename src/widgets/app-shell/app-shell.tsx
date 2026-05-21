@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import { ReactNode, useCallback, useEffect, useState } from 'react';
 import { useAuthStore } from '@app-init/store/auth-store';
 import { Sidebar } from './sidebar';
-import { Topbar } from './topbar';
+import { UniversalHeader } from './universal-header';
+import { CommandPalette } from '@widgets/command-palette/command-palette';
 
 const STORAGE_KEY = 'tomstroy.sidebar-collapsed';
 
@@ -17,7 +18,8 @@ const STORAGE_KEY = 'tomstroy.sidebar-collapsed';
  *   - Sidebar: fixed width, own scroll axis
  *   - Main column: min-width:0 (prevents flex children from blowing out
  *     the column when a wide table appears)
- *   - Topbar: fixed-height row at top of main
+ *   - UniversalHeader: compact global bar; page-level controls live in
+ *     PageHeader/PageToolbar inside the route tree.
  *   - Page content: flex:1 + overflow:auto — independent scroll
  *
  * Sidebar state persists in localStorage so a sane default returns on reload.
@@ -29,7 +31,6 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState<boolean>(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
-  // Hydrate persisted collapse on mount
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -47,7 +48,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       try {
         localStorage.setItem(STORAGE_KEY, next ? '1' : '0');
       } catch {
-        // ignore storage failures (private mode, quota)
+        /* ignore */
       }
       return next;
     });
@@ -71,13 +72,19 @@ export function AppShell({ children }: { children: ReactNode }) {
         styles={{ body: { padding: 0 } }}
         rootClassName="app-shell__mobile-drawer"
       >
-        <Sidebar collapsed={false} onToggle={closeMobileNav} />
+        <Sidebar collapsed={false} onToggle={closeMobileNav} onNavigate={closeMobileNav} />
       </Drawer>
 
       <div className="app-shell__main">
-        <Topbar onToggleMobileNav={openMobileNav} />
+        <UniversalHeader
+          collapsed={collapsed}
+          onToggleSidebar={toggleCollapsed}
+          onToggleMobileNav={openMobileNav}
+        />
         <main className="app-shell__content">{children}</main>
       </div>
+
+      <CommandPalette />
     </div>
   );
 }

@@ -34,3 +34,39 @@ export async function createDailyReport(
   );
   return res.data.data;
 }
+
+export interface ReportDraft {
+  id: string;
+  payload: Record<string, unknown>;
+  updatedAt: string;
+  version: number;
+}
+
+export interface SavedDraftAck {
+  id: string;
+  updatedAt: string;
+  version: number;
+}
+
+export async function getDraft(projectId: string): Promise<ReportDraft | null> {
+  const res = await http.get<ItemResponse<ReportDraft | null>>(apiRoutes.dailyReports.draft, {
+    params: { projectId },
+  });
+  return res.data.data;
+}
+
+export async function saveDraft(
+  projectId: string,
+  payload: Record<string, unknown>,
+  version?: number,
+): Promise<SavedDraftAck> {
+  const res = await http.put<ItemResponse<SavedDraftAck>>(
+    apiRoutes.dailyReports.draft,
+    { projectId, payload, version },
+  );
+  return res.data.data;
+}
+
+export async function deleteDraft(projectId: string): Promise<void> {
+  await http.delete(apiRoutes.dailyReports.draft, { params: { projectId } });
+}

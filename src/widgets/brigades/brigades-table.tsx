@@ -5,7 +5,6 @@ import type { ColumnsType } from 'antd/es/table';
 import { useState } from 'react';
 import { useBrigades } from '@entities/brigade/hooks';
 import type { Brigade } from '@entities/brigade/types';
-import { CreateBrigadeButton } from '@features/create-brigade/ui/create-brigade-button';
 import { BrigadeDetailDrawer } from './brigade-detail-drawer';
 
 const columns: ColumnsType<Brigade> = [
@@ -42,7 +41,7 @@ export function BrigadesTable() {
   const [openId, setOpenId] = useState<string | null>(null);
 
   return (
-    <Card title="Бригады" extra={<CreateBrigadeButton />}>
+    <Card title="Бригады">
       <Table<Brigade>
         rowKey="id"
         size="small"

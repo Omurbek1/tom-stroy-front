@@ -7,8 +7,11 @@ import dayjs, { Dayjs } from 'dayjs';
 import { useState } from 'react';
 import { PageHeader } from '@shared/ui/page-header';
 import { PageContainer } from '@shared/ui/page-container';
+import { PageToolbar } from '@shared/ui/page-toolbar';
 import { VehiclesTable } from '@widgets/vehicles/vehicles-table';
 import { UsagesTable } from '@widgets/vehicles/usages-table';
+import { CreateVehicleButton } from '@features/create-vehicle/ui/create-vehicle-button';
+import { RecordUsageButton } from '@features/record-vehicle-usage/ui/record-usage-button';
 import { downloadFile } from '@shared/lib/download';
 import { apiRoutes } from '@shared/api/routes';
 
@@ -42,14 +45,20 @@ export default function VehiclesPage() {
       <PageHeader
         title="Техника"
         subtitle="Парк и история использования"
-        extra={
+      />
+      <PageToolbar
+        dateRange={
+          <DatePicker.RangePicker
+            value={range}
+            onChange={(v) => v && setRange(v as [Dayjs, Dayjs])}
+            format="DD.MM.YYYY"
+            allowClear={false}
+          />
+        }
+        actions={
           <Space>
-            <DatePicker.RangePicker
-              value={range}
-              onChange={(v) => v && setRange(v as [Dayjs, Dayjs])}
-              format="DD.MM.YYYY"
-              allowClear={false}
-            />
+            <CreateVehicleButton />
+            <RecordUsageButton />
             <Button icon={<DownloadOutlined />} onClick={onExport} loading={downloading}>
               Excel
             </Button>

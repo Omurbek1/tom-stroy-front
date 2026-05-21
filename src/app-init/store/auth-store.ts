@@ -14,6 +14,7 @@ export interface CurrentUser {
   email: string;
   fullName: string;
   role: UserRole;
+  employeeId?: string | null;
 }
 
 export interface Tokens {
