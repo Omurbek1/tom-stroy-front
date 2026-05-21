@@ -1,13 +1,13 @@
 'use client';
 
-import { Card, Empty, Input, Space, Switch, Table, Tag, Tooltip } from 'antd';
+import { Card, Input, Space, Switch, Tag, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useState } from 'react';
 import { useInventoryItems } from '@entities/inventory-item/hooks';
 import type { InventoryItem } from '@entities/inventory-item/types';
+import { DataTable } from '@shared/ui/data-table';
 import { formatMoney, formatNumber } from '@shared/lib/format';
 
-// Module-level constant: rendered once, reused across mounts.
 const columns: ColumnsType<InventoryItem> = [
   {
     title: 'Товар',
@@ -58,8 +58,10 @@ export function InventoryItemsTable() {
   const { data, isLoading } = useInventoryItems({
     search: search || undefined,
     lowStock: lowStockOnly || undefined,
-    limit: 50,
+    limit: 500,
   });
+
+  const rows = data?.data ?? [];
 
   return (
     <Card title="Остатки">
@@ -76,26 +78,16 @@ export function InventoryItemsTable() {
             <span>Только низкие остатки</span>
           </Space>
         </Space>
-        <div className="table-shell">
-          <Table<InventoryItem>
-            rowKey="id"
-            size="small"
-            columns={columns}
-            dataSource={data?.data ?? []}
-            loading={isLoading}
-            pagination={false}
-            sticky
-            scroll={{ x: 760 }}
-            locale={{
-              emptyText: (
-                <Empty
-                  image={Empty.PRESENTED_IMAGE_SIMPLE}
-                  description="Нет товаров"
-                />
-              ),
-            }}
-          />
-        </div>
+        <DataTable<InventoryItem>
+          rowKey="id"
+          columns={columns}
+          dataSource={rows}
+          loading={isLoading}
+          minWidth={760}
+          scrollY={520}
+          emptyTitle="Нет товаров"
+          emptyDescription={search ? 'Попробуйте другой запрос' : 'Добавьте первый товар'}
+        />
       </Space>
     </Card>
   );

@@ -1,11 +1,12 @@
 'use client';
 
-import { Button, Card, Input, Space, Table, Tag } from 'antd';
+import { Button, Card, Input, Space, Tag } from 'antd';
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { useState } from 'react';
 import { useEmployees } from '@entities/employee/hooks';
 import type { Employee, EmployeeRole, PayType } from '@entities/employee/types';
+import { DataTable } from '@shared/ui/data-table';
 import { formatMoney } from '@shared/lib/format';
 import { EmployeeFormDrawer } from '@features/edit-employee/ui/employee-form-drawer';
 
@@ -104,14 +105,15 @@ export function EmployeesTable() {
           onSearch={setSearch}
           style={{ maxWidth: 360 }}
         />
-        <Table<Employee>
+        <DataTable<Employee>
           rowKey="id"
-          size="small"
           columns={columns}
           dataSource={data?.data ?? []}
           loading={isLoading}
-          pagination={false}
-          sticky
+          minWidth={960}
+          scrollY={520}
+          emptyTitle="Нет сотрудников"
+          emptyDescription={search ? 'Попробуйте другой запрос' : 'Добавьте первого сотрудника'}
         />
       </Space>
       <EmployeeFormDrawer
