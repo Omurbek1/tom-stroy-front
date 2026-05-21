@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Input, Progress, Space, Table } from 'antd';
+import { Card, Input, Progress, Space, Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -9,6 +9,7 @@ import { StatusBadge, ProjectStatus } from '@shared/ui/status-badge';
 import { useProjectsList } from '@entities/project/hooks';
 import type { Project } from '@entities/project/types';
 import { formatMoney, formatDate } from '@shared/lib/format';
+import { CreateProjectButton } from '@features/create-project/ui/create-project-button';
 
 const columns: ColumnsType<Project> = [
   {
@@ -59,7 +60,7 @@ export default function ProjectsListPage() {
       <PageHeader
         title="Объекты"
         subtitle="Все стройки компании"
-        extra={<Button type="primary">Новый объект</Button>}
+        extra={<CreateProjectButton />}
       />
       <Card>
         <Space direction="vertical" style={{ width: '100%' }} size="middle">

@@ -1,7 +1,14 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
-import { getProject, getProjectAnalytics, listProjects, ProjectFilters } from './api';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  createProject,
+  CreateProjectPayload,
+  getProject,
+  getProjectAnalytics,
+  listProjects,
+  ProjectFilters,
+} from './api';
 
 export const projectKeys = {
   all: ['projects'] as const,
@@ -30,5 +37,13 @@ export function useProjectAnalytics(id: string) {
     queryKey: projectKeys.analytics(id),
     queryFn: () => getProjectAnalytics(id),
     enabled: !!id,
+  });
+}
+
+export function useCreateProject() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: CreateProjectPayload) => createProject(payload),
+    onSuccess: () => qc.invalidateQueries({ queryKey: projectKeys.all }),
   });
 }

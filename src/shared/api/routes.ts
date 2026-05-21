@@ -4,6 +4,9 @@ export const apiRoutes = {
     refresh: '/auth/refresh',
     logout: '/auth/logout',
     me: '/auth/me',
+    changePassword: '/auth/change-password',
+    sessions: '/auth/sessions',
+    revokeSession: (id: string) => `/auth/sessions/${id}`,
   },
   projects: {
     list: '/projects',
@@ -26,6 +29,7 @@ export const apiRoutes = {
     receipts: '/inventory/receipts',
   },
   attendance: { list: '/attendance' },
+  analytics: { overview: '/analytics/overview' },
   payroll: {
     preview: '/payroll/preview',
     list: '/payroll',
