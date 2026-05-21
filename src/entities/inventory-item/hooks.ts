@@ -5,6 +5,8 @@ import { http } from '@shared/api/http';
 import { apiRoutes } from '@shared/api/routes';
 import type { ItemResponse } from '@shared/types/api';
 import {
+  createInventoryItem,
+  CreateInventoryItemPayload,
   createMovement,
   CreateMovementPayload,
   createMovementsBatch,
@@ -88,6 +90,14 @@ export function useCreateMovementsBatch() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload: CreateMovementPayload[]) => createMovementsBatch(payload),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['inventory'] }),
+  });
+}
+
+export function useCreateInventoryItem() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: CreateInventoryItemPayload) => createInventoryItem(payload),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['inventory'] }),
   });
 }

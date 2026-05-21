@@ -85,7 +85,7 @@ function UniversalHeaderImpl({ collapsed, onToggleSidebar, onToggleMobileNav }: 
             (c, i) => (
               <Fragment key={`${c.label}-${i}`}>
                 {c.href ? (
-                  <Link href={c.href} className="uheader__crumb">
+                  <Link href={c.href} className="uheader__crumb" prefetch>
                     {c.label}
                   </Link>
                 ) : (

@@ -19,6 +19,8 @@ import { SuppliersTable } from '@widgets/purchases/suppliers-table';
 import { ExportWarehouseButton } from '@features/export-warehouse/ui/export-warehouse-button';
 import { CreateStockIncomeDrawer } from '@features/create-stock-income/ui/create-stock-income-drawer';
 import { CreateStockWriteoffDrawer } from '@features/create-stock-writeoff/ui/create-stock-writeoff-drawer';
+import { CreateInventoryItemButton } from '@features/create-inventory-item/ui/create-inventory-item-button';
+import { CreateWarehouseButton } from '@features/create-warehouse/ui/create-warehouse-button';
 
 export default function WarehousePage() {
   const [search, setSearch] = useState('');
@@ -47,6 +49,8 @@ export default function WarehousePage() {
             <CreateStockIncomeDrawer />
             <CreateStockWriteoffDrawer />
             <ExportWarehouseButton />
+            <CreateWarehouseButton />
+            <CreateInventoryItemButton />
           </Space>
         }
       />

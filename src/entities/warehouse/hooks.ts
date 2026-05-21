@@ -1,14 +1,25 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { http } from '@shared/api/http';
 import { apiRoutes } from '@shared/api/routes';
-import type { PaginatedResponse } from '@shared/types/api';
+import type { ItemResponse, PaginatedResponse } from '@shared/types/api';
+
+export type WarehouseKind = 'MAIN' | 'PROJECT' | 'BRIGADE' | 'TEMP';
 
 export interface Warehouse {
   id: string;
   name: string;
   address: string | null;
+  kind?: WarehouseKind;
+  brigadeId?: string | null;
+  _count?: { items: number };
+}
+
+export interface CreateWarehousePayload {
+  name: string;
+  address?: string;
+  kind?: WarehouseKind;
 }
 
 export function useWarehouses() {
@@ -19,5 +30,16 @@ export function useWarehouses() {
       return res.data;
     },
     staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useCreateWarehouse() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: CreateWarehousePayload) => {
+      const res = await http.post<ItemResponse<Warehouse>>(apiRoutes.warehouses.create, payload);
+      return res.data.data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['warehouses'] }),
   });
 }

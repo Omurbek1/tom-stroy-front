@@ -54,6 +54,23 @@ export async function createReceipt(payload: CreateReceiptPayload): Promise<void
   await http.post(apiRoutes.inventory.receipts, payload);
 }
 
+export interface CreateInventoryItemPayload {
+  warehouseId: string;
+  name: string;
+  category?: string;
+  unit?: string;
+  onHand?: number;
+  costPrice?: number;
+  minStock?: number;
+}
+
+export async function createInventoryItem(
+  payload: CreateInventoryItemPayload,
+): Promise<InventoryItem> {
+  const res = await http.post<ItemResponse<InventoryItem>>(apiRoutes.inventory.items, payload);
+  return res.data.data;
+}
+
 export interface ListBalancesParams {
   warehouseId?: string;
   itemId?: string;

@@ -32,7 +32,11 @@ export const apiRoutes = {
     stats: (id: string) => `/brigades/${id}/stats`,
   },
   employees: { list: '/employees' },
-  warehouses: { list: '/warehouses' },
+  warehouses: {
+    list: '/warehouses',
+    create: '/warehouses',
+    remove: (id: string) => `/warehouses/${id}`,
+  },
   suppliers: {
     list: '/suppliers',
     detail: (id: string) => `/suppliers/${id}`,

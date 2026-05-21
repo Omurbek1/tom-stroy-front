@@ -7,6 +7,8 @@ import {
   ReactNode,
   useCallback,
   useEffect,
+  useId,
+  useMemo,
   useRef,
 } from 'react';
 import { useModalNudgeOnBackdrop } from '@shared/hooks/use-modal-nudge';
@@ -82,14 +84,18 @@ export function FormModal({
   }, [open, dirty]);
 
   // Per-instance wrap class so multiple open modals don't fight each other.
-  const wrapClassRef = useRef<string>(
-    `fm-wrap-${Math.random().toString(36).slice(2, 9)}`,
+  // useId is SSR-safe and collision-free; colons aren't valid in CSS class
+  // selectors via querySelector, so sanitize.
+  const rawId = useId();
+  const wrapClassName = useMemo(
+    () => `fm-wrap-${rawId.replace(/[^a-zA-Z0-9_-]/g, '_')}`,
+    [rawId],
   );
 
   useModalNudgeOnBackdrop({
     open,
     enabled: dirty,
-    wrapClassName: wrapClassRef.current,
+    wrapClassName,
   });
 
   const footerRef = useRef<HTMLDivElement | null>(null);
@@ -121,6 +127,13 @@ export function FormModal({
     };
   }, []);
 
+  const modKey = useMemo(() => {
+    if (typeof navigator === 'undefined') return '⌘';
+    return /mac|iphone|ipad|ipod/i.test(navigator.platform || navigator.userAgent)
+      ? '⌘'
+      : 'Ctrl';
+  }, []);
+
   return (
     <Modal
       title={
@@ -150,13 +163,23 @@ export function FormModal({
       keyboard={!dirty}
       centered
       rootClassName="form-modal"
-      wrapClassName={wrapClassRef.current}
+      wrapClassName={wrapClassName}
       styles={{ body: { padding: 0 } }}
     >
       <div className="modal-body" onKeyDown={handleKeyDown}>
         <div className="modal-body__scroll">{children}</div>
         {footer && (
           <div className="modal-body__footer" ref={footerRef}>
+            {onSubmit && (
+              <span
+                className="modal-body__kbd-hint"
+                aria-hidden="true"
+                title="Сохранить"
+              >
+                <span className="modal-body__kbd">{modKey}</span>
+                <span className="modal-body__kbd">↵</span>
+              </span>
+            )}
             {footer}
           </div>
         )}

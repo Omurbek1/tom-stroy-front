@@ -1325,23 +1325,119 @@ a.uheader__crumb:hover {
 }
 
 /* ==========================================================================
+   Route loading skeleton — CSS-only shimmer, paints instantly on the
+   first frame (no JS, no AntD). Replaces <Skeleton active /> which
+   used to flash visibly because AntD components hydrate after JS.
+   ========================================================================== */
+.page-loading {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+.page-loading__bar,
+.page-loading__card {
+  position: relative;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--color-border) 70%, transparent);
+  border-radius: 8px;
+}
+.page-loading__bar {
+  height: 14px;
+  width: 100%;
+}
+.page-loading__bar--xl {
+  height: 28px;
+  width: 38%;
+  border-radius: 10px;
+}
+.page-loading__bar--md {
+  width: 75%;
+}
+.page-loading__bar--sm {
+  width: 45%;
+}
+.page-loading__row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+.page-loading__card {
+  height: 92px;
+  border-radius: 12px;
+}
+.page-loading__bar::after,
+.page-loading__card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--color-surface) 80%, transparent) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  animation: page-loading-shimmer 1.4s ease-in-out infinite;
+}
+@keyframes page-loading-shimmer {
+  100% { transform: translateX(100%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-loading__bar::after,
+  .page-loading__card::after {
+    animation: none;
+  }
+}
+@media (max-width: 900px) {
+  .page-loading {
+    padding: 16px;
+  }
+}
+
+/* ==========================================================================
    FormModal / DetailModal — spacious, modern, enterprise-grade
    ========================================================================== */
 
 /* Entrance / exit animations override AntD's bouncy default with a calmer
-   curve. The mask fades, the content scales subtly from 96% → 100%. */
+   curve. The mask fades + blurs in; the content scales-in with a tiny
+   overshoot for a tactile "settles into place" feel. Inner sections
+   (header / body / footer) stagger ~40ms apart so the eye reads the
+   modal top-to-bottom instead of all-at-once. */
 @keyframes modal-mask-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-@keyframes modal-content-in {
   from {
     opacity: 0;
-    transform: translateY(8px) scale(0.96);
+    backdrop-filter: saturate(100%) blur(0px);
   }
   to {
     opacity: 1;
+    backdrop-filter: saturate(140%) blur(6px);
+  }
+}
+@keyframes modal-content-in {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.94);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1.005);
+  }
+  100% {
+    opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+@keyframes modal-section-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -1397,13 +1493,44 @@ a.uheader__crumb:hover {
 
 .form-modal .ant-modal-mask,
 .detail-modal .ant-modal-mask {
-  animation: modal-mask-in 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: modal-mask-in 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .form-modal .ant-modal-content,
 .detail-modal .ant-modal-content {
-  animation: modal-content-in 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
-  transform-origin: center 40%;
+  animation: modal-content-in 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  transform-origin: center 45%;
+  will-change: transform, opacity;
+}
+
+/* Stagger inner sections — header arrives first, then the body, then the
+   sticky footer. Tiny offsets (~40ms) keep total entry under 400ms. */
+.form-modal .ant-modal-header,
+.detail-modal .ant-modal-header {
+  animation: modal-section-in 280ms cubic-bezier(0.16, 1, 0.3, 1) 60ms both;
+}
+.form-modal .modal-body__scroll,
+.detail-modal .modal-body__scroll {
+  animation: modal-section-in 320ms cubic-bezier(0.16, 1, 0.3, 1) 110ms both;
+}
+.form-modal .modal-body__footer {
+  animation: modal-section-in 280ms cubic-bezier(0.16, 1, 0.3, 1) 160ms both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .form-modal .ant-modal-content,
+  .detail-modal .ant-modal-content,
+  .form-modal .ant-modal-header,
+  .detail-modal .ant-modal-header,
+  .form-modal .modal-body__scroll,
+  .detail-modal .modal-body__scroll,
+  .form-modal .modal-body__footer {
+    animation: none;
+  }
+  .form-modal .ant-modal-mask,
+  .detail-modal .ant-modal-mask {
+    animation: modal-mask-in 120ms linear both;
+  }
 }
 
 /* Mask: blur + softer fill */
@@ -1593,6 +1720,42 @@ a.uheader__crumb:hover {
   align-items: center;
 }
 
+/* Subtle keyboard-shortcut hint, anchored to the left of the footer so it
+   doesn't crowd the action buttons. Educates users about ⌘+↵ without
+   adding visual noise. Hidden on mobile (no keyboard) and on Windows-only
+   contexts where the prefix differs slightly — we render Ctrl conditionally. */
+.modal-body__kbd-hint {
+  margin-right: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--color-text-muted);
+  letter-spacing: 0.02em;
+  user-select: none;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.modal-body__kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border: 1px solid var(--color-border);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  font-size: 10.5px;
+  line-height: 1;
+}
+
 /* Mobile: fullscreen + comfortable touch targets */
 @media (max-width: 900px) {
   .form-modal,
@@ -1651,6 +1814,10 @@ a.uheader__crumb:hover {
   }
   .modal-body__footer > * {
     width: 100%;
+  }
+  /* No keyboard on mobile — the shortcut hint is meaningless there. */
+  .modal-body__kbd-hint {
+    display: none;
   }
 }
 

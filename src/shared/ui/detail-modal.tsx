@@ -1,7 +1,7 @@
 'use client';
 
 import { Modal } from 'antd';
-import { ReactNode, useRef } from 'react';
+import { ReactNode, useId, useMemo } from 'react';
 import { useModalNudgeOnBackdrop } from '@shared/hooks/use-modal-nudge';
 
 interface Props {
@@ -39,14 +39,16 @@ export function DetailModal({
   locked = false,
   children,
 }: Props) {
-  const wrapClassRef = useRef<string>(
-    `dm-wrap-${Math.random().toString(36).slice(2, 9)}`,
+  const rawId = useId();
+  const wrapClassName = useMemo(
+    () => `dm-wrap-${rawId.replace(/[^a-zA-Z0-9_-]/g, '_')}`,
+    [rawId],
   );
 
   useModalNudgeOnBackdrop({
     open,
     enabled: locked,
-    wrapClassName: wrapClassRef.current,
+    wrapClassName,
   });
 
   return (
@@ -71,7 +73,7 @@ export function DetailModal({
       keyboard={!locked}
       centered
       rootClassName="detail-modal"
-      wrapClassName={wrapClassRef.current}
+      wrapClassName={wrapClassName}
       styles={{ body: { padding: 0 } }}
     >
       <div className="modal-body">
