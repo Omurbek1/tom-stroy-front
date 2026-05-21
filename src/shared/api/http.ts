@@ -1,84 +1,114 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
-
-const STORAGE_KEY = 'tomstroy.auth';
-
-interface StoredSession {
-  user: unknown;
-  tokens: { accessToken: string; refreshToken: string };
-}
-
-function readSession(): StoredSession | null {
-  if (typeof window === 'undefined') return null;
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw) as StoredSession;
-  } catch {
-    return null;
-  }
-}
-
-function writeSession(s: StoredSession): void {
-  if (typeof window === 'undefined') return;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
-}
-
-function clearSession(): void {
-  if (typeof window === 'undefined') return;
-  localStorage.removeItem(STORAGE_KEY);
-}
+import { authSelectors, useAuthStore } from '@app-init/store/auth-store';
 
 export const http = axios.create({
   baseURL: '/api',
   timeout: 15_000,
 });
 
-http.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const session = readSession();
-  if (session?.tokens?.accessToken) {
-    config.headers.Authorization = `Bearer ${session.tokens.accessToken}`;
-  }
-  return config;
-});
+/**
+ * Proactive refresh threshold — if the access token expires within
+ * this window when a request fires, refresh BEFORE sending so the
+ * server never sees a 401 on the user's hot path. Cheaper than
+ * paying the round-trip + retry cost.
+ */
+const PROACTIVE_REFRESH_MS = 30_000;
 
-// Single-flight refresh — concurrent 401s share the same refresh attempt.
-let refreshPromise: Promise<string | null> | null = null;
+/* ------------------------------------------------------------------
+   Single-flight refresh — one in-flight refresh shared by N callers.
+   Holds onto the in-flight Promise until it RESOLVES, then clears.
+   Previous implementation cleared the slot mid-await, so a third
+   concurrent 401 could start a duplicate refresh.
+   ------------------------------------------------------------------ */
+let refreshInFlight: Promise<string | null> | null = null;
 
-async function refreshOnce(): Promise<string | null> {
-  const session = readSession();
-  if (!session?.tokens?.refreshToken) return null;
+async function performRefresh(): Promise<string | null> {
+  const refreshToken = authSelectors.refreshToken();
+  if (!refreshToken) return null;
   try {
+    // Use bare axios — never go through `http` here, or a failed refresh
+    // would recurse into the response interceptor and loop.
     const res = await axios.post<{
       data: { tokens: { accessToken: string; refreshToken: string } };
-    }>('/api/auth/refresh', { refreshToken: session.tokens.refreshToken });
+    }>('/api/auth/refresh', { refreshToken }, { timeout: 10_000 });
     const tokens = res.data.data.tokens;
-    writeSession({ ...session, tokens });
+    useAuthStore.getState().setTokens(tokens);
     return tokens.accessToken;
   } catch {
-    clearSession();
-    if (typeof window !== 'undefined') window.location.href = '/login';
+    useAuthStore.getState().clear();
+    if (typeof window !== 'undefined') {
+      // Avoid a redirect loop if we're already on /login.
+      if (!window.location.pathname.startsWith('/login')) {
+        window.location.href = '/login';
+      }
+    }
     return null;
   }
 }
 
+function refreshSingleFlight(): Promise<string | null> {
+  if (!refreshInFlight) {
+    refreshInFlight = performRefresh().finally(() => {
+      refreshInFlight = null;
+    });
+  }
+  return refreshInFlight;
+}
+
+/* ------------------------------------------------------------------
+   Request interceptor — attach the current access token. If we know
+   the token is about to expire, refresh first so the request never
+   races a 401.
+   ------------------------------------------------------------------ */
+http.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
+  // Skip auth handling for /auth/* (login, refresh) — those carry their
+  // own credentials and must not block on a refresh of their own creating.
+  const url = config.url ?? '';
+  const isAuthRoute = url.startsWith('/auth/') || url.includes('/auth/');
+
+  let accessToken = authSelectors.accessToken();
+
+  if (
+    accessToken &&
+    !isAuthRoute &&
+    authSelectors.isAccessExpiringWithin(PROACTIVE_REFRESH_MS)
+  ) {
+    const refreshed = await refreshSingleFlight();
+    if (refreshed) accessToken = refreshed;
+  }
+
+  if (accessToken) {
+    config.headers.Authorization = `Bearer ${accessToken}`;
+  }
+  return config;
+});
+
+/* ------------------------------------------------------------------
+   Response interceptor — on 401, do ONE retry after a single-flight
+   refresh. If refresh fails, the user is bounced to /login and we
+   reject the original error.
+   ------------------------------------------------------------------ */
 http.interceptors.response.use(
   (r) => r,
   async (error: AxiosError) => {
     const original = error.config as
       | (InternalAxiosRequestConfig & { _retried?: boolean })
       | undefined;
+    const url = original?.url ?? '';
+    const isAuthRoute = url.startsWith('/auth/') || url.includes('/auth/');
+
     if (
       error.response?.status === 401 &&
       original &&
       !original._retried &&
-      !original.url?.includes('/auth/')
+      !isAuthRoute
     ) {
       original._retried = true;
-      refreshPromise = refreshPromise ?? refreshOnce();
-      const newToken = await refreshPromise;
-      refreshPromise = null;
+      const newToken = await refreshSingleFlight();
       if (newToken) {
-        original.headers.Authorization = `Bearer ${newToken}`;
+        original.headers = original.headers ?? {};
+        (original.headers as Record<string, string>).Authorization =
+          `Bearer ${newToken}`;
         return http.request(original);
       }
     }
