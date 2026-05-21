@@ -15,6 +15,7 @@ export const apiRoutes = {
     list: '/daily-reports',
     detail: (id: string) => `/daily-reports/${id}`,
     create: '/daily-reports',
+    pdf: (id: string) => `/daily-reports/${id}/pdf`,
   },
   brigades: { list: '/brigades' },
   employees: { list: '/employees' },
@@ -25,7 +26,14 @@ export const apiRoutes = {
     receipts: '/inventory/receipts',
   },
   attendance: { list: '/attendance' },
-  payroll: { preview: '/payroll/preview' },
+  payroll: {
+    preview: '/payroll/preview',
+    list: '/payroll',
+    detail: (id: string) => `/payroll/${id}`,
+    close: '/payroll/close',
+    addLine: (id: string) => `/payroll/${id}/lines`,
+    addPayment: (id: string) => `/payroll/${id}/payments`,
+  },
   finance: {
     expenses: '/finance/expenses',
     incomes: '/finance/incomes',
@@ -51,6 +59,8 @@ export const apiRoutes = {
   reports: {
     payrollXlsx: '/reports/payroll.xlsx',
     pnlXlsx: '/reports/pnl.xlsx',
+    vehiclesXlsx: '/reports/vehicles.xlsx',
+    payrollSlipPdf: (id: string) => `/reports/payroll/${id}/slip.pdf`,
   },
   vehicles: {
     list: '/vehicles',

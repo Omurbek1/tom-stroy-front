@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  Button,
   Descriptions,
   Drawer,
   Divider,
@@ -11,7 +12,10 @@ import {
   Table,
   Tag,
   Typography,
+  message,
 } from 'antd';
+import { FilePdfOutlined } from '@ant-design/icons';
+import { useState } from 'react';
 import type { ColumnsType } from 'antd/es/table';
 import { useDailyReport } from '@entities/daily-report/hooks';
 import type {
@@ -20,6 +24,8 @@ import type {
   DailyReportWorkRow,
 } from '@entities/daily-report/types';
 import { formatDate, formatMoney, formatNumber } from '@shared/lib/format';
+import { downloadFile } from '@shared/lib/download';
+import { apiRoutes } from '@shared/api/routes';
 
 const workColumns: ColumnsType<DailyReportWorkRow> = [
   { title: 'Тип', dataIndex: 'workType', key: 'workType' },
@@ -103,9 +109,22 @@ interface Props {
 
 export function DailyReportDetailDrawer({ reportId, open, onClose }: Props) {
   const { data: report, isLoading } = useDailyReport(open ? reportId : undefined);
+  const [downloading, setDownloading] = useState(false);
 
   const before = report?.photos.filter((p) => p.kind === 'before') ?? [];
   const after = report?.photos.filter((p) => p.kind === 'after') ?? [];
+
+  const onDownloadPdf = async () => {
+    if (!reportId) return;
+    setDownloading(true);
+    try {
+      await downloadFile(apiRoutes.dailyReports.pdf(reportId), {}, `daily-report-${reportId}.pdf`);
+    } catch {
+      message.error('Не удалось скачать PDF');
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   return (
     <Drawer
@@ -114,6 +133,16 @@ export function DailyReportDetailDrawer({ reportId, open, onClose }: Props) {
       open={open}
       onClose={onClose}
       destroyOnHidden
+      extra={
+        <Button
+          icon={<FilePdfOutlined />}
+          onClick={onDownloadPdf}
+          loading={downloading}
+          disabled={!report}
+        >
+          PDF
+        </Button>
+      }
     >
       {isLoading || !report ? (
         <Skeleton active />

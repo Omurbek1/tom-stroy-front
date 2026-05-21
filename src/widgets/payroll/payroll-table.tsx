@@ -5,7 +5,9 @@ import { DownloadOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs, { Dayjs } from 'dayjs';
 import { useState } from 'react';
-import { usePayrollPreview } from '@entities/payroll/hooks';
+import { Popconfirm } from 'antd';
+import { LockOutlined } from '@ant-design/icons';
+import { useClosePeriod, usePayrollPreview } from '@entities/payroll/hooks';
 import type { PayrollPreviewRow, PayType } from '@entities/payroll/types';
 import { formatMoney, formatNumber } from '@shared/lib/format';
 import { downloadFile } from '@shared/lib/download';
@@ -68,6 +70,19 @@ export function PayrollTable() {
   const totalAccrued = (data ?? []).reduce((s, r) => s + Number(r.worksAccrued), 0);
   const totalHours = (data ?? []).reduce((s, r) => s + Number(r.hoursWorked), 0);
 
+  const closeMutation = useClosePeriod();
+  const onClose = async () => {
+    try {
+      const res = await closeMutation.mutateAsync({
+        from: range[0].startOf('day').toISOString(),
+        to: range[1].endOf('day').toISOString(),
+      });
+      message.success(`Закрыто записей: ${res.closed}`);
+    } catch {
+      message.error('Не удалось закрыть период');
+    }
+  };
+
   const [downloading, setDownloading] = useState(false);
   const onExport = async () => {
     setDownloading(true);
@@ -101,6 +116,22 @@ export function PayrollTable() {
           <Button icon={<DownloadOutlined />} onClick={onExport} loading={downloading}>
             Excel
           </Button>
+          <Popconfirm
+            title="Закрыть период?"
+            description="Будут созданы ведомости для всех сотрудников с начислениями за выбранный диапазон."
+            okText="Закрыть"
+            cancelText="Отмена"
+            onConfirm={onClose}
+          >
+            <Button
+              type="primary"
+              icon={<LockOutlined />}
+              loading={closeMutation.isPending}
+              disabled={(data?.length ?? 0) === 0}
+            >
+              Закрыть период
+            </Button>
+          </Popconfirm>
         </Space>
       }
     >
