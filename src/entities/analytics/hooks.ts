@@ -13,5 +13,8 @@ export function useCompanyOverview() {
       const res = await http.get<ItemResponse<CompanyOverview>>(apiRoutes.analytics.overview);
       return res.data.data;
     },
+    // Overview агрегирует все объекты + 30-дневные суммы — дорогой запрос.
+    // 5 минут считаем свежим, потом фоновое обновление при ре-визите.
+    staleTime: 5 * 60_000,
   });
 }

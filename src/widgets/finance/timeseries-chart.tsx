@@ -1,52 +1,21 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { Card, Skeleton } from 'antd';
-import {
-  CartesianGrid,
-  Legend,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
-import { useFinanceTimeseries } from '@entities/finance/hooks';
-import { formatMoney } from '@shared/lib/format';
 
-interface Props {
-  from: string;
-  to: string;
-  projectId?: string;
-  title?: string;
-}
-
-export function FinanceTimeseriesChart({ from, to, projectId, title }: Props) {
-  const { data, isLoading } = useFinanceTimeseries({ from, to, projectId });
-
-  return (
-    <Card title={title ?? 'Доходы и расходы по дням'}>
-      {isLoading || !data ? (
-        <Skeleton active />
-      ) : (
-        <div style={{ width: '100%', height: 320 }}>
-          <ResponsiveContainer>
-            <LineChart data={data} margin={{ top: 10, right: 16, left: 16, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis tickFormatter={(v) => formatMoney(v)} width={110} />
-              <Tooltip formatter={(v: number) => formatMoney(v)} />
-              <Legend />
-              <Line type="monotone" dataKey="revenue" name="Доход" stroke="#52c41a" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="materials" name="Материалы" stroke="#fa8c16" strokeWidth={1.5} dot={false} />
-              <Line type="monotone" dataKey="labor" name="ФОТ" stroke="#1677ff" strokeWidth={1.5} dot={false} />
-              <Line type="monotone" dataKey="equipment" name="Техника" stroke="#13c2c2" strokeWidth={1.5} dot={false} />
-              <Line type="monotone" dataKey="other" name="Прочее" stroke="#722ed1" strokeWidth={1.5} dot={false} />
-              <Line type="monotone" dataKey="profit" name="Прибыль" stroke="#cf1322" strokeWidth={2} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      )}
-    </Card>
-  );
-}
+/**
+ * Recharts весит ~120KB gzipped. Грузим только когда чарт реально нужен —
+ * на дашборде он ниже fold-а, на /finance — после переключения вкладки.
+ * SSR выключаем: ResponsiveContainer всё равно требует window.
+ */
+export const FinanceTimeseriesChart = dynamic(
+  () => import('./timeseries-chart.impl').then((m) => m.FinanceTimeseriesChart),
+  {
+    ssr: false,
+    loading: () => (
+      <Card>
+        <Skeleton active paragraph={{ rows: 6 }} />
+      </Card>
+    ),
+  },
+);
