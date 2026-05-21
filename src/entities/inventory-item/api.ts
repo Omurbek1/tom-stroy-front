@@ -1,7 +1,13 @@
 import { http } from '@shared/api/http';
 import { apiRoutes } from '@shared/api/routes';
-import type { PaginatedResponse } from '@shared/types/api';
-import type { InventoryItem, InventoryTransaction, InventoryTxnType } from './types';
+import type { ItemResponse, PaginatedResponse } from '@shared/types/api';
+import type {
+  InventoryItem,
+  InventoryTransaction,
+  InventoryTxnType,
+  MovementType,
+  WarehouseBalance,
+} from './types';
 
 export interface ListItemsParams {
   warehouseId?: string;
@@ -46,4 +52,61 @@ export interface CreateReceiptPayload {
 
 export async function createReceipt(payload: CreateReceiptPayload): Promise<void> {
   await http.post(apiRoutes.inventory.receipts, payload);
+}
+
+export interface ListBalancesParams {
+  warehouseId?: string;
+  itemId?: string;
+  search?: string;
+  lowStock?: boolean;
+  cursor?: string;
+  limit?: number;
+}
+
+export async function listBalances(
+  params: ListBalancesParams = {},
+): Promise<PaginatedResponse<WarehouseBalance>> {
+  const res = await http.get<PaginatedResponse<WarehouseBalance>>(
+    apiRoutes.inventory.balances,
+    {
+      params: {
+        ...params,
+        lowStock: params.lowStock ? 'true' : undefined,
+      },
+    },
+  );
+  return res.data;
+}
+
+export interface CreateMovementPayload {
+  itemId: string;
+  warehouseId?: string;
+  movementType: Exclude<MovementType, 'REVERSE'>;
+  qty: number;
+  unitCost?: number;
+  projectId?: string;
+  reportId?: string;
+  transferGroupId?: string;
+  note?: string;
+}
+
+export async function createMovement(
+  payload: CreateMovementPayload,
+): Promise<InventoryTransaction> {
+  const res = await http.post<ItemResponse<InventoryTransaction>>(
+    apiRoutes.inventory.movements,
+    payload,
+  );
+  return res.data.data;
+}
+
+export async function reverseMovement(
+  id: string,
+  note?: string,
+): Promise<InventoryTransaction> {
+  const res = await http.post<ItemResponse<InventoryTransaction>>(
+    apiRoutes.inventory.reverseMovement(id),
+    { note },
+  );
+  return res.data.data;
 }

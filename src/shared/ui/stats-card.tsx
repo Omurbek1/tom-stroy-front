@@ -14,9 +14,9 @@ interface Props {
 
 const TONE_COLOR: Record<NonNullable<Props['tone']>, string> = {
   default: 'inherit',
-  success: '#3f8600',
-  warning: '#d48806',
-  danger: '#cf1322',
+  success: 'var(--color-success)',
+  warning: 'var(--color-warning)',
+  danger: 'var(--color-danger)',
 };
 
 export function StatsCard({

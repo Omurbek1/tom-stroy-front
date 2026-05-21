@@ -62,7 +62,9 @@ export function EmployeeSelect({ value, onChange, roleFilter, placeholder, size 
       optionRender={(opt) => (
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>{opt.data.label}</span>
-          <span style={{ color: '#8c8c8c', fontSize: 12 }}>{opt.data.roleShort}</span>
+          <span style={{ color: 'var(--color-text-muted)', fontSize: 'var(--font-size-xs)' }}>
+            {opt.data.roleShort}
+          </span>
         </div>
       )}
     />

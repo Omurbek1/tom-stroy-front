@@ -54,7 +54,7 @@ export function MaterialSelect({ value, onChange, placeholder, size }: Props) {
             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {opt.data.label}
             </span>
-            <Tag color={low ? 'red' : 'blue'} style={{ margin: 0, fontSize: 11 }}>
+            <Tag color={low ? 'red' : 'blue'} style={{ margin: 0, fontSize: 'var(--font-size-2xs)' }}>
               {formatNumber(opt.data.onHand)} {opt.data.unit}
             </Tag>
           </div>

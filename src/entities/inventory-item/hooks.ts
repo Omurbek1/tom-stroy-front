@@ -5,12 +5,17 @@ import { http } from '@shared/api/http';
 import { apiRoutes } from '@shared/api/routes';
 import type { ItemResponse } from '@shared/types/api';
 import {
+  createMovement,
+  CreateMovementPayload,
   createReceipt,
+  CreateReceiptPayload,
+  listBalances,
   listInventoryItems,
   listInventoryTransactions,
+  ListBalancesParams,
   ListItemsParams,
   ListTxnsParams,
-  CreateReceiptPayload,
+  reverseMovement,
 } from './api';
 
 export interface InventoryStats {
@@ -34,6 +39,8 @@ export function useInventoryStats() {
 
 export const inventoryKeys = {
   items: (params: ListItemsParams) => ['inventory', 'items', params] as const,
+  balances: (params: ListBalancesParams) =>
+    ['inventory', 'balances', params] as const,
   txns: (params: ListTxnsParams) => ['inventory', 'txns', params] as const,
 };
 
@@ -58,5 +65,29 @@ export function useCreateReceipt() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['inventory'] });
     },
+  });
+}
+
+export function useInventoryBalances(params: ListBalancesParams = {}) {
+  return useQuery({
+    queryKey: inventoryKeys.balances(params),
+    queryFn: () => listBalances(params),
+  });
+}
+
+export function useCreateMovement() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: CreateMovementPayload) => createMovement(payload),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['inventory'] }),
+  });
+}
+
+export function useReverseMovement() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, note }: { id: string; note?: string }) =>
+      reverseMovement(id, note),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['inventory'] }),
   });
 }

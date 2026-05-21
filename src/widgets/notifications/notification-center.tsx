@@ -41,7 +41,10 @@ function NotificationItem({
                 {item.body}
               </Typography.Paragraph>
             )}
-            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+            <Typography.Text
+              type="secondary"
+              style={{ fontSize: 'var(--font-size-xs)', lineHeight: 'var(--line-height-xs)' }}
+            >
               {formatDate(item.createdAt)}
             </Typography.Text>
           </>
@@ -119,7 +122,7 @@ export function NotificationCenter() {
       popupRender={() => panel}
     >
       <Badge count={unreadValue} size="small" offset={[-4, 4]}>
-        <Button type="text" icon={<BellOutlined style={{ fontSize: 18 }} />} />
+        <Button type="text" icon={<BellOutlined style={{ fontSize: 'var(--font-size-lg)' }} />} />
       </Badge>
     </Dropdown>
   );

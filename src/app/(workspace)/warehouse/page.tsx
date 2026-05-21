@@ -11,6 +11,10 @@ import { PageSearch } from '@shared/ui/page-search';
 import { WarehouseStats } from '@widgets/warehouse/warehouse-stats';
 import { InventoryItemsTable } from '@widgets/warehouse/inventory-items-table';
 import { TransactionsTable } from '@widgets/warehouse/transactions-table';
+import { BalancesTable } from '@widgets/warehouse/balances-table';
+import { TransfersTable } from '@widgets/warehouse/transfers-table';
+import { PurchaseOrdersTable } from '@widgets/purchases/purchase-orders-table';
+import { SuppliersTable } from '@widgets/purchases/suppliers-table';
 
 export default function WarehousePage() {
   const [search, setSearch] = useState('');
@@ -72,10 +76,18 @@ export default function WarehousePage() {
           items={[
             {
               key: 'items',
-              label: 'Остатки',
+              label: 'Каталог',
               children: <InventoryItemsTable search={search} lowStockOnly={lowStockOnly} />,
             },
+            {
+              key: 'balances',
+              label: 'Остатки',
+              children: <BalancesTable />,
+            },
             { key: 'txns', label: 'Движение', children: <TransactionsTable /> },
+            { key: 'transfers', label: 'Перемещения', children: <TransfersTable /> },
+            { key: 'purchases', label: 'Закупки', children: <PurchaseOrdersTable /> },
+            { key: 'suppliers', label: 'Поставщики', children: <SuppliersTable /> },
           ]}
         />
       </PageContainer>

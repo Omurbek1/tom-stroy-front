@@ -30,9 +30,23 @@ export function FormSection({ title, subtitle, extra, children }: Props) {
         }}
       >
         <div>
-          <div style={{ fontWeight: 600, fontSize: 14 }}>{title}</div>
+          <div
+            style={{
+              fontWeight: 'var(--font-weight-semibold)',
+              fontSize: 'var(--font-size-md)',
+              lineHeight: 'var(--line-height-md)',
+            }}
+          >
+            {title}
+          </div>
           {subtitle && (
-            <div style={{ fontSize: 12, color: 'var(--ant-color-text-secondary, #8c8c8c)' }}>
+            <div
+              style={{
+                fontSize: 'var(--font-size-xs)',
+                lineHeight: 'var(--line-height-xs)',
+                color: 'var(--color-text-muted)',
+              }}
+            >
               {subtitle}
             </div>
           )}

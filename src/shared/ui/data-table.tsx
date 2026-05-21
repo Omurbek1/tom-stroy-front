@@ -63,7 +63,13 @@ export function DataTable<T extends AnyObject>({
                 <div>
                   <div style={{ fontWeight: 500 }}>{emptyTitle}</div>
                   {emptyDescription && (
-                    <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
+                    <div
+                      style={{
+                        fontSize: 'var(--font-size-xs)',
+                        lineHeight: 'var(--line-height-xs)',
+                        color: 'var(--color-text-muted)',
+                      }}
+                    >
                       {emptyDescription}
                     </div>
                   )}

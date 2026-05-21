@@ -34,7 +34,7 @@ const columns: ColumnsType<InventoryItem> = [
       const low = Number(r.onHand) <= Number(r.minStock);
       return (
         <Tooltip title={low ? `Минимум: ${formatNumber(r.minStock)}` : undefined}>
-          <span style={{ color: low ? '#cf1322' : undefined, fontWeight: low ? 600 : 400 }}>
+          <span style={{ color: low ? 'var(--status-stock-low)' : undefined, fontWeight: low ? 600 : 400 }}>
             {formatNumber(r.onHand)}
           </span>
         </Tooltip>

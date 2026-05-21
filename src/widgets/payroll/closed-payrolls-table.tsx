@@ -79,7 +79,9 @@ const columns: ColumnsType<Payroll> = [
       const pct = net > 0 ? Math.min(100, (paid / net) * 100) : 0;
       return (
         <Space direction="vertical" style={{ width: 140 }} size={2}>
-          <span style={{ fontSize: 12 }}>{formatMoney(paid)}</span>
+          <span style={{ fontSize: 'var(--font-size-xs)', lineHeight: 'var(--line-height-xs)' }}>
+            {formatMoney(paid)}
+          </span>
           <Progress percent={Math.round(pct)} size="small" />
         </Space>
       );
