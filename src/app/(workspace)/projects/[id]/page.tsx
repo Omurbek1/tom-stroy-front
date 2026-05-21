@@ -17,11 +17,13 @@ import { FinanceTimeseriesChart } from '@widgets/finance/timeseries-chart';
 import { ExpensesTable } from '@widgets/finance/expenses-table';
 import { IncomesTable } from '@widgets/finance/incomes-table';
 import { formatDate, formatMoney } from '@shared/lib/format';
+import { useProjectRealtime } from '@shared/hooks/use-project-realtime';
 
 export default function ProjectDetailPage(props: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(props.params);
+  useProjectRealtime(id);
   const { data: project, isLoading } = useProject(id);
 
   if (isLoading || !project) return <Skeleton active />;

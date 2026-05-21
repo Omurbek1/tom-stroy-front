@@ -55,6 +55,11 @@ export interface DailyReportAttendanceInput {
   status?: AttendanceStatus;
 }
 
+export interface DailyReportPhotoInput {
+  kind: 'before' | 'after';
+  storageKey: string;
+}
+
 export interface CreateDailyReportPayload {
   projectId: string;
   brigadeId?: string;
@@ -65,4 +70,5 @@ export interface CreateDailyReportPayload {
   works?: DailyReportWorkInput[];
   materials?: DailyReportMaterialInput[];
   attendance?: DailyReportAttendanceInput[];
+  photos?: DailyReportPhotoInput[];
 }

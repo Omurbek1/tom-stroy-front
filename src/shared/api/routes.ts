@@ -33,6 +33,11 @@ export const apiRoutes = {
     timeseries: '/finance/timeseries',
   },
   ai: { projectBrief: (id: string) => `/ai/projects/${id}/brief` },
+  documents: {
+    list: '/documents',
+    presign: '/documents/presign',
+    create: '/documents',
+  },
 } as const;
 
 export const appRoutes = {

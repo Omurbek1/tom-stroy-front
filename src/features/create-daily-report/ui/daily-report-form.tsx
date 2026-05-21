@@ -23,6 +23,7 @@ import type {
   DailyReportMaterialInput,
   DailyReportWorkInput,
 } from '@entities/daily-report/types';
+import { PhotoUploader, UploadedPhoto } from '@features/upload-document/ui/photo-uploader';
 
 interface Props {
   projectId: string;
@@ -38,6 +39,8 @@ interface FormShape {
   works?: DailyReportWorkInput[];
   materials?: DailyReportMaterialInput[];
   attendance?: DailyReportAttendanceInput[];
+  photosBefore?: UploadedPhoto[];
+  photosAfter?: UploadedPhoto[];
 }
 
 const WORK_TYPES = [
@@ -62,6 +65,17 @@ export function DailyReportForm({ projectId, onDone }: Props) {
   const mutation = useCreateDailyReport(projectId);
 
   const onFinish = async (values: FormShape) => {
+    const photos = [
+      ...(values.photosBefore ?? []).map((p) => ({
+        kind: 'before' as const,
+        storageKey: p.storageKey,
+      })),
+      ...(values.photosAfter ?? []).map((p) => ({
+        kind: 'after' as const,
+        storageKey: p.storageKey,
+      })),
+    ];
+
     const payload: CreateDailyReportPayload = {
       projectId,
       date: values.date.toISOString(),
@@ -72,6 +86,7 @@ export function DailyReportForm({ projectId, onDone }: Props) {
       works: values.works,
       materials: values.materials,
       attendance: values.attendance,
+      photos: photos.length ? photos : undefined,
     };
     try {
       await mutation.mutateAsync(payload);
@@ -274,6 +289,30 @@ export function DailyReportForm({ projectId, onDone }: Props) {
           </>
         )}
       </Form.List>
+
+      <Divider orientation="left">Фото</Divider>
+      <Row gutter={16}>
+        <Col xs={24} md={12}>
+          <Form.Item
+            name="photosBefore"
+            label="До работы"
+            valuePropName="value"
+            trigger="onChange"
+          >
+            <PhotoUploader projectId={projectId} hint="JPEG/PNG/WEBP, до 10 МБ" />
+          </Form.Item>
+        </Col>
+        <Col xs={24} md={12}>
+          <Form.Item
+            name="photosAfter"
+            label="После работы"
+            valuePropName="value"
+            trigger="onChange"
+          >
+            <PhotoUploader projectId={projectId} hint="JPEG/PNG/WEBP, до 10 МБ" />
+          </Form.Item>
+        </Col>
+      </Row>
 
       <Divider />
       <Space>
