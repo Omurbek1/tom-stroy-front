@@ -14,6 +14,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { useState } from 'react';
 import { useRecordUsage, useVehicles } from '@entities/vehicle/hooks';
 import { FormModal } from '@shared/ui/form-modal';
+import { useFormDirty } from '@shared/hooks/use-form-dirty';
 
 interface FormShape {
   vehicleId: string;
@@ -30,6 +31,7 @@ export function RecordUsageButton({ projectId }: { projectId?: string } = {}) {
   const [form] = Form.useForm<FormShape>();
   const { data: vehicles } = useVehicles();
   const mutation = useRecordUsage();
+  const dirty = useFormDirty(form);
 
   const onFinish = async (v: FormShape) => {
     try {
