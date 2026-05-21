@@ -21,6 +21,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useMemo } from 'react';
 import { useAuthStore } from '@app-init/store/auth-store';
 import { useThemeStore } from '@app-init/store/theme-store';
+import { NotificationCenter } from '@widgets/notifications/notification-center';
 
 const { Sider, Header, Content } = Layout;
 
@@ -84,6 +85,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             gap: 12,
           }}
         >
+          <NotificationCenter />
           <Button
             type="text"
             icon={<BulbOutlined />}

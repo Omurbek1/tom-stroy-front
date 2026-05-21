@@ -1,6 +1,7 @@
 'use client';
 
 import { useQueryClient } from '@tanstack/react-query';
+import { notification as antdNotification } from 'antd';
 import { ReactNode, useEffect } from 'react';
 import { useAuthStore } from '@app-init/store/auth-store';
 import { disconnectSocket, getSocket } from './socket';
@@ -8,6 +9,15 @@ import { disconnectSocket, getSocket } from './socket';
 interface DomainEvent {
   type: 'daily-report.created' | 'expense.created' | 'income.created';
   projectId?: string | null;
+}
+
+interface NotificationEvent {
+  id: string;
+  userId: string;
+  type: string;
+  title: string;
+  body?: string | null;
+  createdAt: string;
 }
 
 /**
@@ -18,6 +28,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
   const user = useAuthStore((s) => s.user);
   const tokens = useAuthStore((s) => s.tokens);
   const qc = useQueryClient();
+  const [api, contextHolder] = antdNotification.useNotification();
 
   useEffect(() => {
     if (!user || !tokens?.accessToken) return;
@@ -30,7 +41,6 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
     });
 
     const onEvent = (evt: DomainEvent) => {
-      // Project-scoped invalidations
       if (evt.projectId) {
         qc.invalidateQueries({ queryKey: ['projects', 'detail', evt.projectId] });
         qc.invalidateQueries({ queryKey: ['projects', 'analytics', evt.projectId] });
@@ -45,13 +55,30 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
       qc.invalidateQueries({ queryKey: ['payroll'] });
     };
 
+    const onNotification = (evt: NotificationEvent) => {
+      qc.invalidateQueries({ queryKey: ['notifications'] });
+      api.info({
+        message: evt.title,
+        description: evt.body ?? undefined,
+        placement: 'topRight',
+        duration: 5,
+      });
+    };
+
     socket.on('event', onEvent);
+    socket.on('notification', onNotification);
 
     return () => {
       socket.off('event', onEvent);
+      socket.off('notification', onNotification);
       disconnectSocket();
     };
-  }, [user, tokens?.accessToken, qc]);
+  }, [user, tokens?.accessToken, qc, api]);
 
-  return <>{children}</>;
+  return (
+    <>
+      {contextHolder}
+      {children}
+    </>
+  );
 }

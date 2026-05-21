@@ -38,6 +38,12 @@ export const apiRoutes = {
     presign: '/documents/presign',
     create: '/documents',
   },
+  notifications: {
+    list: '/notifications',
+    unreadCount: '/notifications/unread-count',
+    markRead: (id: string) => `/notifications/${id}/read`,
+    readAll: '/notifications/read-all',
+  },
 } as const;
 
 export const appRoutes = {
