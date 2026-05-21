@@ -4,7 +4,6 @@ import {
   Button,
   Col,
   DatePicker,
-  Drawer,
   Form,
   Input,
   InputNumber,
@@ -16,6 +15,7 @@ import { DeleteOutlined, PlusOutlined, ShoppingCartOutlined } from '@ant-design/
 import dayjs, { Dayjs } from 'dayjs';
 import { useMemo, useState } from 'react';
 import { message } from '@shared/lib/antd-static';
+import { FormModal } from '@shared/ui/form-modal';
 import { FormSection } from '@shared/ui/form-section';
 import { SupplierSelect } from '@shared/ui/supplier-select';
 import { WarehouseSelect } from '@shared/ui/warehouse-select';
@@ -38,7 +38,6 @@ export function CreatePurchaseOrderDrawer() {
   const mutation = useCreatePurchaseOrder();
 
   const lines = Form.useWatch('lines', form);
-
   const total = useMemo(
     () =>
       (lines ?? []).reduce(
@@ -47,6 +46,8 @@ export function CreatePurchaseOrderDrawer() {
       ),
     [lines],
   );
+
+  const close = () => setOpen(false);
 
   const onFinish = async (values: FormShape) => {
     const payload: CreatePurchaseOrderPayload = {
@@ -64,7 +65,7 @@ export function CreatePurchaseOrderDrawer() {
       await mutation.mutateAsync(payload);
       message.success('Заявка создана');
       form.resetFields();
-      setOpen(false);
+      close();
     } catch (err: unknown) {
       const detail =
         (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ??
@@ -75,20 +76,26 @@ export function CreatePurchaseOrderDrawer() {
 
   return (
     <>
-      <Button
-        icon={<ShoppingCartOutlined />}
-        type="primary"
-        onClick={() => setOpen(true)}
-      >
+      <Button icon={<ShoppingCartOutlined />} type="primary" onClick={() => setOpen(true)}>
         Заявка на закуп
       </Button>
-      <Drawer
+      <FormModal
         title="Новая заявка на закуп"
-        width={720}
         open={open}
-        onClose={() => setOpen(false)}
-        destroyOnClose
-        styles={{ body: { paddingBottom: 0 }, header: { padding: '14px 20px' } }}
+        onClose={close}
+        width={720}
+        footer={
+          <Space>
+            <Button onClick={close}>Отмена</Button>
+            <Button
+              type="primary"
+              loading={mutation.isPending}
+              onClick={() => form.submit()}
+            >
+              Создать черновик
+            </Button>
+          </Space>
+        }
       >
         <Form<FormShape>
           form={form}
@@ -198,31 +205,8 @@ export function CreatePurchaseOrderDrawer() {
               )}
             </Form.List>
           </FormSection>
-
-          <div
-            style={{
-              position: 'sticky',
-              bottom: -20,
-              marginLeft: -20,
-              marginRight: -20,
-              marginBottom: -20,
-              padding: '12px 20px',
-              background: 'var(--ant-color-bg-container, #fff)',
-              borderTop: '1px solid var(--ant-color-border-secondary, #f0f0f0)',
-              display: 'flex',
-              justifyContent: 'flex-end',
-              gap: 8,
-            }}
-          >
-            <Space>
-              <Button onClick={() => setOpen(false)}>Отмена</Button>
-              <Button type="primary" htmlType="submit" loading={mutation.isPending}>
-                Создать черновик
-              </Button>
-            </Space>
-          </div>
         </Form>
-      </Drawer>
+      </FormModal>
     </>
   );
 }

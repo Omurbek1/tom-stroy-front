@@ -30,6 +30,8 @@ export interface WarehouseBalance {
   warehouseId: string;
   warehouse?: { id: string; name: string } | null;
   qty: number;
+  reserved: number;
+  available: number;
   avgCost: number;
   minStock: number;
   value: number;

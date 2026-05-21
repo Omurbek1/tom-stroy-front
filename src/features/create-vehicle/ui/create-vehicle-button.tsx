@@ -1,11 +1,13 @@
 'use client';
 
-import { Button, Drawer, Form, Input, InputNumber, Select } from 'antd';
+import { Button, Form, Input, InputNumber, Select } from 'antd';
 import { message } from '@shared/lib/antd-static';
 import { PlusOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 import { useCreateVehicle } from '@entities/vehicle/hooks';
 import type { CreateVehiclePayload } from '@entities/vehicle/types';
+import { FormModal } from '@shared/ui/form-modal';
+import { useFormDirty } from '@shared/hooks/use-form-dirty';
 
 const TYPES = ['Экскаватор', 'КамАЗ', 'Кран', 'Бетономешалка', 'Генератор', 'Прочее'];
 const STATUSES = ['idle', 'on-project', 'maintenance', 'broken'];
@@ -14,6 +16,7 @@ export function CreateVehicleButton() {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm<CreateVehiclePayload>();
   const mutation = useCreateVehicle();
+  const dirty = useFormDirty(form);
 
   const onFinish = async (v: CreateVehiclePayload) => {
     try {
@@ -31,7 +34,13 @@ export function CreateVehicleButton() {
       <Button type="primary" icon={<PlusOutlined />} onClick={() => setOpen(true)}>
         Техника
       </Button>
-      <Drawer title="Новая единица техники" width={420} open={open} onClose={() => setOpen(false)} destroyOnHidden>
+      <FormModal
+        title="Новая единица техники"
+        width={460}
+        open={open}
+        onClose={() => setOpen(false)}
+        dirty={dirty}
+      >
         <Form<CreateVehiclePayload>
           form={form}
           layout="vertical"
@@ -57,7 +66,7 @@ export function CreateVehicleButton() {
             Сохранить
           </Button>
         </Form>
-      </Drawer>
+      </FormModal>
     </>
   );
 }

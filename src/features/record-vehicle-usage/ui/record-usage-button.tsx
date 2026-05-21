@@ -3,7 +3,6 @@
 import {
   Button,
   DatePicker,
-  Drawer,
   Form,
   Input,
   InputNumber,
@@ -14,6 +13,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import dayjs, { Dayjs } from 'dayjs';
 import { useState } from 'react';
 import { useRecordUsage, useVehicles } from '@entities/vehicle/hooks';
+import { FormModal } from '@shared/ui/form-modal';
 
 interface FormShape {
   vehicleId: string;
@@ -55,12 +55,11 @@ export function RecordUsageButton({ projectId }: { projectId?: string } = {}) {
       <Button icon={<PlusOutlined />} onClick={() => setOpen(true)}>
         Использование
       </Button>
-      <Drawer
+      <FormModal
         title="Использование техники"
-        width={420}
+        width={460}
         open={open}
         onClose={() => setOpen(false)}
-        destroyOnHidden
       >
         <Form<FormShape>
           form={form}
@@ -102,7 +101,7 @@ export function RecordUsageButton({ projectId }: { projectId?: string } = {}) {
             Сохранить
           </Button>
         </Form>
-      </Drawer>
+      </FormModal>
     </>
   );
 }

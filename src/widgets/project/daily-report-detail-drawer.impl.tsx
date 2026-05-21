@@ -3,7 +3,6 @@
 import {
   Button,
   Descriptions,
-  Drawer,
   Divider,
   Empty,
   Image,
@@ -18,6 +17,7 @@ import { FilePdfOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 import type { ColumnsType } from 'antd/es/table';
 import { useDailyReport } from '@entities/daily-report/hooks';
+import { DetailModal } from '@shared/ui/detail-modal';
 import type {
   DailyReportAttendanceRow,
   DailyReportPhoto,
@@ -138,12 +138,11 @@ export function DailyReportDetailDrawer({ reportId, open, onClose }: Props) {
   };
 
   return (
-    <Drawer
+    <DetailModal
       title="Отчёт прораба"
       width={820}
       open={open}
       onClose={onClose}
-      destroyOnHidden
       extra={
         <Button
           icon={<FilePdfOutlined />}
@@ -209,6 +208,6 @@ export function DailyReportDetailDrawer({ reportId, open, onClose }: Props) {
           )}
         </Space>
       )}
-    </Drawer>
+    </DetailModal>
   );
 }

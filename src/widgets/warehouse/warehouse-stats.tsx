@@ -23,8 +23,8 @@ export function WarehouseStats() {
   const { data, isLoading } = useInventoryStats();
 
   return (
-    <Row gutter={[12, 12]}>
-      <Col xs={24} sm={12} md={6}>
+    <Row gutter={[10, 10]}>
+      <Col xs={12} md={6}>
         <StatsCard
           label="Всего товаров"
           icon={<DropboxOutlined />}
@@ -32,7 +32,7 @@ export function WarehouseStats() {
           value={data?.totalItems ?? 0}
         />
       </Col>
-      <Col xs={24} sm={12} md={6}>
+      <Col xs={12} md={6}>
         <StatsCard
           label="Низкие остатки"
           icon={<AlertOutlined />}
@@ -46,7 +46,7 @@ export function WarehouseStats() {
           }
         />
       </Col>
-      <Col xs={24} sm={12} md={6}>
+      <Col xs={12} md={6}>
         <StatsCard
           label="Стоимость склада"
           icon={<DollarOutlined />}
@@ -54,7 +54,7 @@ export function WarehouseStats() {
           value={formatMoney(data?.totalValue ?? 0)}
         />
       </Col>
-      <Col xs={24} sm={12} md={6}>
+      <Col xs={12} md={6}>
         <StatsCard
           label="Последнее движение"
           icon={<ClockCircleOutlined />}

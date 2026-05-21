@@ -1,6 +1,8 @@
 'use client';
 
-import { Button, Drawer, Form, Input, InputNumber, Select, Typography } from 'antd';
+import { Button, Form, Input, InputNumber, Select, Typography } from 'antd';
+import { FormModal } from '@shared/ui/form-modal';
+import { useFormDirty } from '@shared/hooks/use-form-dirty';
 import { message } from '@shared/lib/antd-static';
 import { useEffect } from 'react';
 import { useAddLine } from '@entities/payroll/hooks';
@@ -31,6 +33,7 @@ export function PayrollLineDrawer({
 }) {
   const [form] = Form.useForm<FormShape>();
   const mutation = useAddLine(payroll?.id ?? '');
+  const dirty = useFormDirty(form);
 
   useEffect(() => {
     if (open) form.resetFields();
@@ -48,12 +51,12 @@ export function PayrollLineDrawer({
   };
 
   return (
-    <Drawer
+    <FormModal
       title={payroll ? `Корректировка: ${payroll.employee?.fullName ?? ''}` : 'Корректировка'}
       open={open}
       onClose={onClose}
-      width={420}
-      destroyOnHidden
+      width={460}
+      dirty={dirty}
     >
       {payroll && (
         <Typography.Paragraph type="secondary">
@@ -80,6 +83,6 @@ export function PayrollLineDrawer({
           Сохранить
         </Button>
       </Form>
-    </Drawer>
+    </FormModal>
   );
 }

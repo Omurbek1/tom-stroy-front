@@ -1,6 +1,8 @@
 'use client';
 
-import { Button, Drawer, Form, InputNumber, Select, Typography } from 'antd';
+import { Button, Form, InputNumber, Select, Typography } from 'antd';
+import { FormModal } from '@shared/ui/form-modal';
+import { useFormDirty } from '@shared/hooks/use-form-dirty';
 import { message } from '@shared/lib/antd-static';
 import { useEffect } from 'react';
 import { useAddPayment } from '@entities/payroll/hooks';
@@ -39,6 +41,7 @@ export function PaymentDrawer({
 }) {
   const [form] = Form.useForm<FormShape>();
   const mutation = useAddPayment(payroll?.id ?? '');
+  const dirty = useFormDirty(form);
 
   useEffect(() => {
     if (open && payroll) {
@@ -59,12 +62,12 @@ export function PaymentDrawer({
   };
 
   return (
-    <Drawer
+    <FormModal
       title={payroll ? `Выплата: ${payroll.employee?.fullName ?? ''}` : 'Выплата'}
       open={open}
       onClose={onClose}
-      width={420}
-      destroyOnHidden
+      width={460}
+      dirty={dirty}
     >
       {payroll && (
         <Typography.Paragraph type="secondary">
@@ -83,6 +86,6 @@ export function PaymentDrawer({
           Выплатить
         </Button>
       </Form>
-    </Drawer>
+    </FormModal>
   );
 }

@@ -1,6 +1,8 @@
 'use client';
 
-import { Button, Drawer, Form, Input, InputNumber, Select, Switch } from 'antd';
+import { Button, Form, Input, InputNumber, Select, Switch } from 'antd';
+import { FormModal } from '@shared/ui/form-modal';
+import { useFormDirty } from '@shared/hooks/use-form-dirty';
 import { message } from '@shared/lib/antd-static';
 import { useEffect } from 'react';
 import { useCreateEmployee, useUpdateEmployee } from '@entities/employee/hooks';
@@ -53,6 +55,7 @@ export function EmployeeFormDrawer({ employee, open, onClose }: Props) {
   const isEdit = !!employee;
   const create = useCreateEmployee();
   const update = useUpdateEmployee();
+  const dirty = useFormDirty(form);
 
   useEffect(() => {
     if (open) {
@@ -89,12 +92,12 @@ export function EmployeeFormDrawer({ employee, open, onClose }: Props) {
   };
 
   return (
-    <Drawer
+    <FormModal
       title={isEdit ? 'Редактировать сотрудника' : 'Новый сотрудник'}
       open={open}
       onClose={onClose}
-      width={460}
-      destroyOnHidden
+      width={520}
+      dirty={dirty}
     >
       <Form<FormShape> form={form} layout="vertical" onFinish={onFinish}>
         <Form.Item name="fullName" label="ФИО" rules={[{ required: true }]}>
@@ -133,6 +136,6 @@ export function EmployeeFormDrawer({ employee, open, onClose }: Props) {
           {isEdit ? 'Сохранить' : 'Создать'}
         </Button>
       </Form>
-    </Drawer>
+    </FormModal>
   );
 }

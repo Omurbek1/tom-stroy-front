@@ -75,7 +75,7 @@ function UniversalHeaderImpl({ collapsed, onToggleSidebar, onToggleMobileNav }: 
         type="text"
         icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
         onClick={onToggleSidebar}
-        className="uheader__sidebar-btn"
+        className="uheader__sidebar-btn uheader__action-desktop-only"
         aria-label={collapsed ? 'Развернуть сайдбар' : 'Свернуть сайдбар'}
       />
 
@@ -106,12 +106,14 @@ function UniversalHeaderImpl({ collapsed, onToggleSidebar, onToggleMobileNav }: 
           onClick={() => router.push('/settings')}
           title="Настройки"
           aria-label="Настройки"
+          className="uheader__action-desktop-only"
         />
         <Button
           type="text"
           icon={<BulbOutlined />}
           onClick={toggleTheme}
           title="Переключить тему"
+          className="uheader__action-desktop-only"
         />
         <Dropdown menu={userMenu} trigger={['click']}>
           <div className="uheader__user">

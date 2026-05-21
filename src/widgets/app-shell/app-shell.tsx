@@ -6,23 +6,30 @@ import { ReactNode, useCallback, useEffect, useState } from 'react';
 import { useAuthStore } from '@app-init/store/auth-store';
 import { Sidebar } from './sidebar';
 import { UniversalHeader } from './universal-header';
+import { MobileBottomNav } from './mobile-bottom-nav';
+import { MobileFab } from './mobile-fab';
+import { CreateModalsHost } from './create-modals-host';
 import { CommandPalette } from '@widgets/command-palette/command-palette';
 
 const STORAGE_KEY = 'tomstroy.sidebar-collapsed';
 
 /**
- * Top-level app shell — fixed grid (sidebar | main).
+ * Top-level app shell.
  *
- * Layout invariants:
- *   - Root: 100vh, overflow:hidden — body never scrolls
- *   - Sidebar: fixed width, own scroll axis
- *   - Main column: min-width:0 (prevents flex children from blowing out
- *     the column when a wide table appears)
- *   - UniversalHeader: compact global bar; page-level controls live in
- *     PageHeader/PageToolbar inside the route tree.
- *   - Page content: flex:1 + overflow:auto — independent scroll
+ * Desktop (≥901px):
+ *   grid [sidebar | main]
+ *     main: [UniversalHeader] + [scrollable content]
  *
- * Sidebar state persists in localStorage so a sane default returns on reload.
+ * Mobile (≤900px):
+ *   stack:
+ *     [UniversalHeader — compact, ☰ opens drawer]
+ *     [scrollable content with bottom padding for nav]
+ *     [MobileBottomNav — 5 tabs, fixed bottom]
+ *     [MobileFab — context-aware "+", above the nav]
+ *     drawer mirrors the full sidebar
+ *
+ * The CSS `.app-shell` does the heavy lifting via media queries — JS just
+ * mounts everything and lets layout decide what's visible.
  */
 export function AppShell({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -67,7 +74,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         open={mobileNavOpen}
         onClose={closeMobileNav}
         placement="left"
-        width={260}
+        width={280}
         closable={false}
         styles={{ body: { padding: 0 } }}
         rootClassName="app-shell__mobile-drawer"
@@ -84,7 +91,14 @@ export function AppShell({ children }: { children: ReactNode }) {
         <main className="app-shell__content">{children}</main>
       </div>
 
+      {/* Mobile chrome — CSS hides these on desktop. */}
+      <div className="app-shell__mobile-chrome">
+        <MobileFab />
+        <MobileBottomNav onMore={openMobileNav} />
+      </div>
+
       <CommandPalette />
+      <CreateModalsHost />
     </div>
   );
 }

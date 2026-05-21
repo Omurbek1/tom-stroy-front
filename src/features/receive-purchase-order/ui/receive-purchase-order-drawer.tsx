@@ -4,7 +4,6 @@ import {
   Alert,
   Button,
   Col,
-  Drawer,
   Form,
   Input,
   InputNumber,
@@ -14,6 +13,7 @@ import {
 } from 'antd';
 import { useEffect } from 'react';
 import { message } from '@shared/lib/antd-static';
+import { FormModal } from '@shared/ui/form-modal';
 import { FormSection } from '@shared/ui/form-section';
 import { useReceivePurchaseOrder } from '@entities/purchase-order/hooks';
 import type { PurchaseOrder } from '@entities/purchase-order/types';
@@ -70,22 +70,24 @@ export function ReceivePurchaseOrderDrawer({ order, open, onClose }: Props) {
   };
 
   return (
-    <Drawer
-      title={
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <span style={{ fontSize: 16, fontWeight: 600 }}>
-            Приёмка {order.number ?? `№${order.id.slice(-6).toUpperCase()}`}
-          </span>
-          <span style={{ fontSize: 12, color: 'var(--ant-color-text-secondary, #8c8c8c)' }}>
-            {order.supplier?.name} • {order.warehouse?.name ?? 'без склада'}
-          </span>
-        </div>
-      }
-      width={680}
+    <FormModal
+      title={`Приёмка ${order.number ?? `№${order.id.slice(-6).toUpperCase()}`}`}
+      subtitle={`${order.supplier?.name ?? ''} • ${order.warehouse?.name ?? 'без склада'}`}
       open={open}
       onClose={onClose}
-      destroyOnClose
-      styles={{ body: { paddingBottom: 0 }, header: { padding: '14px 20px' } }}
+      width={680}
+      footer={
+        <Space>
+          <Button onClick={onClose}>Отмена</Button>
+          <Button
+            type="primary"
+            loading={mutation.isPending}
+            onClick={() => form.submit()}
+          >
+            Принять
+          </Button>
+        </Space>
+      }
     >
       <Form<FormShape> form={form} layout="vertical" onFinish={onFinish} requiredMark={false}>
         <Alert
@@ -157,30 +159,7 @@ export function ReceivePurchaseOrderDrawer({ order, open, onClose }: Props) {
             <Input placeholder="ТТН-2026-001 от 21.05.2026" />
           </Form.Item>
         </FormSection>
-
-        <div
-          style={{
-            position: 'sticky',
-            bottom: -20,
-            marginLeft: -20,
-            marginRight: -20,
-            marginBottom: -20,
-            padding: '12px 20px',
-            background: 'var(--ant-color-bg-container, #fff)',
-            borderTop: '1px solid var(--ant-color-border-secondary, #f0f0f0)',
-            display: 'flex',
-            justifyContent: 'flex-end',
-            gap: 8,
-          }}
-        >
-          <Space>
-            <Button onClick={onClose}>Отмена</Button>
-            <Button type="primary" htmlType="submit" loading={mutation.isPending}>
-              Принять
-            </Button>
-          </Space>
-        </div>
       </Form>
-    </Drawer>
+    </FormModal>
   );
 }

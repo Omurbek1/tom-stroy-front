@@ -95,6 +95,12 @@ const COMPONENTS = {
   Drawer: {
     paddingLG: 16,
   },
+  Modal: {
+    borderRadiusLG: 16,
+    paddingContentHorizontalLG: 24,
+    titleFontSize: 17,
+    titleLineHeight: 22 / 17,
+  },
   Tag: {
     borderRadiusSM: 6,
   },

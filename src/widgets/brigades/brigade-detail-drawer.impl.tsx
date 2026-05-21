@@ -1,6 +1,7 @@
 'use client';
 
-import { Descriptions, Drawer, Empty, Skeleton, Table, Tag } from 'antd';
+import { Descriptions, Empty, Skeleton, Table, Tag } from 'antd';
+import { DetailModal } from '@shared/ui/detail-modal';
 import type { ColumnsType } from 'antd/es/table';
 import { useBrigade } from '@entities/brigade/hooks';
 import type { BrigadeMember } from '@entities/brigade/types';
@@ -33,12 +34,11 @@ export function BrigadeDetailDrawer({ brigadeId, open, onClose }: Props) {
   const { data, isLoading } = useBrigade(open ? brigadeId ?? undefined : undefined);
 
   return (
-    <Drawer
+    <DetailModal
       title={data ? data.name : 'Бригада'}
-      width={620}
+      width={680}
       open={open}
       onClose={onClose}
-      destroyOnHidden
     >
       {isLoading || !data ? (
         <Skeleton active />
@@ -64,6 +64,6 @@ export function BrigadeDetailDrawer({ brigadeId, open, onClose }: Props) {
           )}
         </>
       )}
-    </Drawer>
+    </DetailModal>
   );
 }

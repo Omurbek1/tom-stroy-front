@@ -7,6 +7,7 @@ import type { ItemResponse } from '@shared/types/api';
 import {
   createMovement,
   CreateMovementPayload,
+  createMovementsBatch,
   createReceipt,
   CreateReceiptPayload,
   listBalances,
@@ -79,6 +80,14 @@ export function useCreateMovement() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload: CreateMovementPayload) => createMovement(payload),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['inventory'] }),
+  });
+}
+
+export function useCreateMovementsBatch() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: CreateMovementPayload[]) => createMovementsBatch(payload),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['inventory'] }),
   });
 }

@@ -4,7 +4,6 @@ import {
   Button,
   Col,
   Descriptions,
-  Drawer,
   Divider,
   Empty,
   Progress,
@@ -24,6 +23,7 @@ import type { PayrollLine, PaymentRow, PayrollLineKind } from '@entities/payroll
 import { formatDate, formatMoney } from '@shared/lib/format';
 import { downloadFile } from '@shared/lib/download';
 import { apiRoutes } from '@shared/api/routes';
+import { DetailModal } from '@shared/ui/detail-modal';
 import { PayrollLineDrawer } from './payroll-line-drawer';
 import { PaymentDrawer } from './payment-drawer';
 
@@ -136,12 +136,11 @@ export function PayrollDetailDrawer({ payrollId, open, onClose }: Props) {
   };
 
   return (
-    <Drawer
+    <DetailModal
       title={data ? `Ведомость · ${data.employee?.fullName ?? ''}` : 'Ведомость'}
       open={open}
       onClose={onClose}
-      width={760}
-      destroyOnHidden
+      width={820}
       extra={
         <Space>
           <Button
@@ -258,6 +257,6 @@ export function PayrollDetailDrawer({ payrollId, open, onClose }: Props) {
         open={payOpen}
         onClose={() => setPayOpen(false)}
       />
-    </Drawer>
+    </DetailModal>
   );
 }

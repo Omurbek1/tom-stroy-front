@@ -100,6 +100,16 @@ export async function createMovement(
   return res.data.data;
 }
 
+export async function createMovementsBatch(
+  payload: CreateMovementPayload[],
+): Promise<InventoryTransaction[]> {
+  const res = await http.post<ItemResponse<InventoryTransaction[]>>(
+    apiRoutes.inventory.movementsBatch,
+    { movements: payload },
+  );
+  return res.data.data;
+}
+
 export async function reverseMovement(
   id: string,
   note?: string,

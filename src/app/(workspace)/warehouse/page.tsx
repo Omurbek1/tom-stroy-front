@@ -1,9 +1,7 @@
 'use client';
 
-import { Button, Dropdown, Space, Switch, Tabs } from 'antd';
-import { ImportOutlined, ExportOutlined, PlusOutlined } from '@ant-design/icons';
+import { Space, Switch, Tabs } from 'antd';
 import { useState } from 'react';
-import { message } from '@shared/lib/antd-static';
 import { PageHeader } from '@shared/ui/page-header';
 import { PageContainer } from '@shared/ui/page-container';
 import { PageToolbar } from '@shared/ui/page-toolbar';
@@ -13,20 +11,22 @@ import { InventoryItemsTable } from '@widgets/warehouse/inventory-items-table';
 import { TransactionsTable } from '@widgets/warehouse/transactions-table';
 import { BalancesTable } from '@widgets/warehouse/balances-table';
 import { TransfersTable } from '@widgets/warehouse/transfers-table';
+import { StockCountsTable } from '@widgets/warehouse/stock-counts-table';
+import { WarehouseAnalytics } from '@widgets/warehouse/warehouse-analytics';
+import { ReservationsTable } from '@widgets/warehouse/reservations-table';
 import { PurchaseOrdersTable } from '@widgets/purchases/purchase-orders-table';
 import { SuppliersTable } from '@widgets/purchases/suppliers-table';
+import { ExportWarehouseButton } from '@features/export-warehouse/ui/export-warehouse-button';
+import { CreateStockIncomeDrawer } from '@features/create-stock-income/ui/create-stock-income-drawer';
+import { CreateStockWriteoffDrawer } from '@features/create-stock-writeoff/ui/create-stock-writeoff-drawer';
 
 export default function WarehousePage() {
   const [search, setSearch] = useState('');
   const [lowStockOnly, setLowStockOnly] = useState(false);
-  const todo = (label: string) => message.info(`${label} — раздел в разработке`);
 
   return (
     <>
-      <PageHeader
-        title="Склад"
-        subtitle="Остатки и движение материалов"
-      />
+      <PageHeader title="Склад" subtitle="Остатки и движение материалов" />
       <PageToolbar
         search={
           <PageSearch
@@ -44,28 +44,9 @@ export default function WarehousePage() {
         }
         actions={
           <Space>
-            <Button icon={<ImportOutlined />} onClick={() => todo('Приход')}>
-              Приход
-            </Button>
-            <Button icon={<ExportOutlined />} onClick={() => todo('Списание')}>
-              Списание
-            </Button>
-            <Dropdown
-              trigger={['click']}
-              menu={{
-                items: [
-                  { key: 'item', label: 'Материал' },
-                  { key: 'purchase', label: 'Закуп' },
-                  { key: 'task', label: 'Задача' },
-                  { key: 'report', label: 'Отчёт' },
-                ],
-                onClick: ({ key }) => todo(key),
-              }}
-            >
-              <Button type="primary" icon={<PlusOutlined />}>
-                Создать
-              </Button>
-            </Dropdown>
+            <CreateStockIncomeDrawer />
+            <CreateStockWriteoffDrawer />
+            <ExportWarehouseButton />
           </Space>
         }
       />
@@ -86,8 +67,11 @@ export default function WarehousePage() {
             },
             { key: 'txns', label: 'Движение', children: <TransactionsTable /> },
             { key: 'transfers', label: 'Перемещения', children: <TransfersTable /> },
+            { key: 'reservations', label: 'Резервы', children: <ReservationsTable /> },
+            { key: 'counts', label: 'Инвентаризация', children: <StockCountsTable /> },
             { key: 'purchases', label: 'Закупки', children: <PurchaseOrdersTable /> },
             { key: 'suppliers', label: 'Поставщики', children: <SuppliersTable /> },
+            { key: 'analytics', label: 'Аналитика', children: <WarehouseAnalytics /> },
           ]}
         />
       </PageContainer>

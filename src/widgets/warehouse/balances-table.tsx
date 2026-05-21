@@ -62,7 +62,7 @@ export function BalancesTable() {
       dataIndex: 'qty',
       key: 'qty',
       align: 'right',
-      width: 140,
+      width: 130,
       render: (v: number, r) => (
         <span style={{ fontVariantNumeric: 'tabular-nums' }}>
           {formatNumber(v)} {r.unit}
@@ -70,11 +70,38 @@ export function BalancesTable() {
       ),
     },
     {
+      title: 'В резерве',
+      dataIndex: 'reserved',
+      key: 'reserved',
+      align: 'right',
+      width: 110,
+      render: (v: number) =>
+        v > 0 ? (
+          <Tag color="gold" style={{ fontFamily: 'monospace', margin: 0 }}>
+            {formatNumber(v)}
+          </Tag>
+        ) : (
+          <span style={{ color: 'var(--ant-color-text-secondary, #8c8c8c)' }}>—</span>
+        ),
+    },
+    {
+      title: 'Доступно',
+      dataIndex: 'available',
+      key: 'available',
+      align: 'right',
+      width: 130,
+      render: (v: number, r) => (
+        <strong style={{ fontVariantNumeric: 'tabular-nums' }}>
+          {formatNumber(v)} {r.unit}
+        </strong>
+      ),
+    },
+    {
       title: 'Мин',
       dataIndex: 'minStock',
       key: 'minStock',
       align: 'right',
-      width: 100,
+      width: 90,
       render: (v: number) => (
         <span style={{ color: 'var(--ant-color-text-secondary, #8c8c8c)' }}>
           {formatNumber(v)}

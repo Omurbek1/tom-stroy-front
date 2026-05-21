@@ -1,9 +1,10 @@
 'use client';
 
-import { Button, Col, Drawer, Form, Input, InputNumber, Row, Space } from 'antd';
+import { Button, Col, Form, Input, InputNumber, Row, Space } from 'antd';
 import { DeleteOutlined, PlusOutlined, SwapOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 import { message } from '@shared/lib/antd-static';
+import { FormModal } from '@shared/ui/form-modal';
 import { WarehouseSelect } from '@shared/ui/warehouse-select';
 import { MaterialSelect } from '@shared/ui/material-select';
 import { FormSection } from '@shared/ui/form-section';
@@ -25,6 +26,8 @@ export function CreateTransferDrawer() {
   const fromId = Form.useWatch('fromWarehouseId', form);
   const toId = Form.useWatch('toWarehouseId', form);
 
+  const close = () => setOpen(false);
+
   const onFinish = async (values: FormShape) => {
     const payload: CreateTransferPayload = {
       fromWarehouseId: values.fromWarehouseId,
@@ -39,7 +42,7 @@ export function CreateTransferDrawer() {
       await mutation.mutateAsync(payload);
       message.success('Перемещение создано');
       form.resetFields();
-      setOpen(false);
+      close();
     } catch (err: unknown) {
       const detail =
         (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ??
@@ -53,13 +56,23 @@ export function CreateTransferDrawer() {
       <Button icon={<SwapOutlined />} onClick={() => setOpen(true)}>
         Перемещение
       </Button>
-      <Drawer
+      <FormModal
         title="Перемещение между складами"
-        width={680}
         open={open}
-        onClose={() => setOpen(false)}
-        destroyOnClose
-        styles={{ body: { paddingBottom: 0 }, header: { padding: '14px 20px' } }}
+        onClose={close}
+        width={680}
+        footer={
+          <Space>
+            <Button onClick={close}>Отмена</Button>
+            <Button
+              type="primary"
+              loading={mutation.isPending}
+              onClick={() => form.submit()}
+            >
+              Создать
+            </Button>
+          </Space>
+        }
       >
         <Form<FormShape>
           form={form}
@@ -124,11 +137,7 @@ export function CreateTransferDrawer() {
                           ]}
                           style={{ marginBottom: 0 }}
                         >
-                          <InputNumber
-                            min={0}
-                            style={{ width: '100%' }}
-                            placeholder="Кол-во"
-                          />
+                          <InputNumber min={0} style={{ width: '100%' }} placeholder="Кол-во" />
                         </Form.Item>
                       </Col>
                       <Col flex="32px" style={{ paddingTop: 2 }}>
@@ -142,43 +151,15 @@ export function CreateTransferDrawer() {
                       </Col>
                     </Row>
                   ))}
-                  <Button
-                    onClick={() => add()}
-                    icon={<PlusOutlined />}
-                    type="dashed"
-                    block
-                  >
+                  <Button onClick={() => add()} icon={<PlusOutlined />} type="dashed" block>
                     Добавить позицию
                   </Button>
                 </>
               )}
             </Form.List>
           </FormSection>
-
-          <div
-            style={{
-              position: 'sticky',
-              bottom: -20,
-              marginLeft: -20,
-              marginRight: -20,
-              marginBottom: -20,
-              padding: '12px 20px',
-              background: 'var(--ant-color-bg-container, #fff)',
-              borderTop: '1px solid var(--ant-color-border-secondary, #f0f0f0)',
-              display: 'flex',
-              justifyContent: 'flex-end',
-              gap: 8,
-            }}
-          >
-            <Space>
-              <Button onClick={() => setOpen(false)}>Отмена</Button>
-              <Button type="primary" htmlType="submit" loading={mutation.isPending}>
-                Создать
-              </Button>
-            </Space>
-          </div>
         </Form>
-      </Drawer>
+      </FormModal>
     </>
   );
 }

@@ -44,10 +44,13 @@ import { DEFAULT_UNIT_FOR_TYPE, formatWorkType } from '@shared/constants/work-ty
 import { WORK_UNIT_OPTIONS, formatWorkUnit } from '@shared/constants/work-unit';
 import { ATTENDANCE_STATUS_OPTIONS } from '@shared/constants/attendance-status';
 import { formatMoney } from '@shared/lib/format';
+import { FormDirtyProbe } from '@shared/ui/form-dirty-probe';
 
 interface Props {
   projectId: string;
   onDone?: () => void;
+  /** Notifies host (FormModal) about unsaved changes. */
+  onDirtyChange?: (dirty: boolean) => void;
 }
 
 interface FormShape {
@@ -283,7 +286,7 @@ function RowHeader({ cells }: { cells: Array<{ flex: string; label: string; alig
 
 type AutosaveState = 'idle' | 'saving' | 'saved' | 'error';
 
-export function DailyReportForm({ projectId, onDone }: Props) {
+export function DailyReportForm({ projectId, onDone, onDirtyChange }: Props) {
   const [form] = Form.useForm<FormShape>();
   const mutation = useCreateDailyReport(projectId);
   const draftQuery = useReportDraft(projectId);
@@ -491,6 +494,7 @@ export function DailyReportForm({ projectId, onDone }: Props) {
       initialValues={{ date: dayjs() }}
       requiredMark={false}
     >
+      {onDirtyChange && <FormDirtyProbe form={form} onChange={onDirtyChange} />}
       {hasConflict && (
         <Alert
           type="warning"

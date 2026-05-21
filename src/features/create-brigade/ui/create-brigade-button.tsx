@@ -1,16 +1,19 @@
 'use client';
 
-import { Button, Drawer, Form, Input, Select } from 'antd';
+import { Button, Form, Input, Select } from 'antd';
 import { message } from '@shared/lib/antd-static';
 import { PlusOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 import { useCreateBrigade } from '@entities/brigade/hooks';
 import { useEmployees } from '@entities/employee/hooks';
 import type { CreateBrigadePayload } from '@entities/brigade/types';
+import { FormModal } from '@shared/ui/form-modal';
+import { useFormDirty } from '@shared/hooks/use-form-dirty';
 
 export function CreateBrigadeButton() {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm<CreateBrigadePayload>();
+  const dirty = useFormDirty(form);
   const mutation = useCreateBrigade();
   const { data: employees } = useEmployees();
 
@@ -34,12 +37,12 @@ export function CreateBrigadeButton() {
       <Button type="primary" icon={<PlusOutlined />} onClick={() => setOpen(true)}>
         Новая бригада
       </Button>
-      <Drawer
+      <FormModal
         title="Новая бригада"
         open={open}
         onClose={() => setOpen(false)}
-        width={420}
-        destroyOnHidden
+        width={460}
+        dirty={dirty}
       >
         <Form<CreateBrigadePayload> form={form} layout="vertical" onFinish={onFinish}>
           <Form.Item name="name" label="Название" rules={[{ required: true }]}>
@@ -61,7 +64,7 @@ export function CreateBrigadeButton() {
             Создать
           </Button>
         </Form>
-      </Drawer>
+      </FormModal>
     </>
   );
 }
