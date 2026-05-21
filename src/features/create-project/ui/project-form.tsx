@@ -65,7 +65,7 @@ export function ProjectForm({
       message.success('Объект создан');
       form.resetFields();
       onDone?.();
-      if (redirectOnSuccess) router.push(`/projects/${created.id}`);
+      if (redirectOnSuccess) router.push(`/objects/${created.id}`);
     } catch {
       message.error('Не удалось создать');
     }

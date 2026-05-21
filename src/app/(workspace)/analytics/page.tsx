@@ -14,7 +14,7 @@ const kpiColumns: ColumnsType<ProjectKpi> = [
     title: 'Объект',
     dataIndex: 'name',
     key: 'name',
-    render: (_, r) => <Link href={`/projects/${r.id}`}>{r.name}</Link>,
+    render: (_, r) => <Link href={`/objects/${r.id}`}>{r.name}</Link>,
   },
   {
     title: 'Статус',
@@ -55,7 +55,7 @@ const laggingColumns: ColumnsType<ProjectKpi> = [
     title: 'Объект',
     dataIndex: 'name',
     key: 'name',
-    render: (_, r) => <Link href={`/projects/${r.id}`}>{r.name}</Link>,
+    render: (_, r) => <Link href={`/objects/${r.id}`}>{r.name}</Link>,
   },
   {
     title: 'Дней до дедлайна',

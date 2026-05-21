@@ -116,7 +116,7 @@ export function CommandPalette() {
         title: p.name,
         subtitle: p.address ?? p.client?.name ?? '—',
         group: 'Объекты',
-        href: `/projects/${p.id}`,
+        href: `/objects/${p.id}`,
       });
     }
     for (const e of employeesQuery.data?.data ?? []) {

@@ -42,7 +42,7 @@ function InsightRow({ item, showProject }: { item: AiInsight; showProject: boole
           <Space wrap>
             <Tag color={sev === 'error' ? 'red' : sev === 'warning' ? 'gold' : 'blue'}>{label}</Tag>
             {showProject && item.project && (
-              <Link href={`/projects/${item.project.id}`}>{item.project.name}</Link>
+              <Link href={`/objects/${item.project.id}`}>{item.project.name}</Link>
             )}
             <span style={{ color: '#888' }}>{formatDate(item.createdAt)}</span>
           </Space>

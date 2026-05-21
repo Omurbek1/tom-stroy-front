@@ -1,10 +1,10 @@
 'use client';
 
 import {
+  ApartmentOutlined,
   AppstoreOutlined,
   HomeOutlined,
   ProjectOutlined,
-  ShopOutlined,
   WalletOutlined,
 } from '@ant-design/icons';
 import Link from 'next/link';
@@ -20,28 +20,42 @@ interface Tab {
   matches?: string[];
 }
 
+/**
+ * Mobile bottom navigation — mirror of the slim global sidebar. Only
+ * the 5 most-used global entry points, no per-object content (which
+ * lives in ObjectTabs once you open an object).
+ */
 const TABS: Tab[] = [
   { key: 'dashboard', href: '/dashboard', label: 'Главная', icon: <HomeOutlined /> },
   {
-    key: 'projects',
-    href: '/projects',
+    key: 'objects',
+    href: '/objects',
     label: 'Объекты',
     icon: <ProjectOutlined />,
+    // Stay highlighted across object workspace + legacy /projects redirects.
+    matches: ['/objects', '/projects'],
   },
-  { key: 'warehouse', href: '/warehouse', label: 'Склад', icon: <ShopOutlined /> },
+  {
+    key: 'company',
+    href: '/company',
+    label: 'Компания',
+    icon: <ApartmentOutlined />,
+    // /company hub links to these directories — keep tab lit on them too.
+    matches: ['/brigades', '/employees', '/warehouse', '/vehicles'],
+  },
   {
     key: 'finance',
     href: '/finance',
     label: 'Финансы',
     icon: <WalletOutlined />,
-    matches: ['/payroll'],
+    matches: ['/payroll', '/reports'],
   },
   {
     key: 'more',
     href: '/analytics',
     label: 'Ещё',
     icon: <AppstoreOutlined />,
-    matches: ['/analytics', '/reports', '/brigades', '/employees', '/vehicles', '/settings'],
+    matches: ['/analytics', '/settings'],
   },
 ];
 
@@ -97,3 +111,6 @@ function MobileBottomNavImpl({ onMore }: Props) {
 }
 
 export const MobileBottomNav = memo(MobileBottomNavImpl);
+
+// suppress unused warnings if some icons are removed during refactor
+void BarChartOutlined;

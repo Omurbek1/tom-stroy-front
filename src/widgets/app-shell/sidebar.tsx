@@ -22,16 +22,12 @@ function SidebarImpl({ collapsed, onToggle, onNavigate }: Props) {
   const pathname = usePathname();
   const role = useAuthStore((s) => s.user?.role);
 
-  // Active key = first URL segment (works for /objects/:id/... too — root
-  // segment is what shows up in the global sidebar regardless of depth).
+  // Active key = first URL segment. /objects/:id/anything still keeps
+  // "objects" active in the global sidebar.
   const activeKey = useMemo(() => pathname?.split('/')[1] || 'dashboard', [pathname]);
 
-  const groups = useMemo(
-    () =>
-      GLOBAL_NAV.map((g) => ({
-        ...g,
-        items: g.items.filter((i) => !i.permission || can(role, i.permission)),
-      })).filter((g) => g.items.length > 0),
+  const items = useMemo(
+    () => GLOBAL_NAV.filter((i) => !i.permission || can(role, i.permission)),
     [role],
   );
 
@@ -43,27 +39,22 @@ function SidebarImpl({ collapsed, onToggle, onNavigate }: Props) {
       </div>
 
       <nav className="app-sidebar__nav">
-        {groups.map((g) => (
-          <div key={g.key} className="app-sidebar__group">
-            {!collapsed && <div className="app-sidebar__group-title">{g.label}</div>}
-            {g.items.map((item) => {
-              const active = activeKey === item.key;
-              return (
-                <Link
-                  key={item.key}
-                  href={item.href}
-                  prefetch
-                  onClick={() => onNavigate?.()}
-                  className={`app-sidebar__link ${active ? 'is-active' : ''}`}
-                  title={collapsed ? item.label : undefined}
-                >
-                  <span className="app-sidebar__icon">{item.icon}</span>
-                  {!collapsed && <span className="app-sidebar__label">{item.label}</span>}
-                </Link>
-              );
-            })}
-          </div>
-        ))}
+        {items.map((item) => {
+          const active = activeKey === item.key;
+          return (
+            <Link
+              key={item.key}
+              href={item.href}
+              prefetch
+              onClick={() => onNavigate?.()}
+              className={`app-sidebar__link ${active ? 'is-active' : ''}`}
+              title={collapsed ? item.label : undefined}
+            >
+              <span className="app-sidebar__icon">{item.icon}</span>
+              {!collapsed && <span className="app-sidebar__label">{item.label}</span>}
+            </Link>
+          );
+        })}
       </nav>
 
       <button

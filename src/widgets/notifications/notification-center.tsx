@@ -67,7 +67,7 @@ export function NotificationCenter() {
   const handleClick = (n: AppNotification) => {
     if (!n.readAt) markRead.mutate(n.id);
     const projectId = n.payload?.projectId;
-    if (projectId) router.push(`/projects/${projectId}`);
+    if (projectId) router.push(`/objects/${projectId}`);
   };
 
   const panel = (

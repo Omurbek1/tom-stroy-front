@@ -134,15 +134,28 @@ export const apiRoutes = {
 export const appRoutes = {
   login: '/login',
   dashboard: '/dashboard',
-  projects: '/projects',
-  projectDetail: (id: string) => `/projects/${id}`,
+  /** Object-centered route (formerly `/projects`). */
+  objects: '/objects',
+  /** Object workspace landing — base URL for all object sub-routes. */
+  objectDetail: (id: string) => `/objects/${id}`,
+  objectReports:    (id: string) => `/objects/${id}/reports`,
+  objectWarehouse:  (id: string) => `/objects/${id}/warehouse`,
+  objectFinance:    (id: string) => `/objects/${id}/finance`,
+  objectTeam:       (id: string) => `/objects/${id}/team`,
+  objectAnalytics:  (id: string) => `/objects/${id}/analytics`,
+
+  // Company-wide directories (linked from /company hub)
+  company: '/company',
   brigades: '/brigades',
   employees: '/employees',
   warehouse: '/warehouse',
+  vehicles: '/vehicles',
+
+  // Consolidated company finance (linked from /finance hub)
   finance: '/finance',
   payroll: '/payroll',
-  analytics: '/analytics',
-  vehicles: '/vehicles',
   reports: '/reports',
+
+  analytics: '/analytics',
   settings: '/settings',
 } as const;
