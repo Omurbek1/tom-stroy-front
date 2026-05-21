@@ -30,5 +30,13 @@ const nextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      // Migrate /projects → /objects (object-centered workspace)
+      { source: '/projects', destination: '/objects', permanent: false },
+      { source: '/projects/:id', destination: '/objects/:id', permanent: false },
+      { source: '/projects/:id/:path*', destination: '/objects/:id/:path*', permanent: false },
+    ];
+  },
 };
 export default nextConfig;

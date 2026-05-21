@@ -19,7 +19,7 @@ const columns: ColumnsType<Project> = [
     title: 'Объект',
     dataIndex: 'name',
     key: 'name',
-    render: (_, p) => <Link href={`/projects/${p.id}`}>{p.name}</Link>,
+    render: (_, p) => <Link href={`/objects/${p.id}`}>{p.name}</Link>,
   },
   {
     title: 'Клиент',
@@ -56,16 +56,13 @@ const columns: ColumnsType<Project> = [
   },
 ];
 
-export default function ProjectsListPage() {
+export default function ObjectsListPage() {
   const [search, setSearch] = useState('');
   const { data, isLoading } = useProjectsList({ search, limit: 50 });
 
   return (
     <>
-      <PageHeader
-        title="Объекты"
-        subtitle="Все стройки компании"
-      />
+      <PageHeader title="Объекты" subtitle="Все стройки компании" />
       <PageToolbar
         search={
           <PageSearch

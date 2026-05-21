@@ -1,54 +1,12 @@
 'use client';
 
-import {
-  BarChartOutlined,
-  CarOutlined,
-  DashboardOutlined,
-  DollarOutlined,
-  FileTextOutlined,
-  LeftOutlined,
-  ProjectOutlined,
-  RightOutlined,
-  SettingOutlined,
-  ShopOutlined,
-  TeamOutlined,
-  UserOutlined,
-  WalletOutlined,
-} from '@ant-design/icons';
+import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { memo, ReactNode, useMemo } from 'react';
-
-interface NavItem {
-  key: string;
-  href: string;
-  label: string;
-  icon: ReactNode;
-  group?: string;
-}
-
-const NAV: NavItem[] = [
-  { key: 'dashboard', href: '/dashboard', label: 'Дашборд', icon: <DashboardOutlined />, group: 'main' },
-  { key: 'projects', href: '/projects', label: 'Объекты', icon: <ProjectOutlined />, group: 'main' },
-  { key: 'brigades', href: '/brigades', label: 'Бригады', icon: <TeamOutlined />, group: 'team' },
-  { key: 'employees', href: '/employees', label: 'Сотрудники', icon: <UserOutlined />, group: 'team' },
-  { key: 'warehouse', href: '/warehouse', label: 'Склад', icon: <ShopOutlined />, group: 'ops' },
-  { key: 'vehicles', href: '/vehicles', label: 'Техника', icon: <CarOutlined />, group: 'ops' },
-  { key: 'finance', href: '/finance', label: 'Финансы', icon: <DollarOutlined />, group: 'finance' },
-  { key: 'payroll', href: '/payroll', label: 'Зарплаты', icon: <WalletOutlined />, group: 'finance' },
-  { key: 'analytics', href: '/analytics', label: 'Аналитика', icon: <BarChartOutlined />, group: 'analytics' },
-  { key: 'reports', href: '/reports', label: 'Отчёты', icon: <FileTextOutlined />, group: 'analytics' },
-  { key: 'settings', href: '/settings', label: 'Настройки', icon: <SettingOutlined />, group: 'system' },
-];
-
-const GROUP_LABELS: Record<string, string> = {
-  main: 'Главное',
-  team: 'Команда',
-  ops: 'Операции',
-  finance: 'Финансы',
-  analytics: 'Аналитика',
-  system: 'Система',
-};
+import { memo, useMemo } from 'react';
+import { useAuthStore } from '@app-init/store/auth-store';
+import { GLOBAL_NAV } from '@shared/config/nav-config';
+import { can } from '@shared/config/permissions';
 
 interface Props {
   collapsed: boolean;
@@ -62,19 +20,20 @@ interface Props {
 
 function SidebarImpl({ collapsed, onToggle, onNavigate }: Props) {
   const pathname = usePathname();
+  const role = useAuthStore((s) => s.user?.role);
+
+  // Active key = first URL segment (works for /objects/:id/... too — root
+  // segment is what shows up in the global sidebar regardless of depth).
   const activeKey = useMemo(() => pathname?.split('/')[1] || 'dashboard', [pathname]);
 
-  // Group items once
-  const groups = useMemo(() => {
-    const out: { key: string; items: NavItem[] }[] = [];
-    for (const item of NAV) {
-      const g = item.group ?? 'main';
-      const last = out[out.length - 1];
-      if (last && last.key === g) last.items.push(item);
-      else out.push({ key: g, items: [item] });
-    }
-    return out;
-  }, []);
+  const groups = useMemo(
+    () =>
+      GLOBAL_NAV.map((g) => ({
+        ...g,
+        items: g.items.filter((i) => !i.permission || can(role, i.permission)),
+      })).filter((g) => g.items.length > 0),
+    [role],
+  );
 
   return (
     <aside className={`app-sidebar ${collapsed ? 'is-collapsed' : ''}`}>
@@ -86,9 +45,7 @@ function SidebarImpl({ collapsed, onToggle, onNavigate }: Props) {
       <nav className="app-sidebar__nav">
         {groups.map((g) => (
           <div key={g.key} className="app-sidebar__group">
-            {!collapsed && (
-              <div className="app-sidebar__group-title">{GROUP_LABELS[g.key]}</div>
-            )}
+            {!collapsed && <div className="app-sidebar__group-title">{g.label}</div>}
             {g.items.map((item) => {
               const active = activeKey === item.key;
               return (

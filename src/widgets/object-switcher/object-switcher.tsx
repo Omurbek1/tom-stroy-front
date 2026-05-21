@@ -82,7 +82,7 @@ export function ObjectSwitcher({ open, onClose }: Props) {
     (p: Project) => {
       track(p.id);
       onClose();
-      router.push(`/projects/${p.id}`);
+      router.push(`/objects/${p.id}`);
     },
     [router, onClose, track],
   );
