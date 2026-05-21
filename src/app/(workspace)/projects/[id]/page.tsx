@@ -2,6 +2,7 @@
 
 import { use } from 'react';
 import { Card, Descriptions, Skeleton, Space, Tabs } from 'antd';
+import dayjs from 'dayjs';
 import { PageHeader } from '@shared/ui/page-header';
 import { StatusBadge, ProjectStatus } from '@shared/ui/status-badge';
 import { useProject } from '@entities/project/hooks';
@@ -11,6 +12,10 @@ import { ProjectBriefWidget } from '@widgets/ai-insights/project-brief';
 import { CreateDailyReportButton } from '@features/create-daily-report/ui/create-daily-report-button';
 import { AttendanceTable } from '@widgets/attendance/attendance-table';
 import { TransactionsTable } from '@widgets/warehouse/transactions-table';
+import { PnlCard } from '@widgets/finance/pnl-card';
+import { FinanceTimeseriesChart } from '@widgets/finance/timeseries-chart';
+import { ExpensesTable } from '@widgets/finance/expenses-table';
+import { IncomesTable } from '@widgets/finance/incomes-table';
 import { formatDate, formatMoney } from '@shared/lib/format';
 
 export default function ProjectDetailPage(props: {
@@ -20,6 +25,15 @@ export default function ProjectDetailPage(props: {
   const { data: project, isLoading } = useProject(id);
 
   if (isLoading || !project) return <Skeleton active />;
+
+  // P&L window: project lifetime if dates set, otherwise last 90 days
+  const from = (project.startDate
+    ? dayjs(project.startDate)
+    : dayjs().subtract(90, 'day')
+  )
+    .startOf('day')
+    .toISOString();
+  const to = (project.deadline ? dayjs(project.deadline) : dayjs()).endOf('day').toISOString();
 
   return (
     <>
@@ -70,6 +84,18 @@ export default function ProjectDetailPage(props: {
               key: 'materials',
               label: 'Материалы',
               children: <TransactionsTable projectId={id} />,
+            },
+            {
+              key: 'finance',
+              label: 'Финансы',
+              children: (
+                <Space direction="vertical" size="large" style={{ width: '100%' }}>
+                  <PnlCard from={from} to={to} projectId={id} />
+                  <FinanceTimeseriesChart from={from} to={to} projectId={id} title="Доходы и расходы объекта" />
+                  <IncomesTable projectId={id} />
+                  <ExpensesTable projectId={id} />
+                </Space>
+              ),
             },
             {
               key: 'ai',
