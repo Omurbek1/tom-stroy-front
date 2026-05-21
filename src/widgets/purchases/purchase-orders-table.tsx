@@ -60,13 +60,18 @@ function progressOf(o: PurchaseOrder): number {
   return Math.round((received / total) * 100);
 }
 
-export function PurchaseOrdersTable() {
+interface Props {
+  /** When provided, list is scoped to this object's purchase orders only. */
+  projectId?: string;
+}
+
+export function PurchaseOrdersTable({ projectId }: Props = {}) {
   const [filter, setFilter] = useState<FilterMode>('active');
   const [receiveTarget, setReceiveTarget] = useState<PurchaseOrder | null>(null);
 
   const apiStatus =
     filter === 'active' || filter === 'all' ? undefined : (filter as PurchaseStatus);
-  const { data, isLoading } = usePurchaseOrders({ status: apiStatus, limit: 100 });
+  const { data, isLoading } = usePurchaseOrders({ status: apiStatus, projectId, limit: 100 });
 
   const approve = useApprovePurchaseOrder();
   const markOrdered = useMarkPurchaseOrderOrdered();
@@ -240,7 +245,7 @@ export function PurchaseOrdersTable() {
             <span>Заявки на закуп</span>
           </Space>
         }
-        extra={<CreatePurchaseOrderDrawer />}
+        extra={<CreatePurchaseOrderDrawer projectId={projectId} />}
       >
         <Space style={{ marginBottom: 12 }}>
           <Segmented

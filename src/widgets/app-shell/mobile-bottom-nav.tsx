@@ -3,7 +3,7 @@
 import {
   ApartmentOutlined,
   AppstoreOutlined,
-  HomeOutlined,
+  BarChartOutlined,
   ProjectOutlined,
   WalletOutlined,
 } from '@ant-design/icons';
@@ -26,7 +26,13 @@ interface Tab {
  * lives in ObjectTabs once you open an object).
  */
 const TABS: Tab[] = [
-  { key: 'dashboard', href: '/dashboard', label: 'Главная', icon: <HomeOutlined /> },
+  {
+    key: 'dashboard',
+    href: '/dashboard',
+    label: 'Аналитика',
+    icon: <BarChartOutlined />,
+    matches: ['/analytics'],
+  },
   {
     key: 'objects',
     href: '/objects',
@@ -52,10 +58,10 @@ const TABS: Tab[] = [
   },
   {
     key: 'more',
-    href: '/analytics',
+    href: '/settings',
     label: 'Ещё',
     icon: <AppstoreOutlined />,
-    matches: ['/analytics', '/settings'],
+    matches: ['/settings'],
   },
 ];
 
@@ -111,6 +117,3 @@ function MobileBottomNavImpl({ onMore }: Props) {
 }
 
 export const MobileBottomNav = memo(MobileBottomNavImpl);
-
-// suppress unused warnings if some icons are removed during refactor
-void BarChartOutlined;

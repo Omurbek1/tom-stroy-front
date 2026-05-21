@@ -33,9 +33,10 @@ interface FormShape {
 
 interface Props {
   trigger?: React.ReactNode;
+  projectId?: string;
 }
 
-export function CreateStockWriteoffDrawer({ trigger }: Props = {}) {
+export function CreateStockWriteoffDrawer({ trigger, projectId }: Props = {}) {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm<FormShape>();
   const mutation = useCreateMovementsBatch();
@@ -49,7 +50,7 @@ export function CreateStockWriteoffDrawer({ trigger }: Props = {}) {
       warehouseId: values.warehouseId,
       movementType: 'WRITE_OFF' as const,
       qty: Number(l.qty),
-      projectId: values.projectId,
+      projectId: values.projectId || projectId,
       note: values.note,
     }));
     try {
@@ -115,9 +116,15 @@ export function CreateStockWriteoffDrawer({ trigger }: Props = {}) {
                 </Form.Item>
               </Col>
               <Col xs={24} md={12}>
-                <Form.Item name="projectId" label="На объект">
-                  <ProjectSelect placeholder="Опционально — куда уходит" />
-                </Form.Item>
+                {projectId ? (
+                  <Form.Item label="На объект">
+                    <Input value="Текущий объект" disabled />
+                  </Form.Item>
+                ) : (
+                  <Form.Item name="projectId" label="На объект">
+                    <ProjectSelect placeholder="Опционально — куда уходит" />
+                  </Form.Item>
+                )}
               </Col>
             </Row>
             <Form.Item name="note" label="Комментарий">

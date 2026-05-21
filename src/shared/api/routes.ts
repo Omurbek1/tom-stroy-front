@@ -12,6 +12,7 @@ export const apiRoutes = {
     list: '/projects',
     detail: (id: string) => `/projects/${id}`,
     analytics: (id: string) => `/projects/${id}/analytics`,
+    brigades: (id: string) => `/projects/${id}/brigades`,
     archive: (id: string) => `/projects/${id}/archive`,
   },
   dailyReports: {

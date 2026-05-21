@@ -11,6 +11,7 @@ import { PageToolbar } from '@shared/ui/page-toolbar';
 import { useClosePeriod, usePayrollPreview } from '@entities/payroll/hooks';
 import { PayrollTable } from '@widgets/payroll/payroll-table';
 import { ClosedPayrollsTable } from '@widgets/payroll/closed-payrolls-table';
+import { FinanceSubnav } from '@widgets/finance/finance-subnav';
 import { downloadFile } from '@shared/lib/download';
 import { apiRoutes } from '@shared/api/routes';
 
@@ -51,6 +52,7 @@ export default function PayrollPage() {
   return (
     <>
       <PageHeader title="Зарплаты" subtitle="Предпросмотр и закрытые ведомости" />
+      <FinanceSubnav />
       <PageToolbar
         dateRange={
           <DatePicker.RangePicker

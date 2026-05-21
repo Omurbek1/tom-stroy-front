@@ -8,6 +8,7 @@ import { useCreateVehicle } from '@entities/vehicle/hooks';
 import type { CreateVehiclePayload } from '@entities/vehicle/types';
 import { FormModal } from '@shared/ui/form-modal';
 import { useFormDirty } from '@shared/hooks/use-form-dirty';
+import { EmployeeSelect } from '@shared/ui/employee-select';
 
 const TYPES = ['Экскаватор', 'КамАЗ', 'Кран', 'Бетономешалка', 'Генератор', 'Прочее'];
 const STATUSES = ['idle', 'on-project', 'maintenance', 'broken'];
@@ -54,8 +55,8 @@ export function CreateVehicleButton() {
           <Form.Item name="plate" label="Гос. номер">
             <Input />
           </Form.Item>
-          <Form.Item name="driverId" label="ID водителя">
-            <Input />
+          <Form.Item name="driverId" label="Водитель">
+            <EmployeeSelect roleFilter={['DRIVER']} placeholder="Выберите водителя" />
           </Form.Item>
           <Form.Item name="fuelLitres" label="Бак, литров">
             <InputNumber min={0} style={{ width: '100%' }} />

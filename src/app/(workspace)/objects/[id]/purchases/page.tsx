@@ -7,9 +7,8 @@ import { PurchaseOrdersTable } from '@widgets/purchases/purchase-orders-table';
 import { useProject } from '@entities/project/hooks';
 
 /**
- * Purchase orders for this object. `PurchaseOrdersTable` does not yet
- * accept a `projectId` filter — wrapper here just labels the section.
- * Filtering by project will be added when we wire ObjectMember (M1).
+ * Purchase orders scoped to this object. PurchaseOrdersTable now filters
+ * by `projectId` on the backend (см. ListPurchaseOrdersDto).
  */
 export default function ObjectPurchasesPage(props: { params: Promise<{ id: string }> }) {
   const { id } = use(props.params);
@@ -26,7 +25,7 @@ export default function ObjectPurchasesPage(props: { params: Promise<{ id: strin
         ]}
       />
       <PageContainer>
-        <PurchaseOrdersTable />
+        <PurchaseOrdersTable projectId={id} />
       </PageContainer>
     </>
   );

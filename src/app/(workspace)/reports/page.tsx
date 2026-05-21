@@ -9,6 +9,7 @@ import { PageHeader } from '@shared/ui/page-header';
 import { PageContainer } from '@shared/ui/page-container';
 import { downloadFile } from '@shared/lib/download';
 import { apiRoutes } from '@shared/api/routes';
+import { FinanceSubnav } from '@widgets/finance/finance-subnav';
 
 type ReportKind = 'payroll' | 'pnl' | 'vehicles';
 
@@ -71,6 +72,7 @@ export default function ReportsPage() {
         title="Отчёты"
         subtitle="Excel-выгрузки для бухгалтерии и руководства"
       />
+      <FinanceSubnav />
       <PageContainer>
         <Card title="Период">
           <Form<FormShape>

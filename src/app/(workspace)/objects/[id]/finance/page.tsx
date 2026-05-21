@@ -5,6 +5,7 @@ import { Space } from 'antd';
 import dayjs from 'dayjs';
 import { PageMeta } from '@shared/ui/page-meta';
 import { PageContainer } from '@shared/ui/page-container';
+import { PageToolbar } from '@shared/ui/page-toolbar';
 import { useProject } from '@entities/project/hooks';
 import { PnlCard } from '@widgets/finance/pnl-card';
 import { FinanceTimeseriesChart } from '@widgets/finance/timeseries-chart';
@@ -31,8 +32,8 @@ export default function ObjectFinancePage(props: { params: Promise<{ id: string 
           { href: `/objects/${id}`, label: project?.name ?? 'Объект' },
           { label: 'Финансы' },
         ]}
-        actions={<ExportPnlButton from={from} to={to} projectId={id} />}
       />
+      <PageToolbar actions={<ExportPnlButton from={from} to={to} projectId={id} />} />
       <PageContainer>
         <Space direction="vertical" size="large" style={{ width: '100%' }}>
           <PnlCard from={from} to={to} projectId={id} />

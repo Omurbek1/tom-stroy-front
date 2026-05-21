@@ -12,6 +12,7 @@ import { PnlCard } from '@widgets/finance/pnl-card';
 import { ExpensesTable } from '@widgets/finance/expenses-table';
 import { IncomesTable } from '@widgets/finance/incomes-table';
 import { FinanceTimeseriesChart } from '@widgets/finance/timeseries-chart';
+import { FinanceSubnav } from '@widgets/finance/finance-subnav';
 import { downloadFile } from '@shared/lib/download';
 import { apiRoutes } from '@shared/api/routes';
 
@@ -55,6 +56,7 @@ export default function FinancePage() {
         title="Финансы"
         subtitle="P&L, доходы и расходы по компании"
       />
+      <FinanceSubnav />
       <PageToolbar
         dateRange={
           <DatePicker.RangePicker

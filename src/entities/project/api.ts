@@ -42,3 +42,32 @@ export async function createProject(payload: CreateProjectPayload): Promise<Proj
   const res = await http.post<ItemResponse<Project>>(apiRoutes.projects.list, payload);
   return res.data.data;
 }
+
+export interface ProjectBrigadeRow {
+  id: string;
+  name: string;
+  specialization: string | null;
+  foreman: { id: string; fullName: string } | null;
+  membersCount: number;
+  reportsCount: number;
+  lastVisit: string | null;
+  totalEarned: number;
+  payrollAccrued: number;
+  payrollNet: number;
+  payrollPaid: number;
+  objectBalance: number;
+  workBreakdown: Array<{
+    workType: string;
+    unit: string;
+    volume: number;
+    amount: number;
+    rowsCount: number;
+  }>;
+}
+
+export async function listProjectBrigades(projectId: string): Promise<ProjectBrigadeRow[]> {
+  const res = await http.get<ItemResponse<ProjectBrigadeRow[]>>(
+    apiRoutes.projects.brigades(projectId),
+  );
+  return res.data.data;
+}

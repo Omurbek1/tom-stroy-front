@@ -1,25 +1,28 @@
 'use client';
 
 import { use } from 'react';
-import { Card, Empty } from 'antd';
+import { Card, Col, Empty, Row, Tag } from 'antd';
 import { CheckSquareOutlined } from '@ant-design/icons';
 import { PageMeta } from '@shared/ui/page-meta';
 import { PageContainer } from '@shared/ui/page-container';
 import { useProject } from '@entities/project/hooks';
 
-/**
- * Tasks placeholder. The `Task` model has not been added yet — once it
- * lands (см. план Sprint T1), эта страница превращается в полноценный
- * kanban-board: OPEN / IN_PROGRESS / BLOCKED / DONE.
- */
+const COLUMNS = [
+  { key: 'todo', title: 'Нужно сделать', tone: 'default' },
+  { key: 'progress', title: 'В работе', tone: 'processing' },
+  { key: 'blocked', title: 'Блокировано', tone: 'warning' },
+  { key: 'done', title: 'Готово', tone: 'success' },
+] as const;
+
 export default function ObjectTasksPage(props: { params: Promise<{ id: string }> }) {
   const { id } = use(props.params);
   const { data: project } = useProject(id);
+
   return (
     <>
       <PageMeta
         title="Задачи"
-        subtitle="Канбан задач по объекту"
+        subtitle="Операционный контроль работ по объекту"
         breadcrumbs={[
           { href: '/objects', label: 'Объекты' },
           { href: `/objects/${id}`, label: project?.name ?? 'Объект' },
@@ -27,19 +30,25 @@ export default function ObjectTasksPage(props: { params: Promise<{ id: string }>
         ]}
       />
       <PageContainer>
-        <Card>
-          <Empty
-            image={<CheckSquareOutlined style={{ fontSize: 48, color: '#bfbfbf' }} />}
-            description={
-              <div>
-                <div style={{ fontWeight: 500, marginBottom: 4 }}>Задачи — следующий спринт</div>
-                <div style={{ color: 'var(--ant-color-text-secondary, #8c8c8c)' }}>
-                  Здесь будет канбан с задачами по объекту: открыто / в работе / заблокировано / готово.
-                </div>
-              </div>
-            }
-          />
-        </Card>
+        <Row gutter={[16, 16]}>
+          {COLUMNS.map((col) => (
+            <Col xs={24} md={12} xl={6} key={col.key}>
+              <Card
+                title={
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    {col.title}
+                    <Tag color={col.tone}>0</Tag>
+                  </span>
+                }
+              >
+                <Empty
+                  image={<CheckSquareOutlined style={{ fontSize: 32, color: 'var(--color-text-subtle)' }} />}
+                  description="Нет задач"
+                />
+              </Card>
+            </Col>
+          ))}
+        </Row>
       </PageContainer>
     </>
   );

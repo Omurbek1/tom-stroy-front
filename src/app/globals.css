@@ -2006,3 +2006,33 @@ a.uheader__crumb:hover {
   font-size: var(--font-size-2xs, 11px);
   font-weight: var(--font-weight-semibold);
 }
+
+/* ============================================================
+   Finance sub-navigation (P&L / Payroll / Reports strip)
+   ============================================================ */
+.finance-subnav {
+  display: flex;
+  gap: 4px;
+  padding: 0 24px;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.finance-subnav::-webkit-scrollbar { display: none; }
+
+.finance-subnav__tab {
+  padding: 10px 12px 9px;
+  border-bottom: 2px solid transparent;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.12s ease, border-color 0.12s ease;
+}
+.finance-subnav__tab:hover { color: var(--color-text); }
+.finance-subnav__tab.is-active {
+  color: var(--color-primary, #1677ff);
+  border-bottom-color: var(--color-primary, #1677ff);
+}

@@ -33,7 +33,7 @@ interface FormShape {
   lines: Array<{ itemId: string; qty: number; unitCost: number }>;
 }
 
-export function CreatePurchaseOrderDrawer() {
+export function CreatePurchaseOrderDrawer({ projectId }: { projectId?: string } = {}) {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm<FormShape>();
   const mutation = useCreatePurchaseOrder();
@@ -55,6 +55,7 @@ export function CreatePurchaseOrderDrawer() {
     const payload: CreatePurchaseOrderPayload = {
       supplierId: values.supplierId,
       warehouseId: values.warehouseId,
+      projectId,
       expectedAt: values.expectedAt?.toISOString(),
       note: values.note,
       lines: (values.lines ?? []).map((l) => ({

@@ -6,6 +6,7 @@ import {
   CreateProjectPayload,
   getProject,
   getProjectAnalytics,
+  listProjectBrigades,
   listProjects,
   ProjectFilters,
 } from './api';
@@ -45,5 +46,14 @@ export function useCreateProject() {
   return useMutation({
     mutationFn: (payload: CreateProjectPayload) => createProject(payload),
     onSuccess: () => qc.invalidateQueries({ queryKey: projectKeys.all }),
+  });
+}
+
+export function useProjectBrigades(id: string | undefined) {
+  return useQuery({
+    queryKey: ['projects', 'brigades', id],
+    queryFn: () => listProjectBrigades(id as string),
+    enabled: !!id,
+    staleTime: 60_000,
   });
 }
