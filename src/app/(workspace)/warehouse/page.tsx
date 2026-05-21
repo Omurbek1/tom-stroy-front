@@ -1,22 +1,13 @@
 'use client';
 
-import { Space, Switch, Tabs } from 'antd';
+import { Space, Switch } from 'antd';
 import { useState } from 'react';
 import { PageHeader } from '@shared/ui/page-header';
 import { PageContainer } from '@shared/ui/page-container';
 import { PageToolbar } from '@shared/ui/page-toolbar';
 import { PageSearch } from '@shared/ui/page-search';
 import { WarehouseStats } from '@widgets/warehouse/warehouse-stats';
-import { InventoryItemsTable } from '@widgets/warehouse/inventory-items-table';
-import { TransactionsTable } from '@widgets/warehouse/transactions-table';
-import { BalancesTable } from '@widgets/warehouse/balances-table';
-import { TransfersTable } from '@widgets/warehouse/transfers-table';
-import { StockCountsTable } from '@widgets/warehouse/stock-counts-table';
-import { WarehouseAnalytics } from '@widgets/warehouse/warehouse-analytics';
-import { ReservationsTable } from '@widgets/warehouse/reservations-table';
-import { WarehousesTable } from '@widgets/warehouse/warehouses-table';
-import { PurchaseOrdersTable } from '@widgets/purchases/purchase-orders-table';
-import { SuppliersTable } from '@widgets/purchases/suppliers-table';
+import { WarehouseTabs } from '@widgets/warehouse/warehouse-tabs';
 import { ExportWarehouseButton } from '@features/export-warehouse/ui/export-warehouse-button';
 import { CreateStockIncomeDrawer } from '@features/create-stock-income/ui/create-stock-income-drawer';
 import { CreateStockWriteoffDrawer } from '@features/create-stock-writeoff/ui/create-stock-writeoff-drawer';
@@ -57,29 +48,7 @@ export default function WarehousePage() {
       />
       <PageContainer>
         <WarehouseStats />
-        <Tabs
-          defaultActiveKey="items"
-          items={[
-            {
-              key: 'items',
-              label: 'Каталог',
-              children: <InventoryItemsTable search={search} lowStockOnly={lowStockOnly} />,
-            },
-            {
-              key: 'balances',
-              label: 'Остатки',
-              children: <BalancesTable />,
-            },
-            { key: 'txns', label: 'Движение', children: <TransactionsTable /> },
-            { key: 'transfers', label: 'Перемещения', children: <TransfersTable /> },
-            { key: 'reservations', label: 'Резервы', children: <ReservationsTable /> },
-            { key: 'counts', label: 'Инвентаризация', children: <StockCountsTable /> },
-            { key: 'purchases', label: 'Закупки', children: <PurchaseOrdersTable /> },
-            { key: 'suppliers', label: 'Поставщики', children: <SuppliersTable /> },
-            { key: 'warehouses', label: 'Склады', children: <WarehousesTable /> },
-            { key: 'analytics', label: 'Аналитика', children: <WarehouseAnalytics /> },
-          ]}
-        />
+        <WarehouseTabs search={search} lowStockOnly={lowStockOnly} />
       </PageContainer>
     </>
   );

@@ -7,10 +7,19 @@ import { message } from '@shared/lib/antd-static';
 import { downloadFile } from '@shared/lib/download';
 import { apiRoutes } from '@shared/api/routes';
 
-export function ExportWarehouseButton() {
+interface Props {
+  /** Scopes all exports to this project when provided. */
+  projectId?: string;
+}
+
+export function ExportWarehouseButton({ projectId }: Props = {}) {
   const [downloading, setDownloading] = useState(false);
 
   const today = () => new Date().toISOString().slice(0, 10);
+  const scopedParams = (extra: Record<string, unknown>) =>
+    projectId ? { ...extra, projectId } : extra;
+  const scopedName = (base: string) =>
+    projectId ? `${base}_obj-${projectId.slice(0, 6)}_${today()}` : `${base}_${today()}`;
 
   const download = async (
     url: string,
@@ -38,22 +47,26 @@ export function ExportWarehouseButton() {
         ],
         onClick: ({ key }) => {
           if (key === 'balances') {
-            download(apiRoutes.inventory.reportsBalancesXlsx, {}, `balances_${today()}.xlsx`);
+            download(
+              apiRoutes.inventory.reportsBalancesXlsx,
+              scopedParams({}),
+              `${scopedName('balances')}.xlsx`,
+            );
           } else if (key === 'movements') {
             const from = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString();
             const to = new Date().toISOString();
             download(
               apiRoutes.inventory.reportsMovementsXlsx,
-              { from, to },
-              `movements_${today()}.xlsx`,
+              scopedParams({ from, to }),
+              `${scopedName('movements')}.xlsx`,
             );
           } else if (key === 'purchases') {
             const from = new Date(Date.now() - 90 * 24 * 3600 * 1000).toISOString();
             const to = new Date().toISOString();
             download(
               apiRoutes.inventory.reportsPurchasesXlsx,
-              { from, to },
-              `purchases_${today()}.xlsx`,
+              scopedParams({ from, to }),
+              `${scopedName('purchases')}.xlsx`,
             );
           }
         },

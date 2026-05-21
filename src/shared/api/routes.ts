@@ -14,6 +14,9 @@ export const apiRoutes = {
     analytics: (id: string) => `/projects/${id}/analytics`,
     brigades: (id: string) => `/projects/${id}/brigades`,
     archive: (id: string) => `/projects/${id}/archive`,
+    members: (id: string) => `/projects/${id}/members`,
+    memberBulk: (id: string) => `/projects/${id}/members/bulk`,
+    member: (id: string, employeeId: string) => `/projects/${id}/members/${employeeId}`,
   },
   dailyReports: {
     list: '/daily-reports',

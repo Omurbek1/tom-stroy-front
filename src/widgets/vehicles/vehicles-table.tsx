@@ -5,13 +5,7 @@ import type { ColumnsType } from 'antd/es/table';
 import { useVehicles } from '@entities/vehicle/hooks';
 import type { Vehicle } from '@entities/vehicle/types';
 import { formatNumber } from '@shared/lib/format';
-
-const STATUS_COLOR: Record<string, string> = {
-  idle: 'default',
-  'on-project': 'green',
-  maintenance: 'orange',
-  broken: 'red',
-};
+import { VEHICLE_STATUS_META } from '@shared/constants/vehicle-status';
 
 const columns: ColumnsType<Vehicle> = [
   { title: 'Тип', dataIndex: 'type', key: 'type' },
@@ -34,7 +28,10 @@ const columns: ColumnsType<Vehicle> = [
     dataIndex: 'status',
     key: 'status',
     width: 140,
-    render: (s: string) => <Tag color={STATUS_COLOR[s] ?? 'default'}>{s}</Tag>,
+    render: (s: string) => {
+      const meta = VEHICLE_STATUS_META[s as keyof typeof VEHICLE_STATUS_META];
+      return <Tag color={meta?.color ?? 'default'}>{meta?.label ?? s}</Tag>;
+    },
   },
 ];
 

@@ -9,9 +9,9 @@ import type { CreateVehiclePayload } from '@entities/vehicle/types';
 import { FormModal } from '@shared/ui/form-modal';
 import { useFormDirty } from '@shared/hooks/use-form-dirty';
 import { EmployeeSelect } from '@shared/ui/employee-select';
+import { VEHICLE_STATUS_OPTIONS } from '@shared/constants/vehicle-status';
 
 const TYPES = ['Экскаватор', 'КамАЗ', 'Кран', 'Бетономешалка', 'Генератор', 'Прочее'];
-const STATUSES = ['idle', 'on-project', 'maintenance', 'broken'];
 
 export function CreateVehicleButton() {
   const [open, setOpen] = useState(false);
@@ -62,7 +62,7 @@ export function CreateVehicleButton() {
             <InputNumber min={0} style={{ width: '100%' }} />
           </Form.Item>
           <Form.Item name="status" label="Статус">
-            <Select options={STATUSES.map((s) => ({ value: s, label: s }))} />
+            <Select options={VEHICLE_STATUS_OPTIONS} />
           </Form.Item>
           <Button type="primary" htmlType="submit" loading={mutation.isPending} block>
             Сохранить

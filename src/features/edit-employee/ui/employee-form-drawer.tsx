@@ -1,44 +1,16 @@
 'use client';
 
-import { Button, Form, Input, InputNumber, Select, Switch } from 'antd';
+import { Button, Col, Form, Input, InputNumber, Row, Select, Switch } from 'antd';
 import { FormModal } from '@shared/ui/form-modal';
 import { useFormDirty } from '@shared/hooks/use-form-dirty';
 import { message } from '@shared/lib/antd-static';
 import { useEffect } from 'react';
 import { useCreateEmployee, useUpdateEmployee } from '@entities/employee/hooks';
-import type {
-  CreateEmployeePayload,
-  Employee,
-  EmployeeRole,
-  PayType,
-} from '@entities/employee/types';
-
-const ROLE_OPTIONS: { value: EmployeeRole; label: string }[] = [
-  { value: 'FOREMAN', label: 'Прораб' },
-  { value: 'MASON', label: 'Каменщик' },
-  { value: 'CONCRETE', label: 'Бетонщик' },
-  { value: 'PLASTERER', label: 'Штукатур' },
-  { value: 'PLUMBER', label: 'Сантехник' },
-  { value: 'ELECTRICIAN', label: 'Электрик' },
-  { value: 'WELDER', label: 'Сварщик' },
-  { value: 'ROOFER', label: 'Кровельщик' },
-  { value: 'DRIVER', label: 'Водитель' },
-  { value: 'OPERATOR', label: 'Оператор техники' },
-  { value: 'LABORER', label: 'Разнорабочий' },
-  { value: 'FINISHER', label: 'Отделочник' },
-  { value: 'WAREHOUSE', label: 'Кладовщик' },
-  { value: 'OTHER', label: 'Прочее' },
-];
-
-const PAY_OPTIONS: { value: PayType; label: string }[] = [
-  { value: 'PER_CUBE', label: 'За куб (м³)' },
-  { value: 'PER_SQM', label: 'За м²' },
-  { value: 'PER_METER', label: 'За пог. м' },
-  { value: 'PER_SHIFT', label: 'За смену' },
-  { value: 'HOURLY', label: 'Почасовая' },
-  { value: 'SALARY', label: 'Оклад' },
-  { value: 'SALARY_PLUS_PERCENT', label: 'Оклад + %' },
-];
+import type { CreateEmployeePayload, Employee } from '@entities/employee/types';
+import {
+  EMPLOYEE_ROLE_OPTIONS,
+  PAY_TYPE_OPTIONS,
+} from '@shared/constants/employee-roles';
 
 interface FormShape extends CreateEmployeePayload {
   isActive?: boolean;
@@ -48,9 +20,10 @@ interface Props {
   employee: Employee | null;
   open: boolean;
   onClose: () => void;
+  onCreated?: (employee: Employee) => void;
 }
 
-export function EmployeeFormDrawer({ employee, open, onClose }: Props) {
+export function EmployeeFormDrawer({ employee, open, onClose, onCreated }: Props) {
   const [form] = Form.useForm<FormShape>();
   const isEdit = !!employee;
   const create = useCreateEmployee();
@@ -82,8 +55,9 @@ export function EmployeeFormDrawer({ employee, open, onClose }: Props) {
         await update.mutateAsync({ id: employee.id, payload: v });
         message.success('Сохранено');
       } else {
-        await create.mutateAsync(v);
+        const created = await create.mutateAsync(v);
         message.success('Сотрудник добавлен');
+        onCreated?.(created);
       }
       onClose();
     } catch {
@@ -91,51 +65,85 @@ export function EmployeeFormDrawer({ employee, open, onClose }: Props) {
     }
   };
 
+  const pending = create.isPending || update.isPending;
+
   return (
     <FormModal
       title={isEdit ? 'Редактировать сотрудника' : 'Новый сотрудник'}
+      subtitle={
+        isEdit
+          ? 'Изменения вступят в силу сразу для всех объектов'
+          : 'Заполните карточку — сотрудника можно сразу назначить в команду или бригаду'
+      }
       open={open}
       onClose={onClose}
-      width={520}
+      width={760}
       dirty={dirty}
       onSubmit={() => form.submit()}
-    >
-      <Form<FormShape> form={form} layout="vertical" onFinish={onFinish}>
-        <Form.Item name="fullName" label="ФИО" rules={[{ required: true }]}>
-          <Input />
-        </Form.Item>
-        <Form.Item name="phone" label="Телефон">
-          <Input placeholder="+996700..." />
-        </Form.Item>
-        <Form.Item name="passportNo" label="Паспорт">
-          <Input />
-        </Form.Item>
-        <Form.Item name="role" label="Должность" rules={[{ required: true }]}>
-          <Select options={ROLE_OPTIONS} showSearch optionFilterProp="label" />
-        </Form.Item>
-        <Form.Item name="payType" label="Тип оплаты" rules={[{ required: true }]}>
-          <Select options={PAY_OPTIONS} />
-        </Form.Item>
-        <Form.Item
-          name="rate"
-          label="Ставка (за единицу payType)"
-          rules={[{ required: true }]}
-        >
-          <InputNumber min={0} style={{ width: '100%' }} />
-        </Form.Item>
-        {isEdit && (
-          <Form.Item name="isActive" label="Активен" valuePropName="checked">
-            <Switch />
-          </Form.Item>
-        )}
-        <Button
-          type="primary"
-          htmlType="submit"
-          loading={create.isPending || update.isPending}
-          block
-        >
-          {isEdit ? 'Сохранить' : 'Создать'}
+      footer={
+        <Button type="primary" size="large" block loading={pending} onClick={() => form.submit()}>
+          {isEdit ? 'Сохранить' : 'Создать сотрудника'}
         </Button>
+      }
+    >
+      <Form<FormShape>
+        form={form}
+        layout="vertical"
+        onFinish={onFinish}
+        size="large"
+        requiredMark="optional"
+        style={{ padding: '20px 28px' }}
+      >
+        <Row gutter={20}>
+          <Col span={24}>
+            <Form.Item name="fullName" label="ФИО" rules={[{ required: true }]}>
+              <Input placeholder="Иванов Иван Иванович" autoFocus />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item name="phone" label="Телефон">
+              <Input placeholder="+996700..." />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item name="passportNo" label="Паспорт">
+              <Input placeholder="AN1234567" />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item name="role" label="Должность" rules={[{ required: true }]}>
+              <Select options={EMPLOYEE_ROLE_OPTIONS} showSearch optionFilterProp="label" />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item name="payType" label="Тип оплаты" rules={[{ required: true }]}>
+              <Select options={PAY_TYPE_OPTIONS} />
+            </Form.Item>
+          </Col>
+          <Col span={isEdit ? 12 : 24}>
+            <Form.Item
+              name="rate"
+              label="Ставка"
+              tooltip="За единицу выбранного типа оплаты"
+              rules={[{ required: true }]}
+            >
+              <InputNumber
+                min={0}
+                style={{ width: '100%' }}
+                formatter={(v) => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
+                parser={(v) => Number(`${v}`.replace(/\s/g, '')) as 0}
+                addonAfter="сом"
+              />
+            </Form.Item>
+          </Col>
+          {isEdit && (
+            <Col span={12}>
+              <Form.Item name="isActive" label="Активен" valuePropName="checked">
+                <Switch />
+              </Form.Item>
+            </Col>
+          )}
+        </Row>
       </Form>
     </FormModal>
   );

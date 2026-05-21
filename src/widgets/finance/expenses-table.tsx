@@ -1,23 +1,30 @@
 'use client';
 
-import { Card, Table, Tag } from 'antd';
+import { useState } from 'react';
+import { Card, Segmented, Space, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useExpenses } from '@entities/expense/hooks';
-import type { Expense, ExpenseCategory } from '@entities/expense/types';
+import type { Expense, ExpenseCategory, ExpenseScope } from '@entities/expense/types';
 import { formatDate, formatMoney } from '@shared/lib/format';
 import { CreateExpenseButton } from '@features/create-expense/ui/create-expense-button';
+import {
+  EXPENSE_CATEGORY_LABEL as CAT_LABEL,
+} from '@shared/constants/expense-category';
 
-const CAT_LABEL: Record<ExpenseCategory, string> = {
-  MATERIALS: 'Материалы',
-  SALARY: 'Зарплаты',
-  EQUIPMENT: 'Техника',
-  FUEL: 'Топливо',
-  RENT: 'Аренда',
-  TOOLS: 'Инструменты',
-  TRANSPORT: 'Транспорт',
-  TAXES: 'Налоги',
-  OTHER: 'Прочее',
+const SCOPE_LABEL: Record<ExpenseScope, { label: string; color: string }> = {
+  PROJECT: { label: 'Объект', color: 'blue' },
+  COMPANY: { label: 'Компания', color: 'purple' },
+  ALLOCATED: { label: 'Распределение', color: 'orange' },
 };
+
+type ScopeFilter = 'ALL' | ExpenseScope;
+
+const SCOPE_FILTER_OPTIONS = [
+  { value: 'ALL', label: 'Все' },
+  { value: 'PROJECT', label: 'На объектах' },
+  { value: 'COMPANY', label: 'Компания' },
+  { value: 'ALLOCATED', label: 'Распределяемые' },
+];
 
 const columns: ColumnsType<Expense> = [
   {
@@ -26,6 +33,16 @@ const columns: ColumnsType<Expense> = [
     key: 'date',
     width: 120,
     render: (v: string) => formatDate(v),
+  },
+  {
+    title: 'Тип',
+    dataIndex: 'scope',
+    key: 'scope',
+    width: 150,
+    render: (s: ExpenseScope) => {
+      const meta = SCOPE_LABEL[s] ?? { label: s, color: 'default' };
+      return <Tag color={meta.color}>{meta.label}</Tag>;
+    },
   },
   {
     title: 'Категория',
@@ -47,13 +64,33 @@ const columns: ColumnsType<Expense> = [
 ];
 
 export function ExpensesTable({ projectId }: { projectId?: string } = {}) {
-  const { data, isLoading } = useExpenses({ projectId, limit: 100 });
+  // На странице объекта показываем только проектные расходы — без переключателя.
+  const lockedScope: ExpenseScope | undefined = projectId ? 'PROJECT' : undefined;
+  const [scope, setScope] = useState<ScopeFilter>('ALL');
+  const effective = lockedScope ?? (scope === 'ALL' ? undefined : scope);
+  const { data, isLoading } = useExpenses({ projectId, scope: effective, limit: 100 });
+
   return (
-    <Card title="Расходы" extra={<CreateExpenseButton projectId={projectId} />}>
+    <Card
+      title="Расходы"
+      extra={
+        <Space>
+          {!lockedScope && (
+            <Segmented<ScopeFilter>
+              value={scope}
+              onChange={(v) => setScope(v)}
+              options={SCOPE_FILTER_OPTIONS as { value: ScopeFilter; label: string }[]}
+              size="small"
+            />
+          )}
+          <CreateExpenseButton projectId={projectId} />
+        </Space>
+      }
+    >
       <Table<Expense>
         rowKey="id"
         size="small"
-        columns={columns}
+        columns={lockedScope ? columns.filter((c) => c.key !== 'scope') : columns}
         dataSource={data?.data ?? []}
         loading={isLoading}
         pagination={false}

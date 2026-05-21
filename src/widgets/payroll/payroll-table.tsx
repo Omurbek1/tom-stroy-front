@@ -4,16 +4,7 @@ import { Card, Space, Statistic, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import type { PayrollPreviewRow, PayType } from '@entities/payroll/types';
 import { formatMoney, formatNumber } from '@shared/lib/format';
-
-const PAY_TYPE_LABEL: Record<PayType, string> = {
-  PER_CUBE: 'За куб',
-  PER_SQM: 'За м²',
-  PER_METER: 'За м',
-  PER_SHIFT: 'За смену',
-  HOURLY: 'Почасовая',
-  SALARY: 'Оклад',
-  SALARY_PLUS_PERCENT: 'Оклад + %',
-};
+import { PAY_TYPE_LABEL } from '@shared/constants/employee-roles';
 
 const columns: ColumnsType<PayrollPreviewRow> = [
   { title: 'Сотрудник', dataIndex: 'fullName', key: 'fullName' },

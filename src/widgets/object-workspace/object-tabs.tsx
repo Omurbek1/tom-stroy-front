@@ -21,7 +21,6 @@ const TABS: TabItem[] = [
   { key: 'team',       segment: '/team',      label: 'Команда' },
   { key: 'brigades',   segment: '/brigades',  label: 'Бригады' },
   { key: 'warehouse',  segment: '/warehouse', label: 'Склад' },
-  { key: 'purchases',  segment: '/purchases', label: 'Закупки' },
   { key: 'vehicles',   segment: '/vehicles',  label: 'Техника' },
   { key: 'finance',    segment: '/finance',   label: 'Финансы',   permission: 'object:finance:view' },
   { key: 'documents',  segment: '/documents', label: 'Документы' },

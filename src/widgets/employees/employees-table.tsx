@@ -9,33 +9,10 @@ import type { Employee, EmployeeRole, PayType } from '@entities/employee/types';
 import { DataTable } from '@shared/ui/data-table';
 import { formatMoney } from '@shared/lib/format';
 import { EmployeeFormDrawer } from '@features/edit-employee/ui/employee-form-drawer';
-
-const ROLE_LABEL: Record<EmployeeRole, string> = {
-  FOREMAN: 'Прораб',
-  MASON: 'Каменщик',
-  CONCRETE: 'Бетонщик',
-  PLASTERER: 'Штукатур',
-  PLUMBER: 'Сантехник',
-  ELECTRICIAN: 'Электрик',
-  WELDER: 'Сварщик',
-  ROOFER: 'Кровельщик',
-  DRIVER: 'Водитель',
-  OPERATOR: 'Оператор',
-  LABORER: 'Разнорабочий',
-  FINISHER: 'Отделочник',
-  WAREHOUSE: 'Кладовщик',
-  OTHER: 'Прочее',
-};
-
-const PAY_LABEL: Record<PayType, string> = {
-  PER_CUBE: 'За м³',
-  PER_SQM: 'За м²',
-  PER_METER: 'За м',
-  PER_SHIFT: 'За смену',
-  HOURLY: 'Почасовая',
-  SALARY: 'Оклад',
-  SALARY_PLUS_PERCENT: 'Оклад + %',
-};
+import {
+  EMPLOYEE_ROLE_LABEL,
+  PAY_TYPE_LABEL,
+} from '@shared/constants/employee-roles';
 
 interface Props {
   search: string;
@@ -51,13 +28,13 @@ export function EmployeesTable({ search }: Props) {
       title: 'Должность',
       dataIndex: 'role',
       key: 'role',
-      render: (r: EmployeeRole) => <Tag>{ROLE_LABEL[r] ?? r}</Tag>,
+      render: (r: EmployeeRole) => <Tag>{EMPLOYEE_ROLE_LABEL[r] ?? r}</Tag>,
     },
     {
       title: 'Тип оплаты',
       dataIndex: 'payType',
       key: 'payType',
-      render: (p: PayType) => PAY_LABEL[p] ?? p,
+      render: (p: PayType) => PAY_TYPE_LABEL[p] ?? p,
     },
     {
       title: 'Ставка',

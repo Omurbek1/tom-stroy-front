@@ -1,10 +1,11 @@
 import { http } from '@shared/api/http';
 import { apiRoutes } from '@shared/api/routes';
 import type { ItemResponse, PaginatedResponse } from '@shared/types/api';
-import type { Expense, ExpenseCategory } from './types';
+import type { Expense, ExpenseCategory, ExpenseScope } from './types';
 
 export interface ListExpensesParams {
   projectId?: string;
+  scope?: ExpenseScope;
   category?: ExpenseCategory;
   from?: string;
   to?: string;
@@ -14,6 +15,8 @@ export interface ListExpensesParams {
 
 export interface CreateExpensePayload {
   projectId?: string;
+  scope?: ExpenseScope;
+  allocationKey?: string;
   category: ExpenseCategory;
   amount: number;
   date: string;
