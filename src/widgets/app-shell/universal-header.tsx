@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  AppstoreOutlined,
   BulbOutlined,
   LogoutOutlined,
   MenuFoldOutlined,
@@ -17,6 +18,8 @@ import { useAuthStore } from '@app-init/store/auth-store';
 import { useThemeStore } from '@app-init/store/theme-store';
 import { usePageMetaStore } from '@app-init/store/page-meta-store';
 import { NotificationCenter } from '@widgets/notifications/notification-center';
+import { ObjectSwitcher } from '@widgets/object-switcher/object-switcher';
+import { useObjectSwitcher } from '@widgets/object-switcher/use-object-switcher';
 
 interface Props {
   collapsed: boolean;
@@ -44,6 +47,8 @@ function UniversalHeaderImpl({ collapsed, onToggleSidebar, onToggleMobileNav }: 
   const user = useAuthStore((s) => s.user);
   const clear = useAuthStore((s) => s.clear);
   const toggleTheme = useThemeStore((s) => s.toggle);
+
+  const switcher = useObjectSwitcher();
 
   const userMenu = useMemo(
     () => ({
@@ -99,6 +104,13 @@ function UniversalHeaderImpl({ collapsed, onToggleSidebar, onToggleMobileNav }: 
       </div>
 
       <div className="uheader__actions">
+        <Button
+          type="text"
+          icon={<AppstoreOutlined />}
+          onClick={switcher.openSwitcher}
+          title="Переключатель объектов (⌘P)"
+          aria-label="Объекты"
+        />
         <NotificationCenter />
         <Button
           type="text"
@@ -122,6 +134,8 @@ function UniversalHeaderImpl({ collapsed, onToggleSidebar, onToggleMobileNav }: 
           </div>
         </Dropdown>
       </div>
+
+      <ObjectSwitcher open={switcher.open} onClose={switcher.closeSwitcher} />
     </header>
   );
 }

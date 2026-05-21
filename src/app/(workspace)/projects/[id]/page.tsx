@@ -7,6 +7,7 @@ import { PageMeta } from '@shared/ui/page-meta';
 import { StatusBadge, ProjectStatus } from '@shared/ui/status-badge';
 import { useProject } from '@entities/project/hooks';
 import { useRecentsStore } from '@app-init/store/recents-store';
+import { usePinnedObjects } from '@shared/lib/pinned-objects';
 import { ProjectAnalyticsBlock } from '@widgets/project/project-analytics';
 import { DailyReportsTable } from '@widgets/project/daily-reports-table';
 import { ProjectBriefWidget } from '@widgets/ai-insights/project-brief';
@@ -31,6 +32,7 @@ export default function ProjectDetailPage(props: {
   useProjectRealtime(id);
   const { data: project, isLoading } = useProject(id);
   const pushRecent = useRecentsStore((s) => s.push);
+  const trackObject = usePinnedObjects().track;
 
   useEffect(() => {
     if (!project) return;
@@ -41,7 +43,8 @@ export default function ProjectDetailPage(props: {
       subtitle: project.address ?? project.client?.name ?? undefined,
       group: 'Объекты',
     });
-  }, [project, pushRecent]);
+    trackObject(project.id);
+  }, [project, pushRecent, trackObject]);
 
   if (isLoading || !project) return <Skeleton active />;
 
