@@ -1,9 +1,9 @@
 'use client';
 
 import { useQueryClient } from '@tanstack/react-query';
-import { notification as antdNotification } from 'antd';
 import { ReactNode, useEffect } from 'react';
 import { useAuthStore } from '@app-init/store/auth-store';
+import { notification } from '@shared/lib/antd-static';
 import { disconnectSocket, getSocket } from './socket';
 
 interface DomainEvent {
@@ -28,7 +28,6 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
   const user = useAuthStore((s) => s.user);
   const tokens = useAuthStore((s) => s.tokens);
   const qc = useQueryClient();
-  const [api, contextHolder] = antdNotification.useNotification();
 
   useEffect(() => {
     if (!user || !tokens?.accessToken) return;
@@ -57,7 +56,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
 
     const onNotification = (evt: NotificationEvent) => {
       qc.invalidateQueries({ queryKey: ['notifications'] });
-      api.info({
+      notification.info({
         message: evt.title,
         description: evt.body ?? undefined,
         placement: 'topRight',
@@ -73,12 +72,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
       socket.off('notification', onNotification);
       disconnectSocket();
     };
-  }, [user, tokens?.accessToken, qc, api]);
+  }, [user, tokens?.accessToken, qc]);
 
-  return (
-    <>
-      {contextHolder}
-      {children}
-    </>
-  );
+  return <>{children}</>;
 }

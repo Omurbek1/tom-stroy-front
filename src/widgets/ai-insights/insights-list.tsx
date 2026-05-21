@@ -25,6 +25,13 @@ function InsightRow({ item, showProject }: { item: AiInsight; showProject: boole
   const sev = severityFor(item.kind);
   const meta = KIND_META[item.kind as InsightKind];
   const label = meta?.label ?? item.kind;
+  const recommendation =
+    typeof item.payload === 'object' &&
+    item.payload !== null &&
+    typeof (item.payload as Record<string, unknown>).recommendation === 'string'
+      ? ((item.payload as Record<string, unknown>).recommendation as string)
+      : null;
+
   return (
     <List.Item>
       <Alert
@@ -40,7 +47,25 @@ function InsightRow({ item, showProject }: { item: AiInsight; showProject: boole
             <span style={{ color: '#888' }}>{formatDate(item.createdAt)}</span>
           </Space>
         }
-        description={item.summary}
+        description={
+          <div>
+            <div>{item.summary}</div>
+            {recommendation && (
+              <div
+                style={{
+                  marginTop: 6,
+                  padding: '6px 10px',
+                  background: 'rgba(22,119,255,0.08)',
+                  borderLeft: '3px solid #1677ff',
+                  borderRadius: 4,
+                  fontStyle: 'italic',
+                }}
+              >
+                <strong>AI:</strong> {recommendation}
+              </div>
+            )}
+          </div>
+        }
       />
     </List.Item>
   );
