@@ -14,6 +14,7 @@ import { TransfersTable } from '@widgets/warehouse/transfers-table';
 import { StockCountsTable } from '@widgets/warehouse/stock-counts-table';
 import { WarehouseAnalytics } from '@widgets/warehouse/warehouse-analytics';
 import { ReservationsTable } from '@widgets/warehouse/reservations-table';
+import { WarehousesTable } from '@widgets/warehouse/warehouses-table';
 import { PurchaseOrdersTable } from '@widgets/purchases/purchase-orders-table';
 import { SuppliersTable } from '@widgets/purchases/suppliers-table';
 import { ExportWarehouseButton } from '@features/export-warehouse/ui/export-warehouse-button';
@@ -75,6 +76,7 @@ export default function WarehousePage() {
             { key: 'counts', label: 'Инвентаризация', children: <StockCountsTable /> },
             { key: 'purchases', label: 'Закупки', children: <PurchaseOrdersTable /> },
             { key: 'suppliers', label: 'Поставщики', children: <SuppliersTable /> },
+            { key: 'warehouses', label: 'Склады', children: <WarehousesTable /> },
             { key: 'analytics', label: 'Аналитика', children: <WarehouseAnalytics /> },
           ]}
         />

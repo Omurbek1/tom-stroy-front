@@ -43,3 +43,13 @@ export function useCreateWarehouse() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['warehouses'] }),
   });
 }
+
+export function useDeleteWarehouse() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await http.delete(apiRoutes.warehouses.remove(id));
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['warehouses'] }),
+  });
+}
