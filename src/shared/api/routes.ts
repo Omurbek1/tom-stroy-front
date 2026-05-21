@@ -27,6 +27,7 @@ export const apiRoutes = {
     items: '/inventory/items',
     transactions: '/inventory/transactions',
     receipts: '/inventory/receipts',
+    stats: '/inventory/stats',
   },
   attendance: { list: '/attendance' },
   analytics: { overview: '/analytics/overview' },

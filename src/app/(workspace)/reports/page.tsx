@@ -6,6 +6,7 @@ import { DownloadOutlined, FileExcelOutlined } from '@ant-design/icons';
 import dayjs, { Dayjs } from 'dayjs';
 import { useState } from 'react';
 import { PageHeader } from '@shared/ui/page-header';
+import { PageContainer } from '@shared/ui/page-container';
 import { downloadFile } from '@shared/lib/download';
 import { apiRoutes } from '@shared/api/routes';
 
@@ -70,7 +71,7 @@ export default function ReportsPage() {
         title="Отчёты"
         subtitle="Excel-выгрузки для бухгалтерии и руководства"
       />
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
+      <PageContainer>
         <Card title="Период">
           <Form<FormShape>
             form={form}
@@ -124,7 +125,7 @@ export default function ReportsPage() {
             • P&L по конкретному объекту — со страницы объекта → таб «Финансы» → кнопка «P&L Excel».
           </Typography.Paragraph>
         </Card>
-      </Space>
+      </PageContainer>
     </>
   );
 }

@@ -4,8 +4,9 @@ import { Button, DatePicker, Space, Tabs } from 'antd';
 import { message } from '@shared/lib/antd-static';
 import { DownloadOutlined } from '@ant-design/icons';
 import dayjs, { Dayjs } from 'dayjs';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { PageHeader } from '@shared/ui/page-header';
+import { PageContainer } from '@shared/ui/page-container';
 import { PnlCard } from '@widgets/finance/pnl-card';
 import { ExpensesTable } from '@widgets/finance/expenses-table';
 import { IncomesTable } from '@widgets/finance/incomes-table';
@@ -20,8 +21,13 @@ export default function FinancePage() {
   ]);
   const [downloading, setDownloading] = useState(false);
 
-  const from = range[0].startOf('day').toISOString();
-  const to = range[1].endOf('day').toISOString();
+  const { from, to } = useMemo(
+    () => ({
+      from: range[0].startOf('day').toISOString(),
+      to: range[1].endOf('day').toISOString(),
+    }),
+    [range],
+  );
 
   const onExport = async () => {
     setDownloading(true);
@@ -33,6 +39,14 @@ export default function FinancePage() {
       setDownloading(false);
     }
   };
+
+  const tabs = useMemo(
+    () => [
+      { key: 'incomes', label: 'Поступления', children: <IncomesTable /> },
+      { key: 'expenses', label: 'Расходы', children: <ExpensesTable /> },
+    ],
+    [],
+  );
 
   return (
     <>
@@ -53,17 +67,11 @@ export default function FinancePage() {
           </Space>
         }
       />
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
+      <PageContainer>
         <PnlCard from={from} to={to} />
         <FinanceTimeseriesChart from={from} to={to} />
-        <Tabs
-          defaultActiveKey="incomes"
-          items={[
-            { key: 'incomes', label: 'Поступления', children: <IncomesTable /> },
-            { key: 'expenses', label: 'Расходы', children: <ExpensesTable /> },
-          ]}
-        />
-      </Space>
+        <Tabs defaultActiveKey="incomes" items={tabs} />
+      </PageContainer>
     </>
   );
 }

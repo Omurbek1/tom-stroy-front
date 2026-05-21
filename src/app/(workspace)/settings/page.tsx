@@ -9,7 +9,6 @@ import {
   Popconfirm,
   Radio,
   Skeleton,
-  Space,
   Table,
   Tag,
 } from 'antd';
@@ -21,6 +20,7 @@ import { http } from '@shared/api/http';
 import { apiRoutes } from '@shared/api/routes';
 import type { ItemResponse } from '@shared/types/api';
 import { PageHeader } from '@shared/ui/page-header';
+import { PageContainer } from '@shared/ui/page-container';
 import { useAuthStore } from '@app-init/store/auth-store';
 import { useThemeStore } from '@app-init/store/theme-store';
 import { formatDate } from '@shared/lib/format';
@@ -142,7 +142,7 @@ export default function SettingsPage() {
   return (
     <>
       <PageHeader title="Настройки" subtitle="Профиль, пароль, тема, активные сессии" />
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
+      <PageContainer>
         <Card title="Профиль">
           {user ? (
             <Descriptions column={{ xs: 1, sm: 2 }} size="small">
@@ -218,7 +218,7 @@ export default function SettingsPage() {
             locale={{ emptyText: 'Нет активных сессий' }}
           />
         </Card>
-      </Space>
+      </PageContainer>
     </>
   );
 }

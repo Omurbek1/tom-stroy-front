@@ -5,6 +5,7 @@ import type { ColumnsType } from 'antd/es/table';
 import Link from 'next/link';
 import { useState } from 'react';
 import { PageHeader } from '@shared/ui/page-header';
+import { PageContainer } from '@shared/ui/page-container';
 import { StatusBadge, ProjectStatus } from '@shared/ui/status-badge';
 import { useProjectsList } from '@entities/project/hooks';
 import type { Project } from '@entities/project/types';
@@ -33,13 +34,14 @@ const columns: ColumnsType<Project> = [
     title: 'Прогресс',
     dataIndex: 'progress',
     key: 'progress',
-    width: 180,
+    width: 200,
     render: (v: number) => <Progress percent={Math.round(Number(v))} size="small" />,
   },
   {
     title: 'Дедлайн',
     dataIndex: 'deadline',
     key: 'deadline',
+    width: 130,
     render: (d: string | null) => formatDate(d),
   },
   {
@@ -47,6 +49,7 @@ const columns: ColumnsType<Project> = [
     dataIndex: 'budget',
     key: 'budget',
     align: 'right',
+    width: 160,
     render: (v: number) => formatMoney(v),
   },
 ];
@@ -62,24 +65,29 @@ export default function ProjectsListPage() {
         subtitle="Все стройки компании"
         extra={<CreateProjectButton />}
       />
-      <Card>
-        <Space direction="vertical" style={{ width: '100%' }} size="middle">
-          <Input.Search
-            placeholder="Поиск по названию"
-            allowClear
-            onSearch={setSearch}
-            style={{ maxWidth: 360 }}
-          />
-          <Table<Project>
-            rowKey="id"
-            columns={columns}
-            dataSource={data?.data ?? []}
-            loading={isLoading}
-            pagination={false}
-            sticky
-          />
-        </Space>
-      </Card>
+      <PageContainer>
+        <Card>
+          <Space direction="vertical" style={{ width: '100%' }} size="middle">
+            <Input.Search
+              placeholder="Поиск по названию"
+              allowClear
+              onSearch={setSearch}
+              style={{ maxWidth: 360 }}
+            />
+            <div className="table-shell">
+              <Table<Project>
+                rowKey="id"
+                columns={columns}
+                dataSource={data?.data ?? []}
+                loading={isLoading}
+                pagination={false}
+                sticky
+                scroll={{ x: 1000 }}
+              />
+            </div>
+          </Space>
+        </Card>
+      </PageContainer>
     </>
   );
 }

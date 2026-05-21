@@ -1,6 +1,9 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { http } from '@shared/api/http';
+import { apiRoutes } from '@shared/api/routes';
+import type { ItemResponse } from '@shared/types/api';
 import {
   createReceipt,
   listInventoryItems,
@@ -9,6 +12,25 @@ import {
   ListTxnsParams,
   CreateReceiptPayload,
 } from './api';
+
+export interface InventoryStats {
+  totalItems: number;
+  lowStockCount: number;
+  totalValue: number;
+  lastMovement: string | null;
+  lastMovementType: string | null;
+}
+
+export function useInventoryStats() {
+  return useQuery({
+    queryKey: ['inventory', 'stats'],
+    queryFn: async () => {
+      const res = await http.get<ItemResponse<InventoryStats>>(apiRoutes.inventory.stats);
+      return res.data.data;
+    },
+    staleTime: 60_000,
+  });
+}
 
 export const inventoryKeys = {
   items: (params: ListItemsParams) => ['inventory', 'items', params] as const,

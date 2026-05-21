@@ -21,6 +21,7 @@ import { InsightsList } from '@widgets/ai-insights/insights-list';
 import { UsagesTable } from '@widgets/vehicles/usages-table';
 import { formatDate, formatMoney } from '@shared/lib/format';
 import { useProjectRealtime } from '@shared/hooks/use-project-realtime';
+import { PageContainer } from '@shared/ui/page-container';
 
 export default function ProjectDetailPage(props: {
   params: Promise<{ id: string }>;
@@ -52,7 +53,8 @@ export default function ProjectDetailPage(props: {
           </Space>
         }
       />
-      <Card>
+      <PageContainer>
+        <Card>
         <Descriptions column={{ xs: 1, sm: 2, md: 3 }} size="small">
           <Descriptions.Item label="Клиент">{project.client?.name ?? '—'}</Descriptions.Item>
           <Descriptions.Item label="Старт">{formatDate(project.startDate)}</Descriptions.Item>
@@ -66,7 +68,6 @@ export default function ProjectDetailPage(props: {
           </Descriptions.Item>
         </Descriptions>
       </Card>
-      <div className="mt-6">
         <Tabs
           defaultActiveKey="analytics"
           items={[
@@ -122,7 +123,7 @@ export default function ProjectDetailPage(props: {
             },
           ]}
         />
-      </div>
+      </PageContainer>
     </>
   );
 }

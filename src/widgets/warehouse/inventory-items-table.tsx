@@ -1,12 +1,13 @@
 'use client';
 
-import { Card, Input, Space, Switch, Table, Tag, Tooltip } from 'antd';
+import { Card, Empty, Input, Space, Switch, Table, Tag, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useState } from 'react';
 import { useInventoryItems } from '@entities/inventory-item/hooks';
 import type { InventoryItem } from '@entities/inventory-item/types';
 import { formatMoney, formatNumber } from '@shared/lib/format';
 
+// Module-level constant: rendered once, reused across mounts.
 const columns: ColumnsType<InventoryItem> = [
   {
     title: 'Товар',
@@ -14,13 +15,17 @@ const columns: ColumnsType<InventoryItem> = [
     key: 'name',
     render: (v, r) => (
       <div>
-        <div>{v}</div>
-        {r.category && <Tag color="default">{r.category}</Tag>}
+        <div style={{ fontWeight: 500 }}>{v}</div>
+        {r.category && (
+          <Tag color="default" style={{ marginTop: 2, marginRight: 0 }}>
+            {r.category}
+          </Tag>
+        )}
       </div>
     ),
   },
   { title: 'Склад', key: 'wh', render: (_, r) => r.warehouse?.name ?? '—' },
-  { title: 'Ед.', dataIndex: 'unit', key: 'unit', width: 80 },
+  { title: 'Ед.', dataIndex: 'unit', key: 'unit', width: 90 },
   {
     title: 'Остаток',
     key: 'onHand',
@@ -57,7 +62,7 @@ export function InventoryItemsTable() {
   });
 
   return (
-    <Card title="Остатки на складе">
+    <Card title="Остатки">
       <Space direction="vertical" style={{ width: '100%' }} size="middle">
         <Space wrap>
           <Input.Search
@@ -71,15 +76,26 @@ export function InventoryItemsTable() {
             <span>Только низкие остатки</span>
           </Space>
         </Space>
-        <Table<InventoryItem>
-          rowKey="id"
-          size="small"
-          columns={columns}
-          dataSource={data?.data ?? []}
-          loading={isLoading}
-          pagination={false}
-          sticky
-        />
+        <div className="table-shell">
+          <Table<InventoryItem>
+            rowKey="id"
+            size="small"
+            columns={columns}
+            dataSource={data?.data ?? []}
+            loading={isLoading}
+            pagination={false}
+            sticky
+            scroll={{ x: 760 }}
+            locale={{
+              emptyText: (
+                <Empty
+                  image={Empty.PRESENTED_IMAGE_SIMPLE}
+                  description="Нет товаров"
+                />
+              ),
+            }}
+          />
+        </div>
       </Space>
     </Card>
   );

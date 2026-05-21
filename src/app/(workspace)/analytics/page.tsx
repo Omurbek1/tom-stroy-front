@@ -1,9 +1,10 @@
 'use client';
 
-import { Card, Col, Progress, Row, Skeleton, Space, Statistic, Table, Tag } from 'antd';
+import { Card, Col, Progress, Row, Skeleton, Statistic, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import Link from 'next/link';
 import { PageHeader } from '@shared/ui/page-header';
+import { PageContainer } from '@shared/ui/page-container';
 import { useCompanyOverview } from '@entities/analytics/hooks';
 import type { ProjectKpi } from '@entities/analytics/types';
 import { formatMoney, formatNumber } from '@shared/lib/format';
@@ -86,9 +87,11 @@ export default function AnalyticsPage() {
     return (
       <>
         <PageHeader title="Аналитика" subtitle="Сводная картина по компании" />
+      <PageContainer>
         <Card>
           <Skeleton active />
         </Card>
+      </PageContainer>
       </>
     );
   }
@@ -96,7 +99,7 @@ export default function AnalyticsPage() {
   return (
     <>
       <PageHeader title="Аналитика" subtitle="Сводная картина по компании за последние 30 дней" />
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
+      <PageContainer>
         <Card title="KPI компании">
           <Row gutter={[16, 16]}>
             <Col xs={12} md={6}>
@@ -154,7 +157,7 @@ export default function AnalyticsPage() {
             locale={{ emptyText: 'Нет объектов в зоне риска' }}
           />
         </Card>
-      </Space>
+      </PageContainer>
     </>
   );
 }

@@ -24,15 +24,23 @@ import type {
   DailyReportWorkRow,
 } from '@entities/daily-report/types';
 import { formatDate, formatMoney, formatNumber } from '@shared/lib/format';
+import { formatWorkType } from '@shared/constants/work-type';
 import { downloadFile } from '@shared/lib/download';
 import { apiRoutes } from '@shared/api/routes';
 
 const workColumns: ColumnsType<DailyReportWorkRow> = [
-  { title: 'Тип', dataIndex: 'workType', key: 'workType' },
+  {
+    title: 'Тип',
+    dataIndex: 'workType',
+    key: 'workType',
+    width: 200,
+    render: (v: string) => formatWorkType(v),
+  },
   {
     title: 'Объём',
     key: 'volume',
     align: 'right',
+    width: 140,
     render: (_, r) => `${formatNumber(r.volume)} ${r.unit}`,
   },
   {
@@ -40,6 +48,7 @@ const workColumns: ColumnsType<DailyReportWorkRow> = [
     dataIndex: 'price',
     key: 'price',
     align: 'right',
+    width: 140,
     render: (v: number) => formatMoney(v),
   },
   {
@@ -47,11 +56,13 @@ const workColumns: ColumnsType<DailyReportWorkRow> = [
     dataIndex: 'amount',
     key: 'amount',
     align: 'right',
+    width: 160,
     render: (v: number) => <strong>{formatMoney(v)}</strong>,
   },
   {
     title: 'Исполнитель',
     key: 'employee',
+    width: 220,
     render: (_, r) => r.employee?.fullName ?? '—',
   },
 ];

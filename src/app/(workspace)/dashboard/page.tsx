@@ -1,8 +1,9 @@
 'use client';
 
-import { Space } from 'antd';
 import dayjs from 'dayjs';
+import { useMemo } from 'react';
 import { PageHeader } from '@shared/ui/page-header';
+import { PageContainer } from '@shared/ui/page-container';
 import { ProjectsOverview } from '@widgets/dashboard/projects-overview';
 import { FinanceOverview } from '@widgets/dashboard/finance-overview';
 import { PnlCard } from '@widgets/finance/pnl-card';
@@ -10,23 +11,24 @@ import { FinanceTimeseriesChart } from '@widgets/finance/timeseries-chart';
 import { InsightsList } from '@widgets/ai-insights/insights-list';
 
 export default function DashboardPage() {
-  const from = dayjs().subtract(30, 'day').startOf('day').toISOString();
-  const to = dayjs().endOf('day').toISOString();
+  const { from, to } = useMemo(
+    () => ({
+      from: dayjs().subtract(30, 'day').startOf('day').toISOString(),
+      to: dayjs().endOf('day').toISOString(),
+    }),
+    [],
+  );
 
   return (
     <>
-      <PageHeader title="Дашборд" subtitle="Сводная картина по компании за последние 30 дней" />
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
+      <PageHeader title="Дашборд" subtitle="Сводная картина за последние 30 дней" />
+      <PageContainer>
         <InsightsList title="Активные риски по объектам" canScan />
         <ProjectsOverview />
         <PnlCard from={from} to={to} />
-        <FinanceTimeseriesChart
-          from={from}
-          to={to}
-          title="Доходы и расходы за 30 дней"
-        />
+        <FinanceTimeseriesChart from={from} to={to} title="Доходы и расходы за 30 дней" />
         <FinanceOverview />
-      </Space>
+      </PageContainer>
     </>
   );
 }

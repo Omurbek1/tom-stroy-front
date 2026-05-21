@@ -6,6 +6,7 @@ import { DownloadOutlined } from '@ant-design/icons';
 import dayjs, { Dayjs } from 'dayjs';
 import { useState } from 'react';
 import { PageHeader } from '@shared/ui/page-header';
+import { PageContainer } from '@shared/ui/page-container';
 import { VehiclesTable } from '@widgets/vehicles/vehicles-table';
 import { UsagesTable } from '@widgets/vehicles/usages-table';
 import { downloadFile } from '@shared/lib/download';
@@ -55,13 +56,15 @@ export default function VehiclesPage() {
           </Space>
         }
       />
-      <Tabs
-        defaultActiveKey="fleet"
-        items={[
-          { key: 'fleet', label: 'Парк', children: <VehiclesTable /> },
-          { key: 'usages', label: 'Использование', children: <UsagesTable /> },
-        ]}
-      />
+      <PageContainer>
+        <Tabs
+          defaultActiveKey="fleet"
+          items={[
+            { key: 'fleet', label: 'Парк', children: <VehiclesTable /> },
+            { key: 'usages', label: 'Использование', children: <UsagesTable /> },
+          ]}
+        />
+      </PageContainer>
     </>
   );
 }

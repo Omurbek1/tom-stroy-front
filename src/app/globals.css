@@ -2,15 +2,451 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body, #__next { height: 100%; }
+:root {
+  --color-bg: #f4f6f8;
+  --color-surface: #ffffff;
+  --color-text: #1f2937;
+  --color-text-muted: #6b7280;
+  --color-border: #e5e7eb;
+  --color-border-strong: #d1d5db;
+  --color-primary: #1677ff;
+  --color-primary-soft: #e6f4ff;
+  --color-sidebar-bg: #0f172a;
+  --color-sidebar-text: rgba(255, 255, 255, 0.85);
+  --color-sidebar-text-muted: rgba(255, 255, 255, 0.45);
+  --color-sidebar-active-bg: rgba(255, 255, 255, 0.08);
+  --color-sidebar-hover-bg: rgba(255, 255, 255, 0.04);
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.05);
+  --shadow-header: 0 1px 0 rgba(15, 23, 42, 0.06);
 
+  --sidebar-w: 260px;
+  --sidebar-w-collapsed: 72px;
+  --topbar-h: 56px;
+  --page-header-h: 72px;
+}
+
+html,
 body {
+  height: 100%;
   margin: 0;
-  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
-/* ---------- Login page ---------- */
+#__next {
+  height: 100%;
+}
+
+/* ============================================================
+   App Shell — fixed grid, body never scrolls
+   ============================================================ */
+.app-shell {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+  height: 100vh;
+  overflow: hidden;
+  background: var(--color-bg);
+}
+
+.app-shell.is-collapsed {
+  grid-template-columns: var(--sidebar-w-collapsed) minmax(0, 1fr);
+}
+
+.app-shell__sidebar {
+  height: 100vh;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.app-shell__main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* prevents wide tables from blowing out the column */
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app-shell__content {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Mobile: collapse sidebar to drawer, hide it permanently */
+@media (max-width: 900px) {
+  .app-shell,
+  .app-shell.is-collapsed {
+    grid-template-columns: 1fr;
+  }
+  .app-shell__sidebar {
+    display: none;
+  }
+}
+
+/* ============================================================
+   Sidebar
+   ============================================================ */
+.app-sidebar {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--color-sidebar-bg);
+  color: var(--color-sidebar-text);
+  overflow: hidden;
+}
+
+.app-sidebar__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: var(--topbar-h);
+  padding: 0 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.2px;
+}
+
+.app-sidebar.is-collapsed .app-sidebar__brand {
+  justify-content: center;
+  padding: 0;
+}
+
+.app-sidebar__logo {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.app-sidebar__nav {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 12px 8px 8px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
+.app-sidebar__nav::-webkit-scrollbar {
+  width: 6px;
+}
+.app-sidebar__nav::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+
+.app-sidebar__group {
+  margin-bottom: 12px;
+}
+
+.app-sidebar__group-title {
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.6px;
+  color: var(--color-sidebar-text-muted);
+  padding: 8px 12px 4px;
+  user-select: none;
+}
+
+.app-sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  margin: 1px 0;
+  border-radius: 8px;
+  color: var(--color-sidebar-text);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.12s ease, color 0.12s ease;
+  white-space: nowrap;
+}
+
+.app-sidebar__link:hover {
+  background: var(--color-sidebar-hover-bg);
+  color: white;
+}
+
+.app-sidebar__link.is-active {
+  background: var(--color-sidebar-active-bg);
+  color: white;
+  box-shadow: inset 2px 0 0 var(--color-primary);
+}
+
+.app-sidebar__icon {
+  font-size: 16px;
+  width: 18px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.app-sidebar.is-collapsed .app-sidebar__link {
+  justify-content: center;
+  padding: 10px 0;
+}
+
+.app-sidebar.is-collapsed .app-sidebar__group-title {
+  display: none;
+}
+
+.app-sidebar__collapse {
+  border: none;
+  background: transparent;
+  color: var(--color-sidebar-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  font-size: 12px;
+  cursor: pointer;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  transition: color 0.12s ease;
+}
+
+.app-sidebar__collapse:hover {
+  color: white;
+}
+
+/* Mobile drawer override — light sidebar inside dark drawer */
+.app-shell__mobile-drawer .ant-drawer-content {
+  background: var(--color-sidebar-bg);
+}
+.app-shell__mobile-drawer .app-sidebar {
+  height: 100%;
+}
+
+/* ============================================================
+   Topbar
+   ============================================================ */
+.app-topbar {
+  height: var(--topbar-h);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.app-topbar__spacer {
+  flex: 1;
+}
+
+.app-topbar__menu-btn {
+  display: none !important;
+}
+
+@media (max-width: 900px) {
+  .app-topbar__menu-btn {
+    display: inline-flex !important;
+  }
+}
+
+.app-topbar__user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.12s ease;
+}
+
+.app-topbar__user:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.app-topbar__user-name {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .app-topbar__user-name {
+    display: none;
+  }
+}
+
+/* ============================================================
+   Page header — sticky inside main content
+   ============================================================ */
+.page-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: var(--page-header-h);
+  padding: 14px 24px;
+  background: rgba(244, 246, 248, 0.92);
+  backdrop-filter: saturate(140%) blur(8px);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.page-header__text {
+  min-width: 0;
+}
+
+.page-header__title {
+  margin: 0 !important;
+  font-size: 20px !important;
+  line-height: 28px !important;
+}
+
+.page-header__subtitle {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+}
+
+.page-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 600px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 12px 16px;
+    gap: 10px;
+  }
+  .page-header__actions {
+    flex-wrap: wrap;
+  }
+}
+
+/* ============================================================
+   Page container — padding, vertical rhythm
+   ============================================================ */
+.page-container {
+  padding: 20px 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .page-container {
+    padding: 16px;
+    gap: 12px;
+  }
+}
+
+/* AntD card spacing tweak so cards inside page-container look consistent */
+.page-container .ant-card {
+  border-radius: 12px;
+}
+
+/* ============================================================
+   Stats card
+   ============================================================ */
+.stats-card {
+  border-radius: 12px !important;
+}
+
+.stats-card .ant-card-body {
+  padding: 14px 16px !important;
+}
+
+.stats-card__row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.stats-card__text {
+  min-width: 0;
+  flex: 1;
+}
+
+.stats-card__label {
+  display: block;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--color-text-muted);
+}
+
+.stats-card__value {
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 28px;
+  margin-top: 4px;
+}
+
+.stats-card__hint {
+  display: block;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.stats-card__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   Empty state
+   ============================================================ */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.empty-state__icon {
+  font-size: 36px;
+  margin-bottom: 12px;
+  color: var(--color-text-muted);
+}
+
+.empty-state__desc {
+  display: block;
+  max-width: 380px;
+  margin-bottom: 16px;
+}
+
+.empty-state__action {
+  margin-top: 4px;
+}
+
+/* ============================================================
+   Tables — wrap so horizontal scroll doesn't bleed into layout
+   ============================================================ */
+.table-shell {
+  min-width: 0;
+  overflow-x: auto;
+}
+
+/* ============================================================
+   Login page (kept from previous iteration)
+   ============================================================ */
 .login-shell {
   min-height: 100vh;
   display: grid;
@@ -34,12 +470,15 @@ body {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(800px 400px at 90% 110%, rgba(255,255,255,0.18), transparent 60%),
-    radial-gradient(600px 400px at -10% -10%, rgba(255,255,255,0.12), transparent 50%);
+    radial-gradient(800px 400px at 90% 110%, rgba(255, 255, 255, 0.18), transparent 60%),
+    radial-gradient(600px 400px at -10% -10%, rgba(255, 255, 255, 0.12), transparent 50%);
   pointer-events: none;
 }
 
-.login-aside > * { position: relative; z-index: 1; }
+.login-aside > * {
+  position: relative;
+  z-index: 1;
+}
 
 .login-features {
   list-style: none;
@@ -47,7 +486,7 @@ body {
   margin: 24px 0;
   display: grid;
   gap: 12px;
-  color: rgba(255,255,255,0.92);
+  color: rgba(255, 255, 255, 0.92);
   font-size: 15px;
 }
 
@@ -87,8 +526,8 @@ body {
 }
 
 .login-demo-chip:hover {
-  border-color: #1677ff;
-  background: #f0f7ff;
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
 }
 
 .login-demo-chip strong {
@@ -103,8 +542,17 @@ body {
 }
 
 @media (max-width: 900px) {
-  .login-shell { grid-template-columns: 1fr; }
-  .login-aside { padding: 32px 24px; min-height: auto; }
-  .login-aside .login-features { display: none; }
-  .login-main { padding: 16px; }
+  .login-shell {
+    grid-template-columns: 1fr;
+  }
+  .login-aside {
+    padding: 32px 24px;
+    min-height: auto;
+  }
+  .login-aside .login-features {
+    display: none;
+  }
+  .login-main {
+    padding: 16px;
+  }
 }

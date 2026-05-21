@@ -9,18 +9,27 @@ interface Props {
   extra?: ReactNode;
 }
 
+/**
+ * Sticky page header. Rendered at the top of every page; sticks to the
+ * top of `.app-shell__content` while user scrolls the page body.
+ *
+ * Use `<PageHeader title=... subtitle=... extra={...} />` exactly once per
+ * page, before any scrollable content.
+ */
 export function PageHeader({ title, subtitle, extra }: Props) {
   return (
-    <div className="flex items-start justify-between mb-6">
-      <div>
-        <Typography.Title level={3} style={{ margin: 0 }}>
+    <div className="page-header">
+      <div className="page-header__text">
+        <Typography.Title level={4} className="page-header__title">
           {title}
         </Typography.Title>
         {subtitle && (
-          <Typography.Text type="secondary">{subtitle}</Typography.Text>
+          <Typography.Text type="secondary" className="page-header__subtitle">
+            {subtitle}
+          </Typography.Text>
         )}
       </div>
-      {extra && <div>{extra}</div>}
+      {extra && <div className="page-header__actions">{extra}</div>}
     </div>
   );
 }
