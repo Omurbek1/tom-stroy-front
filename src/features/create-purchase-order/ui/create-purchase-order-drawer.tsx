@@ -16,6 +16,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { useMemo, useState } from 'react';
 import { message } from '@shared/lib/antd-static';
 import { FormModal } from '@shared/ui/form-modal';
+import { useFormDirty } from '@shared/hooks/use-form-dirty';
 import { FormSection } from '@shared/ui/form-section';
 import { SupplierSelect } from '@shared/ui/supplier-select';
 import { WarehouseSelect } from '@shared/ui/warehouse-select';
@@ -36,6 +37,7 @@ export function CreatePurchaseOrderDrawer() {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm<FormShape>();
   const mutation = useCreatePurchaseOrder();
+  const dirty = useFormDirty(form);
 
   const lines = Form.useWatch('lines', form);
   const total = useMemo(
@@ -84,6 +86,8 @@ export function CreatePurchaseOrderDrawer() {
         open={open}
         onClose={close}
         width={720}
+        dirty={dirty}
+        onSubmit={() => form.submit()}
         footer={
           <Space>
             <Button onClick={close}>Отмена</Button>

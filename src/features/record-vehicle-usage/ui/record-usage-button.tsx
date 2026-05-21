@@ -62,6 +62,8 @@ export function RecordUsageButton({ projectId }: { projectId?: string } = {}) {
         width={460}
         open={open}
         onClose={() => setOpen(false)}
+        dirty={dirty}
+        onSubmit={() => form.submit()}
       >
         <Form<FormShape>
           form={form}

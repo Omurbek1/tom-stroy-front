@@ -1,7 +1,8 @@
 'use client';
 
 import { Modal } from 'antd';
-import { ReactNode } from 'react';
+import { ReactNode, useRef } from 'react';
+import { useModalNudgeOnBackdrop } from '@shared/hooks/use-modal-nudge';
 
 interface Props {
   title: ReactNode;
@@ -13,6 +14,12 @@ interface Props {
   /** Desktop width in pixels. */
   width?: number;
   footer?: ReactNode;
+  /**
+   * If true, mask-click and Escape are blocked. The backdrop responds
+   * with a subtle nudge — useful for detail modals that wrap a long
+   * editable form (stock count, receive PO).
+   */
+  locked?: boolean;
   children: ReactNode;
 }
 
@@ -29,8 +36,19 @@ export function DetailModal({
   extra,
   width = 960,
   footer,
+  locked = false,
   children,
 }: Props) {
+  const wrapClassRef = useRef<string>(
+    `dm-wrap-${Math.random().toString(36).slice(2, 9)}`,
+  );
+
+  useModalNudgeOnBackdrop({
+    open,
+    enabled: locked,
+    wrapClassName: wrapClassRef.current,
+  });
+
   return (
     <Modal
       title={
@@ -49,9 +67,11 @@ export function DetailModal({
       footer={null}
       width={width}
       destroyOnHidden
-      maskClosable
+      maskClosable={!locked}
+      keyboard={!locked}
       centered
       rootClassName="detail-modal"
+      wrapClassName={wrapClassRef.current}
       styles={{ body: { padding: 0 } }}
     >
       <div className="modal-body">

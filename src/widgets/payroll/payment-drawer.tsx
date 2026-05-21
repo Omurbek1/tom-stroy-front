@@ -68,6 +68,7 @@ export function PaymentDrawer({
       onClose={onClose}
       width={460}
       dirty={dirty}
+      onSubmit={() => form.submit()}
     >
       {payroll && (
         <Typography.Paragraph type="secondary">

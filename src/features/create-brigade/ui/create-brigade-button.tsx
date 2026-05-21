@@ -43,6 +43,7 @@ export function CreateBrigadeButton() {
         onClose={() => setOpen(false)}
         width={460}
         dirty={dirty}
+        onSubmit={() => form.submit()}
       >
         <Form<CreateBrigadePayload> form={form} layout="vertical" onFinish={onFinish}>
           <Form.Item name="name" label="Название" rules={[{ required: true }]}>

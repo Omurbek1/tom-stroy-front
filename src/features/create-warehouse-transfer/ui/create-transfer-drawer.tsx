@@ -1,19 +1,35 @@
 'use client';
 
-import { Button, Col, Form, Input, InputNumber, Row, Space } from 'antd';
+import {
+  Button,
+  Col,
+  Form,
+  Input,
+  InputNumber,
+  Row,
+  Segmented,
+  Space,
+} from 'antd';
 import { DeleteOutlined, PlusOutlined, SwapOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 import { message } from '@shared/lib/antd-static';
 import { FormModal } from '@shared/ui/form-modal';
+import { useFormDirty } from '@shared/hooks/use-form-dirty';
 import { WarehouseSelect } from '@shared/ui/warehouse-select';
+import { BrigadeSelect } from '@shared/ui/brigade-select';
 import { MaterialSelect } from '@shared/ui/material-select';
 import { FormSection } from '@shared/ui/form-section';
 import { useCreateTransfer } from '@entities/warehouse-transfer/hooks';
 import type { CreateTransferPayload } from '@entities/warehouse-transfer/types';
+import { ensureBrigadeWarehouse } from '@entities/brigade/api';
+
+type DestKind = 'warehouse' | 'brigade';
 
 interface FormShape {
   fromWarehouseId: string;
-  toWarehouseId: string;
+  destKind: DestKind;
+  toWarehouseId?: string;
+  toBrigadeId?: string;
   note?: string;
   lines: Array<{ itemId: string; qty: number }>;
 }
@@ -22,16 +38,44 @@ export function CreateTransferDrawer() {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm<FormShape>();
   const mutation = useCreateTransfer();
+  const dirty = useFormDirty(form);
+  const [resolving, setResolving] = useState(false);
 
   const fromId = Form.useWatch('fromWarehouseId', form);
-  const toId = Form.useWatch('toWarehouseId', form);
+  const toWarehouseId = Form.useWatch('toWarehouseId', form);
+  const destKind = (Form.useWatch('destKind', form) ?? 'warehouse') as DestKind;
 
   const close = () => setOpen(false);
 
   const onFinish = async (values: FormShape) => {
+    let toWarehouse = values.toWarehouseId;
+    if (values.destKind === 'brigade') {
+      if (!values.toBrigadeId) {
+        message.error('Выберите бригаду');
+        return;
+      }
+      setResolving(true);
+      try {
+        toWarehouse = await ensureBrigadeWarehouse(values.toBrigadeId);
+      } catch {
+        message.error('Не удалось определить склад бригады');
+        setResolving(false);
+        return;
+      }
+      setResolving(false);
+    }
+    if (!toWarehouse) {
+      message.error('Выберите приёмник');
+      return;
+    }
+    if (toWarehouse === values.fromWarehouseId) {
+      message.error('Источник и приёмник не могут совпадать');
+      return;
+    }
+
     const payload: CreateTransferPayload = {
       fromWarehouseId: values.fromWarehouseId,
-      toWarehouseId: values.toWarehouseId,
+      toWarehouseId: toWarehouse,
       note: values.note,
       lines: (values.lines ?? []).map((l) => ({
         itemId: l.itemId,
@@ -57,16 +101,18 @@ export function CreateTransferDrawer() {
         Перемещение
       </Button>
       <FormModal
-        title="Перемещение между складами"
+        title="Перемещение материалов"
         open={open}
         onClose={close}
         width={680}
+        dirty={dirty}
+        onSubmit={() => form.submit()}
         footer={
           <Space>
             <Button onClick={close}>Отмена</Button>
             <Button
               type="primary"
-              loading={mutation.isPending}
+              loading={mutation.isPending || resolving}
               onClick={() => form.submit()}
             >
               Создать
@@ -79,29 +125,47 @@ export function CreateTransferDrawer() {
           layout="vertical"
           onFinish={onFinish}
           requiredMark={false}
-          initialValues={{ lines: [{}] }}
+          initialValues={{ lines: [{}], destKind: 'warehouse' }}
         >
           <FormSection title="Маршрут">
-            <Row gutter={12}>
-              <Col xs={24} md={12}>
-                <Form.Item
-                  name="fromWarehouseId"
-                  label="Откуда"
-                  rules={[{ required: true, message: 'Выберите источник' }]}
-                >
-                  <WarehouseSelect placeholder="Источник" excludeId={toId} />
-                </Form.Item>
-              </Col>
-              <Col xs={24} md={12}>
-                <Form.Item
-                  name="toWarehouseId"
-                  label="Куда"
-                  rules={[{ required: true, message: 'Выберите приёмник' }]}
-                >
-                  <WarehouseSelect placeholder="Приёмник" excludeId={fromId} />
-                </Form.Item>
-              </Col>
-            </Row>
+            <Form.Item
+              name="fromWarehouseId"
+              label="Откуда (склад)"
+              rules={[{ required: true, message: 'Выберите источник' }]}
+            >
+              <WarehouseSelect placeholder="Источник" excludeId={toWarehouseId} />
+            </Form.Item>
+
+            <Form.Item name="destKind" label="Куда">
+              <Segmented
+                options={[
+                  { label: 'На склад', value: 'warehouse' },
+                  { label: 'Бригаде', value: 'brigade' },
+                ]}
+                block
+              />
+            </Form.Item>
+
+            {destKind === 'warehouse' && (
+              <Form.Item
+                name="toWarehouseId"
+                label="Склад приёмки"
+                rules={[{ required: true, message: 'Выберите склад' }]}
+              >
+                <WarehouseSelect placeholder="Приёмник" excludeId={fromId} />
+              </Form.Item>
+            )}
+            {destKind === 'brigade' && (
+              <Form.Item
+                name="toBrigadeId"
+                label="Бригада"
+                rules={[{ required: true, message: 'Выберите бригаду' }]}
+                extra="Материалы попадут на личный склад бригады."
+              >
+                <BrigadeSelect placeholder="Бригада" />
+              </Form.Item>
+            )}
+
             <Form.Item name="note" label="Комментарий">
               <Input placeholder="Опционально — для накладной" />
             </Form.Item>

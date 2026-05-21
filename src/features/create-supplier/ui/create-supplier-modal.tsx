@@ -1,9 +1,11 @@
 'use client';
 
-import { Button, Col, Form, Input, Modal, Row } from 'antd';
+import { Button, Col, Form, Input, Row, Space } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 import { message } from '@shared/lib/antd-static';
+import { FormModal } from '@shared/ui/form-modal';
+import { useFormDirty } from '@shared/hooks/use-form-dirty';
 import { useCreateSupplier } from '@entities/supplier/hooks';
 import type { CreateSupplierPayload } from '@entities/supplier/types';
 
@@ -11,13 +13,16 @@ export function CreateSupplierModal() {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm<CreateSupplierPayload>();
   const mutation = useCreateSupplier();
+  const dirty = useFormDirty(form);
+
+  const close = () => setOpen(false);
 
   const onFinish = async (values: CreateSupplierPayload) => {
     try {
       await mutation.mutateAsync(values);
       message.success('Поставщик создан');
       form.resetFields();
-      setOpen(false);
+      close();
     } catch (err: unknown) {
       const detail =
         (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ??
@@ -31,15 +36,25 @@ export function CreateSupplierModal() {
       <Button icon={<PlusOutlined />} onClick={() => setOpen(true)}>
         Поставщик
       </Button>
-      <Modal
+      <FormModal
         title="Новый поставщик"
         open={open}
-        onCancel={() => setOpen(false)}
-        onOk={() => form.submit()}
-        okText="Создать"
-        cancelText="Отмена"
-        confirmLoading={mutation.isPending}
-        destroyOnClose
+        onClose={close}
+        width={560}
+        dirty={dirty}
+        onSubmit={() => form.submit()}
+        footer={
+          <Space>
+            <Button onClick={close}>Отмена</Button>
+            <Button
+              type="primary"
+              loading={mutation.isPending}
+              onClick={() => form.submit()}
+            >
+              Создать
+            </Button>
+          </Space>
+        }
       >
         <Form<CreateSupplierPayload>
           form={form}
@@ -82,7 +97,7 @@ export function CreateSupplierModal() {
             <Input.TextArea autoSize={{ minRows: 2, maxRows: 4 }} />
           </Form.Item>
         </Form>
-      </Modal>
+      </FormModal>
     </>
   );
 }

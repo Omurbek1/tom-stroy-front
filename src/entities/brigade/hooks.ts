@@ -1,7 +1,7 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createBrigade, getBrigade, listBrigades } from './api';
+import { createBrigade, fetchBrigadeStats, getBrigade, listBrigades } from './api';
 import type { CreateBrigadePayload } from './types';
 
 export const brigadeKeys = {
@@ -19,6 +19,18 @@ export function useBrigade(id: string | undefined) {
     queryKey: brigadeKeys.detail(id ?? ''),
     queryFn: () => getBrigade(id as string),
     enabled: !!id,
+  });
+}
+
+export function useBrigadeStats(
+  brigadeId: string | undefined,
+  params: { from?: string; to?: string } = {},
+) {
+  return useQuery({
+    queryKey: ['brigades', 'stats', brigadeId, params],
+    queryFn: () => fetchBrigadeStats(brigadeId as string, params),
+    enabled: !!brigadeId,
+    staleTime: 60 * 1000,
   });
 }
 

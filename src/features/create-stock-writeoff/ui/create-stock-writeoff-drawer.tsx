@@ -17,6 +17,7 @@ import {
 import { useState } from 'react';
 import { message } from '@shared/lib/antd-static';
 import { FormModal } from '@shared/ui/form-modal';
+import { useFormDirty } from '@shared/hooks/use-form-dirty';
 import { FormSection } from '@shared/ui/form-section';
 import { WarehouseSelect } from '@shared/ui/warehouse-select';
 import { ProjectSelect } from '@shared/ui/project-select';
@@ -38,6 +39,7 @@ export function CreateStockWriteoffDrawer({ trigger }: Props = {}) {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm<FormShape>();
   const mutation = useCreateMovementsBatch();
+  const dirty = useFormDirty(form);
 
   const close = () => setOpen(false);
 
@@ -78,6 +80,8 @@ export function CreateStockWriteoffDrawer({ trigger }: Props = {}) {
         open={open}
         onClose={close}
         width={680}
+        dirty={dirty}
+        onSubmit={() => form.submit()}
         footer={
           <Space>
             <Button onClick={close}>Отмена</Button>

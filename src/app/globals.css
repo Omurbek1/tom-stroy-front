@@ -1345,6 +1345,56 @@ a.uheader__crumb:hover {
   }
 }
 
+/* Click-on-backdrop nudge — macOS-style "this can't be dismissed that
+   way" tactile cue. Sub-3px horizontal jitter, then settles. */
+@keyframes modal-nudge {
+  0%, 100% { transform: translateX(0); }
+  20%      { transform: translateX(-3px); }
+  40%      { transform: translateX(3px); }
+  60%      { transform: translateX(-2px); }
+  80%      { transform: translateX(2px); }
+}
+
+.form-modal .ant-modal-content.is-nudging,
+.detail-modal .ant-modal-content.is-nudging {
+  animation: modal-nudge 280ms ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .form-modal .ant-modal-content.is-nudging,
+  .detail-modal .ant-modal-content.is-nudging {
+    animation: none;
+  }
+}
+
+/* Cmd/Ctrl+Enter confirmation pulse — brief glow on the primary footer
+   button so the user knows the shortcut registered, even before the
+   request resolves. */
+@keyframes modal-submit-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--ant-color-primary, #1677ff) 45%, transparent);
+    transform: scale(1);
+  }
+  40% {
+    box-shadow: 0 0 0 8px color-mix(in srgb, var(--ant-color-primary, #1677ff) 0%, transparent);
+    transform: scale(1.025);
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+    transform: scale(1);
+  }
+}
+
+.modal-body__footer.is-submit-pulsing .ant-btn-primary {
+  animation: modal-submit-pulse 320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-body__footer.is-submit-pulsing .ant-btn-primary {
+    animation: none;
+  }
+}
+
 .form-modal .ant-modal-mask,
 .detail-modal .ant-modal-mask {
   animation: modal-mask-in 180ms cubic-bezier(0.16, 1, 0.3, 1) both;

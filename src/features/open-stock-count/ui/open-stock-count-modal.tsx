@@ -1,9 +1,11 @@
 'use client';
 
-import { Button, Form, Input, Modal } from 'antd';
+import { Button, Form, Input, Space } from 'antd';
 import { AuditOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 import { message } from '@shared/lib/antd-static';
+import { FormModal } from '@shared/ui/form-modal';
+import { useFormDirty } from '@shared/hooks/use-form-dirty';
 import { WarehouseSelect } from '@shared/ui/warehouse-select';
 import { useOpenStockCount } from '@entities/stock-count/hooks';
 
@@ -20,13 +22,16 @@ export function OpenStockCountModal({ onOpened }: Props) {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm<FormShape>();
   const mutation = useOpenStockCount();
+  const dirty = useFormDirty(form);
+
+  const close = () => setOpen(false);
 
   const onFinish = async (values: FormShape) => {
     try {
       const created = await mutation.mutateAsync(values);
       message.success('Инвентаризация начата');
       form.resetFields();
-      setOpen(false);
+      close();
       onOpened?.(created.id);
     } catch (err: unknown) {
       const detail =
@@ -41,15 +46,25 @@ export function OpenStockCountModal({ onOpened }: Props) {
       <Button icon={<AuditOutlined />} type="primary" onClick={() => setOpen(true)}>
         Начать инвентаризацию
       </Button>
-      <Modal
+      <FormModal
         title="Новая инвентаризация"
         open={open}
-        onCancel={() => setOpen(false)}
-        onOk={() => form.submit()}
-        okText="Начать"
-        cancelText="Отмена"
-        confirmLoading={mutation.isPending}
-        destroyOnClose
+        onClose={close}
+        width={520}
+        dirty={dirty}
+        onSubmit={() => form.submit()}
+        footer={
+          <Space>
+            <Button onClick={close}>Отмена</Button>
+            <Button
+              type="primary"
+              loading={mutation.isPending}
+              onClick={() => form.submit()}
+            >
+              Начать
+            </Button>
+          </Space>
+        }
       >
         <Form<FormShape> form={form} layout="vertical" onFinish={onFinish} requiredMark={false}>
           <Form.Item
@@ -66,7 +81,7 @@ export function OpenStockCountModal({ onOpened }: Props) {
             />
           </Form.Item>
         </Form>
-      </Modal>
+      </FormModal>
     </>
   );
 }

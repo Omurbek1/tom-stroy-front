@@ -98,6 +98,7 @@ export function EmployeeFormDrawer({ employee, open, onClose }: Props) {
       onClose={onClose}
       width={520}
       dirty={dirty}
+      onSubmit={() => form.submit()}
     >
       <Form<FormShape> form={form} layout="vertical" onFinish={onFinish}>
         <Form.Item name="fullName" label="ФИО" rules={[{ required: true }]}>

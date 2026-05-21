@@ -8,7 +8,11 @@ import { IncomeForm } from './income-form';
 
 export function CreateIncomeButton({ projectId }: { projectId?: string } = {}) {
   const [open, setOpen] = useState(false);
-  const close = useCallback(() => setOpen(false), []);
+  const [dirty, setDirty] = useState(false);
+  const close = useCallback(() => {
+    setOpen(false);
+    setDirty(false);
+  }, []);
 
   return (
     <>
@@ -20,8 +24,9 @@ export function CreateIncomeButton({ projectId }: { projectId?: string } = {}) {
         open={open}
         onClose={close}
         width={460}
+        dirty={dirty}
       >
-        <IncomeForm projectId={projectId} onDone={close} />
+        <IncomeForm projectId={projectId} onDone={close} onDirtyChange={setDirty} />
       </FormModal>
     </>
   );

@@ -26,7 +26,11 @@ export const apiRoutes = {
     create: '/work-templates',
     remove: (id: string) => `/work-templates/${id}`,
   },
-  brigades: { list: '/brigades' },
+  brigades: {
+    list: '/brigades',
+    ensureWarehouse: (id: string) => `/brigades/${id}/ensure-warehouse`,
+    stats: (id: string) => `/brigades/${id}/stats`,
+  },
   employees: { list: '/employees' },
   warehouses: { list: '/warehouses' },
   suppliers: {

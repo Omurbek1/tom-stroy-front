@@ -14,6 +14,7 @@ import {
 import { useEffect } from 'react';
 import { message } from '@shared/lib/antd-static';
 import { FormModal } from '@shared/ui/form-modal';
+import { useFormDirty } from '@shared/hooks/use-form-dirty';
 import { FormSection } from '@shared/ui/form-section';
 import { useReceivePurchaseOrder } from '@entities/purchase-order/hooks';
 import type { PurchaseOrder } from '@entities/purchase-order/types';
@@ -33,6 +34,7 @@ interface Props {
 export function ReceivePurchaseOrderDrawer({ order, open, onClose }: Props) {
   const [form] = Form.useForm<FormShape>();
   const mutation = useReceivePurchaseOrder();
+  const dirty = useFormDirty(form);
 
   useEffect(() => {
     if (!order || !open) return;
@@ -76,6 +78,8 @@ export function ReceivePurchaseOrderDrawer({ order, open, onClose }: Props) {
       open={open}
       onClose={onClose}
       width={680}
+      dirty={dirty}
+      onSubmit={() => form.submit()}
       footer={
         <Space>
           <Button onClick={onClose}>Отмена</Button>

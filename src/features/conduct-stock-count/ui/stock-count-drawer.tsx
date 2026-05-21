@@ -249,6 +249,8 @@ export function StockCountDrawer({ countId, open, onClose }: Props) {
       open={open}
       onClose={onClose}
       width={920}
+      dirty={dirtyCount > 0}
+      onSubmit={dirtyCount > 0 && isEditable ? onSave : undefined}
       footer={
         count && (
           <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', gap: 12 }}>

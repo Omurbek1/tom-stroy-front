@@ -13,15 +13,19 @@ import { ProjectForm } from './project-form';
  */
 export function CreateProjectButton() {
   const [open, setOpen] = useState(false);
-  const close = useCallback(() => setOpen(false), []);
+  const [dirty, setDirty] = useState(false);
+  const close = useCallback(() => {
+    setOpen(false);
+    setDirty(false);
+  }, []);
 
   return (
     <>
       <Button type="primary" icon={<PlusOutlined />} onClick={() => setOpen(true)}>
         Новый объект
       </Button>
-      <FormModal title="Новый объект" open={open} onClose={close} width={520}>
-        <ProjectForm onDone={close} />
+      <FormModal title="Новый объект" open={open} onClose={close} width={520} dirty={dirty}>
+        <ProjectForm onDone={close} onDirtyChange={setDirty} />
       </FormModal>
     </>
   );

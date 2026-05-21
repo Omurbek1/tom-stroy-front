@@ -18,6 +18,7 @@ import {
 import { useMemo, useState } from 'react';
 import { message } from '@shared/lib/antd-static';
 import { FormModal } from '@shared/ui/form-modal';
+import { useFormDirty } from '@shared/hooks/use-form-dirty';
 import { FormSection } from '@shared/ui/form-section';
 import { WarehouseSelect } from '@shared/ui/warehouse-select';
 import { MaterialSelect } from '@shared/ui/material-select';
@@ -38,6 +39,7 @@ export function CreateStockIncomeDrawer({ trigger }: Props = {}) {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm<FormShape>();
   const mutation = useCreateMovementsBatch();
+  const dirty = useFormDirty(form);
 
   const lines = Form.useWatch('lines', form);
   const total = useMemo(
@@ -88,6 +90,8 @@ export function CreateStockIncomeDrawer({ trigger }: Props = {}) {
         open={open}
         onClose={close}
         width={680}
+        dirty={dirty}
+        onSubmit={() => form.submit()}
         footer={
           <Space>
             <Button onClick={close}>Отмена</Button>

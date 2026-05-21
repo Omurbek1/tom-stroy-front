@@ -8,15 +8,19 @@ import { ExpenseForm } from './expense-form';
 
 export function CreateExpenseButton({ projectId }: { projectId?: string } = {}) {
   const [open, setOpen] = useState(false);
-  const close = useCallback(() => setOpen(false), []);
+  const [dirty, setDirty] = useState(false);
+  const close = useCallback(() => {
+    setOpen(false);
+    setDirty(false);
+  }, []);
 
   return (
     <>
       <Button icon={<PlusOutlined />} onClick={() => setOpen(true)}>
         Расход
       </Button>
-      <FormModal title="Новый расход" open={open} onClose={close} width={460}>
-        <ExpenseForm projectId={projectId} onDone={close} />
+      <FormModal title="Новый расход" open={open} onClose={close} width={460} dirty={dirty}>
+        <ExpenseForm projectId={projectId} onDone={close} onDirtyChange={setDirty} />
       </FormModal>
     </>
   );

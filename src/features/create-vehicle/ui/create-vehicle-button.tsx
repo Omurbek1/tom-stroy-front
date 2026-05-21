@@ -40,6 +40,7 @@ export function CreateVehicleButton() {
         open={open}
         onClose={() => setOpen(false)}
         dirty={dirty}
+        onSubmit={() => form.submit()}
       >
         <Form<CreateVehiclePayload>
           form={form}

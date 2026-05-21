@@ -2,11 +2,18 @@
 
 import { Modal } from 'antd';
 import { modal as staticModal } from '@shared/lib/antd-static';
-import { ReactNode, useCallback, useEffect } from 'react';
+import {
+  KeyboardEvent,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+} from 'react';
+import { useModalNudgeOnBackdrop } from '@shared/hooks/use-modal-nudge';
 
 interface Props {
   title: ReactNode;
-  /** Secondary line under the title — context, hint, route name. */
+  /** Secondary line under the title. */
   subtitle?: ReactNode;
   open: boolean;
   onClose: () => void;
@@ -20,24 +27,21 @@ interface Props {
    * If true:
    *   - close requests run through a discard-confirm dialog
    *   - mask-click and Escape are disabled
-   *   - a `•` accent dot appears next to the title (IDE-tab style)
+   *   - a `•` accent dot appears next to the title
+   *   - clicking on the backdrop nudges the modal + vibrates on mobile
    *   - tab close / reload triggers the browser's "Leave site?" prompt
    */
   dirty?: boolean;
+  /**
+   * Optional submit handler. When provided, ⌘/Ctrl+Enter anywhere inside
+   * the modal calls it — saves a reach to the bottom Submit button.
+   */
+  onSubmit?: () => void;
   children: ReactNode;
 }
 
 /**
- * Project-wide form modal. Three-row layout:
- *
- *   ┌────────────────────────────────────────────┐
- *   │ • Title           [badge]            ✕    │  sticky head
- *   │ subtitle                                   │
- *   ├────────────────────────────────────────────┤
- *   │ scrollable body                            │
- *   ├────────────────────────────────────────────┤
- *   │ sticky footer (optional)                   │
- *   └────────────────────────────────────────────┘
+ * Project-wide form modal. Sticky head / scrollable body / sticky footer.
  */
 export function FormModal({
   title,
@@ -48,9 +52,9 @@ export function FormModal({
   footer,
   badge,
   dirty = false,
+  onSubmit,
   children,
 }: Props) {
-  // Confirm-on-close while the form has unsaved input.
   const requestClose = useCallback(() => {
     if (!dirty) {
       onClose();
@@ -67,10 +71,6 @@ export function FormModal({
     });
   }, [dirty, onClose]);
 
-  // Browser-level guard: prevent accidental tab close / reload / link
-  // navigation while the modal is open and dirty. The `returnValue`
-  // string is ignored by modern browsers (they show a generic message),
-  // but setting it is what actually triggers the prompt.
   useEffect(() => {
     if (!open || !dirty) return;
     const handler = (e: BeforeUnloadEvent) => {
@@ -80,6 +80,46 @@ export function FormModal({
     window.addEventListener('beforeunload', handler);
     return () => window.removeEventListener('beforeunload', handler);
   }, [open, dirty]);
+
+  // Per-instance wrap class so multiple open modals don't fight each other.
+  const wrapClassRef = useRef<string>(
+    `fm-wrap-${Math.random().toString(36).slice(2, 9)}`,
+  );
+
+  useModalNudgeOnBackdrop({
+    open,
+    enabled: dirty,
+    wrapClassName: wrapClassRef.current,
+  });
+
+  const footerRef = useRef<HTMLDivElement | null>(null);
+  const pulseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLDivElement>) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter' && onSubmit) {
+        e.preventDefault();
+        const footer = footerRef.current;
+        if (footer) {
+          footer.classList.remove('is-submit-pulsing');
+          void footer.offsetWidth; // force reflow so the class re-triggers anim
+          footer.classList.add('is-submit-pulsing');
+          if (pulseTimerRef.current) clearTimeout(pulseTimerRef.current);
+          pulseTimerRef.current = setTimeout(() => {
+            footer.classList.remove('is-submit-pulsing');
+          }, 360);
+        }
+        onSubmit();
+      }
+    },
+    [onSubmit],
+  );
+
+  useEffect(() => {
+    return () => {
+      if (pulseTimerRef.current) clearTimeout(pulseTimerRef.current);
+    };
+  }, []);
 
   return (
     <Modal
@@ -110,11 +150,16 @@ export function FormModal({
       keyboard={!dirty}
       centered
       rootClassName="form-modal"
+      wrapClassName={wrapClassRef.current}
       styles={{ body: { padding: 0 } }}
     >
-      <div className="modal-body">
+      <div className="modal-body" onKeyDown={handleKeyDown}>
         <div className="modal-body__scroll">{children}</div>
-        {footer && <div className="modal-body__footer">{footer}</div>}
+        {footer && (
+          <div className="modal-body__footer" ref={footerRef}>
+            {footer}
+          </div>
+        )}
       </div>
     </Modal>
   );
