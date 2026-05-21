@@ -7,6 +7,7 @@ import { ProjectsOverview } from '@widgets/dashboard/projects-overview';
 import { FinanceOverview } from '@widgets/dashboard/finance-overview';
 import { PnlCard } from '@widgets/finance/pnl-card';
 import { FinanceTimeseriesChart } from '@widgets/finance/timeseries-chart';
+import { InsightsList } from '@widgets/ai-insights/insights-list';
 
 export default function DashboardPage() {
   const from = dayjs().subtract(30, 'day').startOf('day').toISOString();
@@ -16,6 +17,7 @@ export default function DashboardPage() {
     <>
       <PageHeader title="Дашборд" subtitle="Сводная картина по компании за последние 30 дней" />
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
+        <InsightsList title="Активные риски по объектам" canScan />
         <ProjectsOverview />
         <PnlCard from={from} to={to} />
         <FinanceTimeseriesChart

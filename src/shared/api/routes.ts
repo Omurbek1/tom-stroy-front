@@ -32,7 +32,11 @@ export const apiRoutes = {
     pnl: '/finance/pnl',
     timeseries: '/finance/timeseries',
   },
-  ai: { projectBrief: (id: string) => `/ai/projects/${id}/brief` },
+  ai: {
+    projectBrief: (id: string) => `/ai/projects/${id}/brief`,
+    insights: '/ai/insights',
+    insightsScan: '/ai/insights/scan',
+  },
   documents: {
     list: '/documents',
     presign: '/documents/presign',
@@ -43,6 +47,10 @@ export const apiRoutes = {
     unreadCount: '/notifications/unread-count',
     markRead: (id: string) => `/notifications/${id}/read`,
     readAll: '/notifications/read-all',
+  },
+  reports: {
+    payrollXlsx: '/reports/payroll.xlsx',
+    pnlXlsx: '/reports/pnl.xlsx',
   },
 } as const;
 

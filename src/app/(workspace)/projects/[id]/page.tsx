@@ -16,6 +16,8 @@ import { PnlCard } from '@widgets/finance/pnl-card';
 import { FinanceTimeseriesChart } from '@widgets/finance/timeseries-chart';
 import { ExpensesTable } from '@widgets/finance/expenses-table';
 import { IncomesTable } from '@widgets/finance/incomes-table';
+import { ExportPnlButton } from '@features/export-pnl/ui/export-pnl-button';
+import { InsightsList } from '@widgets/ai-insights/insights-list';
 import { formatDate, formatMoney } from '@shared/lib/format';
 import { useProjectRealtime } from '@shared/hooks/use-project-realtime';
 
@@ -92,6 +94,9 @@ export default function ProjectDetailPage(props: {
               label: 'Финансы',
               children: (
                 <Space direction="vertical" size="large" style={{ width: '100%' }}>
+                  <div style={{ textAlign: 'right' }}>
+                    <ExportPnlButton from={from} to={to} projectId={id} />
+                  </div>
                   <PnlCard from={from} to={to} projectId={id} />
                   <FinanceTimeseriesChart from={from} to={to} projectId={id} title="Доходы и расходы объекта" />
                   <IncomesTable projectId={id} />
@@ -101,8 +106,13 @@ export default function ProjectDetailPage(props: {
             },
             {
               key: 'ai',
-              label: 'AI-бриф',
-              children: <ProjectBriefWidget projectId={id} />,
+              label: 'AI',
+              children: (
+                <Space direction="vertical" size="large" style={{ width: '100%' }}>
+                  <InsightsList projectId={id} title="Риски" />
+                  <ProjectBriefWidget projectId={id} />
+                </Space>
+              ),
             },
           ]}
         />

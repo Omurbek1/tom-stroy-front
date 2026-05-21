@@ -1,12 +1,15 @@
 'use client';
 
-import { Card, DatePicker, Space, Statistic, Table, Tag } from 'antd';
+import { Button, Card, DatePicker, Space, Statistic, Table, Tag, message } from 'antd';
+import { DownloadOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs, { Dayjs } from 'dayjs';
 import { useState } from 'react';
 import { usePayrollPreview } from '@entities/payroll/hooks';
 import type { PayrollPreviewRow, PayType } from '@entities/payroll/types';
 import { formatMoney, formatNumber } from '@shared/lib/format';
+import { downloadFile } from '@shared/lib/download';
+import { apiRoutes } from '@shared/api/routes';
 
 const PAY_TYPE_LABEL: Record<PayType, string> = {
   PER_CUBE: 'За куб',
@@ -65,16 +68,40 @@ export function PayrollTable() {
   const totalAccrued = (data ?? []).reduce((s, r) => s + Number(r.worksAccrued), 0);
   const totalHours = (data ?? []).reduce((s, r) => s + Number(r.hoursWorked), 0);
 
+  const [downloading, setDownloading] = useState(false);
+  const onExport = async () => {
+    setDownloading(true);
+    try {
+      await downloadFile(
+        apiRoutes.reports.payrollXlsx,
+        {
+          from: range[0].startOf('day').toISOString(),
+          to: range[1].endOf('day').toISOString(),
+        },
+        'payroll.xlsx',
+      );
+    } catch {
+      message.error('Не удалось скачать файл');
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   return (
     <Card
       title="Ведомость (предпросмотр)"
       extra={
-        <DatePicker.RangePicker
-          value={range}
-          onChange={(v) => v && setRange(v as [Dayjs, Dayjs])}
-          format="DD.MM.YYYY"
-          allowClear={false}
-        />
+        <Space>
+          <DatePicker.RangePicker
+            value={range}
+            onChange={(v) => v && setRange(v as [Dayjs, Dayjs])}
+            format="DD.MM.YYYY"
+            allowClear={false}
+          />
+          <Button icon={<DownloadOutlined />} onClick={onExport} loading={downloading}>
+            Excel
+          </Button>
+        </Space>
       }
     >
       <Space size="large" style={{ marginBottom: 16 }}>
