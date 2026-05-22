@@ -521,10 +521,13 @@ export function CreateStockWriteoffDrawer({
                   <div className="wrof-col wrof-col--material">
                     <MaterialSelect
                       value={line.itemId}
+                      warehouseId={warehouseId}
                       onChange={(id, meta) =>
                         pickMaterial(line.uid, id, meta ? { unit: meta.unit } : undefined)
                       }
-                      placeholder="Выберите материал"
+                      placeholder={
+                        warehouseId ? 'Выберите материал' : 'Сначала выберите склад'
+                      }
                       size="small"
                     />
                   </div>

@@ -502,6 +502,7 @@ export function CreateTransferDrawer({ fromWarehouseId: defaultFrom }: Props = {
                   <div className="trf-col trf-col--material">
                     <MaterialSelect
                       value={line.itemId}
+                      warehouseId={fromId}
                       onChange={(id, meta) =>
                         pickMaterial(line.uid, id, meta ? { unit: meta.unit } : undefined)
                       }
