@@ -1,0 +1,281 @@
+/* =====================================================================
+   Object workspace › Finance tab — investor-grade dashboard styling.
+   Goals: at-a-glance KPIs, calm typography, consistent rhythm.
+   ===================================================================== */
+
+.ofx-hero {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 1280px) {
+  .ofx-hero {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .ofx-hero {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ofx-tile {
+  position: relative;
+  background: var(--ant-color-bg-container, #ffffff);
+  border: 1px solid var(--ant-color-border-secondary, #f0f0f0);
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+  transition: box-shadow 0.16s ease;
+}
+
+.ofx-tile::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: currentColor;
+  opacity: 0.85;
+}
+
+.ofx-tile--blue { color: #1677ff; }
+.ofx-tile--orange { color: #fa8c16; }
+.ofx-tile--green { color: #52c41a; }
+.ofx-tile--red { color: #cf1322; }
+.ofx-tile--purple { color: #722ed1; }
+
+.ofx-tile:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.ofx-tile__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ant-color-text-secondary, #8c8c8c);
+}
+
+.ofx-tile__icon {
+  display: inline-flex;
+  width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: currentColor;
+  color: white;
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.ofx-tile--blue .ofx-tile__icon { color: white; background: #1677ff; }
+.ofx-tile--orange .ofx-tile__icon { color: white; background: #fa8c16; }
+.ofx-tile--green .ofx-tile__icon { color: white; background: #52c41a; }
+.ofx-tile--red .ofx-tile__icon { color: white; background: #cf1322; }
+.ofx-tile--purple .ofx-tile__icon { color: white; background: #722ed1; }
+
+.ofx-tile__label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ant-color-text-secondary, #595959);
+}
+
+.ofx-tile__info {
+  margin-left: auto;
+  color: #bfbfbf;
+  font-size: 13px;
+  cursor: help;
+}
+
+.ofx-tile__value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ant-color-text, #1f1f1f);
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+
+.ofx-tile__sub {
+  font-size: 13px;
+  color: var(--ant-color-text-secondary, #595959);
+}
+
+.ofx-tile__pct {
+  color: var(--ant-color-text-tertiary, #8c8c8c);
+  font-size: 12px;
+}
+
+.ofx-tile__hint-line {
+  font-size: 12px;
+  color: var(--ant-color-text-tertiary, #8c8c8c);
+  line-height: 1.4;
+  margin-top: 4px;
+}
+
+.ofx-tile__breakdown {
+  display: grid;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.ofx-row {
+  display: grid;
+  grid-template-columns: 10px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+}
+
+.ofx-row__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+}
+
+.ofx-row__dot--materials { background: #fa8c16; }
+.ofx-row__dot--labor { background: #52c41a; }
+.ofx-row__dot--equipment { background: #722ed1; }
+.ofx-row__dot--other { background: #8c8c8c; }
+
+.ofx-row__label { color: var(--ant-color-text-secondary, #595959); }
+.ofx-row__value { color: var(--ant-color-text, #1f1f1f); font-weight: 500; }
+
+/* ---------------------------------------------------------------------
+   Budget burn-down bar
+   --------------------------------------------------------------------- */
+
+.ofx-burn {
+  display: grid;
+  gap: 16px;
+}
+
+.ofx-burn__bar {
+  display: flex;
+  width: 100%;
+  height: 28px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #f5f5f5;
+  border: 1px solid var(--ant-color-border-secondary, #f0f0f0);
+}
+
+.ofx-burn__seg {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.ofx-burn__seg--cost {
+  background: linear-gradient(135deg, #fa541c 0%, #fa8c16 100%);
+}
+
+.ofx-burn__seg--profit {
+  background: linear-gradient(135deg, #52c41a 0%, #73d13d 100%);
+}
+
+.ofx-burn__seg--remain {
+  background: repeating-linear-gradient(
+    45deg,
+    #e8e8e8 0,
+    #e8e8e8 6px,
+    #f5f5f5 6px,
+    #f5f5f5 12px
+  );
+}
+
+.ofx-burn__legend {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 640px) {
+  .ofx-burn__legend {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ofx-burn__legend-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.ofx-burn__dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.ofx-burn__legend-text {
+  display: grid;
+  gap: 2px;
+}
+
+.ofx-burn__legend-label {
+  font-size: 12px;
+  color: var(--ant-color-text-secondary, #8c8c8c);
+}
+
+.ofx-burn__legend-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ant-color-text, #1f1f1f);
+}
+
+.ofx-burn__legend-pct {
+  font-size: 11px;
+  color: var(--ant-color-text-tertiary, #8c8c8c);
+  font-weight: 400;
+  margin-left: 4px;
+}
+
+.ofx-burn__summary {
+  padding-top: 12px;
+  border-top: 1px solid var(--ant-color-border-secondary, #f0f0f0);
+  font-size: 13px;
+  color: var(--ant-color-text-secondary, #595959);
+}
+
+/* ---------------------------------------------------------------------
+   Waterfall legend
+   --------------------------------------------------------------------- */
+
+.ofx-waterfall__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--ant-color-text-secondary, #595959);
+}
+
+.ofx-waterfall__dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+/* ---------------------------------------------------------------------
+   Page-level section header
+   --------------------------------------------------------------------- */
+
+.ofx-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ant-color-text-tertiary, #8c8c8c);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 8px 0 4px;
+}
