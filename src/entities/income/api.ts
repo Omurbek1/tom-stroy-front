@@ -30,3 +30,20 @@ export async function createIncome(payload: CreateIncomePayload): Promise<Income
   const res = await http.post<ItemResponse<Income>>(apiRoutes.finance.incomes, payload);
   return res.data.data;
 }
+
+export type UpdateIncomePayload = Partial<CreateIncomePayload>;
+
+export async function updateIncome(
+  id: string,
+  payload: UpdateIncomePayload,
+): Promise<Income> {
+  const res = await http.patch<ItemResponse<Income>>(
+    `${apiRoutes.finance.incomes}/${id}`,
+    payload,
+  );
+  return res.data.data;
+}
+
+export async function deleteIncome(id: string): Promise<void> {
+  await http.delete(`${apiRoutes.finance.incomes}/${id}`);
+}

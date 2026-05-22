@@ -1,7 +1,8 @@
 'use client';
 
 import { use, useMemo, useState } from 'react';
-import { Space } from 'antd';
+import { Card, Space, Tabs } from 'antd';
+import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons';
 import { PageMeta } from '@shared/ui/page-meta';
 import { PageContainer } from '@shared/ui/page-container';
 import { PageToolbar } from '@shared/ui/page-toolbar';
@@ -57,17 +58,11 @@ export default function ObjectFinancePage(props: { params: Promise<{ id: string 
       />
       <PageContainer>
         <Space direction="vertical" size="large" style={{ width: '100%' }}>
-          {/* 1. Executive KPI strip — 4 tiles, plain Russian, hover hints */}
           <FinanceHero projectId={id} from={period.from} to={period.to} />
-
-          {/* 2. Budget burn-down — one-glance "are we still in the green?" */}
           <BudgetBurndown projectId={id} from={period.from} to={period.to} />
-
-          {/* 3. P&L waterfall — how revenue becomes profit, step by step */}
           <PnlWaterfall projectId={id} from={period.from} to={period.to} />
 
-          {/* 4. Cash-flow over time */}
-          <div className="ofx-section-title">Динамика по дням</div>
+          <div className="ofx-section-title">Динамика</div>
           <FinanceTimeseriesChart
             from={period.from}
             to={period.to}
@@ -75,18 +70,49 @@ export default function ObjectFinancePage(props: { params: Promise<{ id: string 
             title="Доходы и расходы объекта"
           />
 
-          {/* 5. Drill-down — by brigade / material / category */}
           <div className="ofx-section-title">Детализация затрат</div>
           <FinanceBreakdownWidget from={period.from} to={period.to} projectId={id} />
 
-          {/* 6. Operations + payables/receivables */}
-          <div className="ofx-section-title">Денежные операции и задолженность</div>
+          <div className="ofx-section-title">Долги и зарплата</div>
           <FinanceOperationsWidget from={period.from} to={period.to} projectId={id} />
 
-          {/* 7. Ledgers */}
-          <div className="ofx-section-title">Поступления и платежи</div>
-          <IncomesTable projectId={id} />
-          <ExpensesTable projectId={id} />
+          <div className="ofx-section-title">Реестр операций</div>
+          <Card styles={{ body: { padding: 0 } }}>
+            <Tabs
+              defaultActiveKey="incomes"
+              tabBarStyle={{ padding: '0 16px', marginBottom: 0 }}
+              items={[
+                {
+                  key: 'incomes',
+                  label: (
+                    <span>
+                      <ArrowUpOutlined style={{ color: 'var(--finance-income, #389e0d)' }} />{' '}
+                      Поступления
+                    </span>
+                  ),
+                  children: (
+                    <div style={{ padding: 16 }}>
+                      <IncomesTable projectId={id} />
+                    </div>
+                  ),
+                },
+                {
+                  key: 'expenses',
+                  label: (
+                    <span>
+                      <ArrowDownOutlined style={{ color: 'var(--finance-expense, #cf1322)' }} />{' '}
+                      Расходы
+                    </span>
+                  ),
+                  children: (
+                    <div style={{ padding: 16 }}>
+                      <ExpensesTable projectId={id} />
+                    </div>
+                  ),
+                },
+              ]}
+            />
+          </Card>
         </Space>
       </PageContainer>
     </>

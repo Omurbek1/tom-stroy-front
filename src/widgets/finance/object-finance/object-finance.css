@@ -279,3 +279,201 @@
   letter-spacing: 0.5px;
   margin: 8px 0 4px;
 }
+
+/* ---------------------------------------------------------------------
+   Per-category mini-totals strip above the expenses table
+   --------------------------------------------------------------------- */
+
+.exp-cat-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.exp-cat-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 5px 10px;
+  background: var(--ant-color-fill-quaternary, #fafafa);
+  border: 1px solid var(--ant-color-border-secondary, #f0f0f0);
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.exp-cat-chip__label {
+  color: var(--ant-color-text-secondary, #595959);
+}
+
+.exp-cat-chip__value {
+  font-weight: 600;
+  color: var(--ant-color-text, #1f1f1f);
+}
+
+/* ---------------------------------------------------------------------
+   Aging buckets strip (debt sections)
+   --------------------------------------------------------------------- */
+
+.aging-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 640px) {
+  .aging-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.aging-cell {
+  background: var(--ant-color-bg-container, #fff);
+  border: 1px solid var(--ant-color-border-secondary, #f0f0f0);
+  border-top-width: 3px;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.aging-cell--empty {
+  background: var(--ant-color-fill-quaternary, #fafafa);
+  border-top-width: 1px;
+}
+
+.aging-cell--empty .aging-cell__label,
+.aging-cell--empty .aging-cell__value,
+.aging-cell--empty .aging-cell__count {
+  color: var(--ant-color-text-tertiary, #bfbfbf);
+}
+
+.aging-cell__label {
+  font-size: 12px;
+  color: var(--ant-color-text-secondary, #8c8c8c);
+  font-weight: 500;
+  text-transform: lowercase;
+  letter-spacing: 0.2px;
+}
+
+.aging-cell__label::first-letter {
+  text-transform: uppercase;
+}
+
+.aging-cell__value {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+
+.aging-cell--empty .aging-cell__value {
+  font-weight: 500;
+}
+
+.aging-cell__count {
+  font-size: 11px;
+  color: var(--ant-color-text-tertiary, #bfbfbf);
+}
+
+/* ---------------------------------------------------------------------
+   Action row at the top of each operations tab
+   --------------------------------------------------------------------- */
+
+.finance-tab-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* ---------------------------------------------------------------------
+   Debt payment drawer — header card
+   --------------------------------------------------------------------- */
+
+.debt-header {
+  background: var(--ant-color-fill-quaternary, #fafafa);
+  border: 1px solid var(--ant-color-border-secondary, #f0f0f0);
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: grid;
+  gap: 12px;
+}
+
+.debt-header__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.debt-header__muted {
+  color: var(--ant-color-text-secondary, #8c8c8c);
+  font-size: 13px;
+}
+
+.debt-header__amounts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 640px) {
+  .debt-header__amounts {
+    grid-template-columns: 1fr;
+  }
+}
+
+.debt-header__label {
+  font-size: 12px;
+  color: var(--ant-color-text-tertiary, #8c8c8c);
+}
+
+.debt-header__value {
+  font-size: 18px;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.debt-header__note {
+  font-size: 13px;
+  color: var(--ant-color-text-secondary, #595959);
+  padding-top: 8px;
+  border-top: 1px dashed var(--ant-color-border-secondary, #f0f0f0);
+}
+
+.debt-pay {
+  border: 1px solid var(--ant-color-border-secondary, #f0f0f0);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.debt-pay__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ant-color-text-secondary, #595959);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.debt-pay__hint {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--ant-color-text-secondary, #8c8c8c);
+  margin-top: 4px;
+}
+
+.debt-history__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ant-color-text-secondary, #595959);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}

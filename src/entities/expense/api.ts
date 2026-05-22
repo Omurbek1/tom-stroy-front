@@ -34,3 +34,20 @@ export async function createExpense(payload: CreateExpensePayload): Promise<Expe
   const res = await http.post<ItemResponse<Expense>>(apiRoutes.finance.expenses, payload);
   return res.data.data;
 }
+
+export type UpdateExpensePayload = Partial<CreateExpensePayload>;
+
+export async function updateExpense(
+  id: string,
+  payload: UpdateExpensePayload,
+): Promise<Expense> {
+  const res = await http.patch<ItemResponse<Expense>>(
+    `${apiRoutes.finance.expenses}/${id}`,
+    payload,
+  );
+  return res.data.data;
+}
+
+export async function deleteExpense(id: string): Promise<void> {
+  await http.delete(`${apiRoutes.finance.expenses}/${id}`);
+}

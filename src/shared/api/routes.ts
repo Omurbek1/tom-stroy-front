@@ -106,6 +106,11 @@ export const apiRoutes = {
     breakdown: '/finance/breakdown',
     projects: '/finance/projects',
     operations: '/finance/operations',
+    debts: '/finance/debts',
+    debt: (id: string) => `/finance/debts/${id}`,
+    debtPayments: (id: string) => `/finance/debts/${id}/payments`,
+    debtPayment: (id: string, paymentId: string) =>
+      `/finance/debts/${id}/payments/${paymentId}`,
   },
   ai: {
     projectBrief: (id: string) => `/ai/projects/${id}/brief`,

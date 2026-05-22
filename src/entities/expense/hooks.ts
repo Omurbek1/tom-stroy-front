@@ -1,7 +1,15 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createExpense, listExpenses, ListExpensesParams, CreateExpensePayload } from './api';
+import {
+  createExpense,
+  deleteExpense,
+  listExpenses,
+  updateExpense,
+  ListExpensesParams,
+  CreateExpensePayload,
+  UpdateExpensePayload,
+} from './api';
 
 export const expenseKeys = {
   list: (params: ListExpensesParams) => ['expenses', 'list', params] as const,
@@ -18,6 +26,29 @@ export function useCreateExpense() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload: CreateExpensePayload) => createExpense(payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['expenses'] });
+      qc.invalidateQueries({ queryKey: ['finance'] });
+    },
+  });
+}
+
+export function useUpdateExpense() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: UpdateExpensePayload }) =>
+      updateExpense(id, payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['expenses'] });
+      qc.invalidateQueries({ queryKey: ['finance'] });
+    },
+  });
+}
+
+export function useDeleteExpense() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteExpense(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['expenses'] });
       qc.invalidateQueries({ queryKey: ['finance'] });

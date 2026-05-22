@@ -102,10 +102,14 @@ export interface FinanceOperations {
 
 export interface FinanceDebtRow {
   id: string;
+  /** Present only for manual debts (type === 'manual'). Used for payment ledger. */
+  debtId?: string;
   type: string;
   counterparty: string;
   projectId: string | null;
   projectName: string | null;
   amount: number;
   basis: string;
+  /** ISO date — for aging calculation (создан / последняя выплата / period end). */
+  since?: string;
 }
