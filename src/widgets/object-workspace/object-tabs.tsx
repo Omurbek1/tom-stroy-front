@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { memo, useEffect, useMemo, useRef } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
+import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAuthStore } from '@app-init/store/auth-store';
 import { can, type Permission } from '@shared/config/permissions';
 
@@ -44,9 +44,19 @@ interface Props {
  */
 function ObjectTabsImpl({ projectId }: Props) {
   const pathname = usePathname() ?? '';
+  const router = useRouter();
   const role = useAuthStore((s) => s.user?.role);
   const base = `/objects/${projectId}`;
   const listRef = useRef<HTMLDivElement>(null);
+
+  // Hover-prefetch — kicks off the route's JS + RSC payload BEFORE the
+  // user actually clicks. Click→paint feels ~instant on a warm cache.
+  // Cheap: Next's router de-dupes prefetches by URL, so multiple hovers
+  // hit the network only once.
+  const prefetchOnHover = useCallback(
+    (href: string) => router.prefetch(href),
+    [router],
+  );
 
   const activeSegment = useMemo(() => {
     const rest = pathname.startsWith(base) ? pathname.slice(base.length) : '';
@@ -69,11 +79,14 @@ function ObjectTabsImpl({ projectId }: Props) {
       <div className="object-tabs__scroll" ref={listRef}>
         {visible.map((t) => {
           const active = activeSegment === t.segment;
+          const href = `${base}${t.segment}`;
           return (
             <Link
               key={t.key}
-              href={`${base}${t.segment}`}
+              href={href}
               prefetch
+              onMouseEnter={() => prefetchOnHover(href)}
+              onFocus={() => prefetchOnHover(href)}
               className={`object-tab ${active ? 'is-active' : ''}`}
               aria-current={active ? 'page' : undefined}
             >

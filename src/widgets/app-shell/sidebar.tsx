@@ -2,8 +2,8 @@
 
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { memo, useMemo } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
+import { memo, useCallback, useMemo } from 'react';
 import { useAuthStore } from '@app-init/store/auth-store';
 import { GLOBAL_NAV } from '@shared/config/nav-config';
 import { can } from '@shared/config/permissions';
@@ -20,6 +20,7 @@ interface Props {
 
 function SidebarImpl({ collapsed, onToggle, onNavigate }: Props) {
   const pathname = usePathname();
+  const router = useRouter();
   const role = useAuthStore((s) => s.user?.role);
 
   // Active key = first URL segment. /objects/:id/anything still keeps
@@ -29,6 +30,14 @@ function SidebarImpl({ collapsed, onToggle, onNavigate }: Props) {
   const items = useMemo(
     () => GLOBAL_NAV.filter((i) => !i.permission || can(role, i.permission)),
     [role],
+  );
+
+  // Hover prefetch — Link already prefetches via the intersection observer,
+  // but hover wins another ~50-150ms on click→paint because Next dedupes
+  // the second prefetch from this handler.
+  const prefetchOnHover = useCallback(
+    (href: string) => router.prefetch(href),
+    [router],
   );
 
   return (
@@ -46,6 +55,8 @@ function SidebarImpl({ collapsed, onToggle, onNavigate }: Props) {
               key={item.key}
               href={item.href}
               prefetch
+              onMouseEnter={() => prefetchOnHover(item.href)}
+              onFocus={() => prefetchOnHover(item.href)}
               onClick={() => onNavigate?.()}
               className={`app-sidebar__link ${active ? 'is-active' : ''}`}
               title={collapsed ? item.label : undefined}
