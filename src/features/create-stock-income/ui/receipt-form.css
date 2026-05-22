@@ -1,0 +1,244 @@
+/* =====================================================================
+   Warehouse receipt form — enterprise ERP layout (1C / MoySklad / Odoo).
+   Compact, dense, fast-workflow oriented. All inputs share a row height,
+   sticky footer carries totals + primary action.
+   ===================================================================== */
+
+.rcpt-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 20px 20px;
+}
+
+/* ── Header block ────────────────────────────────────────────────── */
+.rcpt-header .ant-form-item {
+  margin-bottom: 8px;
+}
+
+/* ── Recent / frequently-used materials strip ────────────────────── */
+.rcpt-recent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--ant-color-fill-quaternary, #fafafa);
+  border: 1px solid var(--ant-color-border-secondary, #f0f0f0);
+  border-radius: 8px;
+  font-size: 12px;
+  flex-wrap: wrap;
+}
+
+.rcpt-recent__icon {
+  color: #1677ff;
+  font-size: 13px;
+}
+
+.rcpt-recent__label {
+  color: var(--ant-color-text-secondary, #8c8c8c);
+  white-space: nowrap;
+}
+
+.rcpt-recent__chips {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.rcpt-recent__chip {
+  margin: 0 !important;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.1s ease;
+}
+
+.rcpt-recent__chip:hover {
+  transform: translateY(-1px);
+}
+
+/* ── Lines table ─────────────────────────────────────────────────── */
+.rcpt-table {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--ant-color-border-secondary, #f0f0f0);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--ant-color-bg-container, #ffffff);
+}
+
+.rcpt-table__head,
+.rcpt-table__row {
+  display: grid;
+  /* num | material | unit | qty | price | sum | comment | actions */
+  grid-template-columns: 36px minmax(0, 1.8fr) 76px 100px 130px 130px minmax(0, 1.2fr) 80px;
+  gap: 6px;
+  align-items: center;
+  padding: 6px 10px;
+}
+
+.rcpt-table__head {
+  background: var(--ant-color-fill-tertiary, #f5f7fa);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ant-color-text-secondary, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--ant-color-border-secondary, #f0f0f0);
+}
+
+.rcpt-table__row {
+  border-bottom: 1px solid var(--ant-color-border-secondary, #f5f5f5);
+  min-height: 36px;
+}
+
+.rcpt-table__row:last-child {
+  border-bottom: none;
+}
+
+.rcpt-table__row:hover {
+  background: var(--ant-color-fill-quaternary, #fafbfc);
+}
+
+.rcpt-col {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+.rcpt-col--num {
+  color: var(--ant-color-text-tertiary, #cbd5e1);
+  font-size: 12px;
+  justify-content: center;
+}
+
+.rcpt-col--material .ant-select {
+  width: 100%;
+}
+
+.rcpt-col--unit input {
+  text-align: center;
+}
+
+.rcpt-col--qty .ant-input-number,
+.rcpt-col--price .ant-input-number {
+  width: 100% !important;
+}
+
+.rcpt-col--sum {
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+  justify-content: flex-end;
+  color: var(--ant-color-text, #1f1f1f);
+  padding-right: 4px;
+}
+
+.rcpt-col--actions {
+  display: flex;
+  gap: 0;
+  justify-content: flex-end;
+}
+
+/* ── Below-table actions ─────────────────────────────────────────── */
+.rcpt-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: -4px;
+}
+
+/* ── Sticky footer ────────────────────────────────────────────────── */
+.rcpt-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.rcpt-footer__totals {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.rcpt-footer__cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.1;
+}
+
+.rcpt-footer__cell strong {
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ant-color-text, #1f1f1f);
+}
+
+.rcpt-footer__cell--total strong {
+  font-size: 20px;
+}
+
+.rcpt-footer__label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ant-color-text-tertiary, #94a3b8);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+/* ── Responsive — tablet/mobile ─────────────────────────────────── */
+@media (max-width: 1000px) {
+  .rcpt-table__head,
+  .rcpt-table__row {
+    grid-template-columns: 28px minmax(0, 1.8fr) 64px 90px 120px 110px 60px;
+  }
+  .rcpt-col--comment {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .rcpt-table__head,
+  .rcpt-table__row {
+    grid-template-columns: 24px minmax(0, 1fr) 88px 100px 60px;
+  }
+  .rcpt-col--unit,
+  .rcpt-col--price,
+  .rcpt-col--comment {
+    display: none;
+  }
+  .rcpt-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .rcpt-footer__totals {
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .rcpt-footer__cell strong {
+    font-size: 16px;
+  }
+}
+
+/* ── Dark theme tweaks ──────────────────────────────────────────── */
+[data-theme='dark'] .rcpt-table {
+  background: var(--ant-color-bg-container, #111827);
+  border-color: var(--ant-color-border, #243244);
+}
+[data-theme='dark'] .rcpt-table__head {
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom-color: var(--ant-color-border, #243244);
+}
+[data-theme='dark'] .rcpt-table__row {
+  border-bottom-color: rgba(255, 255, 255, 0.04);
+}
+[data-theme='dark'] .rcpt-table__row:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+[data-theme='dark'] .rcpt-recent {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: var(--ant-color-border, #243244);
+}
