@@ -3,15 +3,21 @@
 import { Tabs } from 'antd';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
-import { BalancesTable } from './balances-table';
-import { InventoryItemsTable } from './inventory-items-table';
-import { ReservationsTable } from './reservations-table';
-import { StockCountsTable } from './stock-counts-table';
-import { TransactionsTable } from './transactions-table';
-import { TransfersTable } from './transfers-table';
-import { WarehousesTable } from './warehouses-table';
-import { PurchaseOrdersTable } from '@widgets/purchases/purchase-orders-table';
-import { SuppliersTable } from '@widgets/purchases/suppliers-table';
+// All table widgets are lazy-loaded — see ./lazy.tsx. AntD `<Tabs>` only
+// mounts the active panel, but without the dynamic split every table's
+// JS would still ship in the route bundle. Splitting cuts /warehouse
+// First Load JS by ~150-200KB.
+import {
+  BalancesTable,
+  InventoryItemsTable,
+  ReservationsTable,
+  StockCountsTable,
+  TransactionsTable,
+  TransfersTable,
+  WarehousesTable,
+  PurchaseOrdersTable,
+  SuppliersTable,
+} from './lazy';
 
 interface Props {
   /** Outer search query — only applied to the catalog tab where it makes sense. */

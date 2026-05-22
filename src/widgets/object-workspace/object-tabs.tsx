@@ -3,8 +3,11 @@
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@app-init/store/auth-store';
 import { can, type Permission } from '@shared/config/permissions';
+import { getProject, getProjectAnalytics } from '@entities/project/api';
+import { projectKeys } from '@entities/project/hooks';
 
 interface TabItem {
   key: string;
@@ -45,17 +48,33 @@ interface Props {
 function ObjectTabsImpl({ projectId }: Props) {
   const pathname = usePathname() ?? '';
   const router = useRouter();
+  const qc = useQueryClient();
   const role = useAuthStore((s) => s.user?.role);
   const base = `/objects/${projectId}`;
   const listRef = useRef<HTMLDivElement>(null);
 
-  // Hover-prefetch — kicks off the route's JS + RSC payload BEFORE the
-  // user actually clicks. Click→paint feels ~instant on a warm cache.
-  // Cheap: Next's router de-dupes prefetches by URL, so multiple hovers
-  // hit the network only once.
+  // Hover-prefetch — kicks off the route's JS + RSC payload AND warms
+  // the React Query cache for the universal `useProject` + analytics
+  // queries every tab consumes. Click → paint becomes near-instant.
+  // Each prefetch de-dupes by URL/queryKey, so multiple hovers hit the
+  // network only once.
   const prefetchOnHover = useCallback(
-    (href: string) => router.prefetch(href),
-    [router],
+    (href: string) => {
+      router.prefetch(href);
+      // Cheap, universally useful: every object tab reads `useProject`
+      // for header/breadcrumb; most also read `useProjectAnalytics`.
+      qc.prefetchQuery({
+        queryKey: projectKeys.detail(projectId),
+        queryFn: () => getProject(projectId),
+        staleTime: 60_000,
+      });
+      qc.prefetchQuery({
+        queryKey: projectKeys.analytics(projectId),
+        queryFn: () => getProjectAnalytics(projectId),
+        staleTime: 60_000,
+      });
+    },
+    [router, qc, projectId],
   );
 
   const activeSegment = useMemo(() => {

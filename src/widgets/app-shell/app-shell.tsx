@@ -1,6 +1,7 @@
 'use client';
 
 import { Drawer } from 'antd';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { ReactNode, useCallback, useEffect, useState } from 'react';
 import { useAuthStore } from '@app-init/store/auth-store';
@@ -8,8 +9,21 @@ import { Sidebar } from './sidebar';
 import { UniversalHeader } from './universal-header';
 import { MobileBottomNav } from './mobile-bottom-nav';
 import { MobileFab } from './mobile-fab';
-import { CreateModalsHost } from './create-modals-host';
-import { CommandPalette } from '@widgets/command-palette/command-palette';
+
+// Globally mounted, only used on demand (Cmd+K or a "+" trigger). Pull
+// them out of the initial chunk — every kB here is paid by every page.
+const CommandPalette = dynamic(
+  () =>
+    import('@widgets/command-palette/command-palette').then((m) => ({
+      default: m.CommandPalette,
+    })),
+  { ssr: false },
+);
+const CreateModalsHost = dynamic(
+  () =>
+    import('./create-modals-host').then((m) => ({ default: m.CreateModalsHost })),
+  { ssr: false },
+);
 
 const STORAGE_KEY = 'tomstroy.sidebar-collapsed';
 

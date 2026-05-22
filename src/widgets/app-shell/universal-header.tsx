@@ -11,15 +11,33 @@ import {
   SettingOutlined,
 } from '@ant-design/icons';
 import { Avatar, Button, Dropdown } from 'antd';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Fragment, memo, useMemo } from 'react';
 import { useAuthStore } from '@app-init/store/auth-store';
 import { useThemeStore } from '@app-init/store/theme-store';
 import { usePageMetaStore } from '@app-init/store/page-meta-store';
-import { NotificationCenter } from '@widgets/notifications/notification-center';
-import { ObjectSwitcher } from '@widgets/object-switcher/object-switcher';
 import { useObjectSwitcher } from '@widgets/object-switcher/use-object-switcher';
+
+// Both NotificationCenter and ObjectSwitcher are only seen when the
+// user clicks the bell / ⌘P respectively. Lazy-splitting saves ~30-50KB
+// off every workspace page's First Load JS — including the
+// `useNotifications` and `useProjectsList` queries they fire on mount.
+const NotificationCenter = dynamic(
+  () =>
+    import('@widgets/notifications/notification-center').then((m) => ({
+      default: m.NotificationCenter,
+    })),
+  { ssr: false, loading: () => <span style={{ width: 32, height: 32 }} /> },
+);
+const ObjectSwitcher = dynamic(
+  () =>
+    import('@widgets/object-switcher/object-switcher').then((m) => ({
+      default: m.ObjectSwitcher,
+    })),
+  { ssr: false },
+);
 
 interface Props {
   collapsed: boolean;

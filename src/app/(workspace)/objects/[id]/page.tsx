@@ -1,16 +1,38 @@
 'use client';
 
 import { use, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { Card, Descriptions, Skeleton, Space } from 'antd';
 import { useProject } from '@entities/project/hooks';
 import { useRecentsStore } from '@app-init/store/recents-store';
 import { usePinnedObjects } from '@shared/lib/pinned-objects';
-import { ProjectAnalyticsBlock } from '@widgets/project/project-analytics';
 import { ProjectBriefWidget } from '@widgets/ai-insights/project-brief';
-import { InsightsList } from '@widgets/ai-insights/insights-list';
 import { formatDate, formatMoney } from '@shared/lib/format';
 import { useProjectRealtime } from '@shared/hooks/use-project-realtime';
 import { PageContainer } from '@shared/ui/page-container';
+
+// Below-the-fold heavy widgets — lazy split so the dashboard's first
+// paint shows project header + descriptions immediately.
+const ProjectAnalyticsBlock = dynamic(
+  () =>
+    import('@widgets/project/project-analytics').then((m) => ({
+      default: m.ProjectAnalyticsBlock,
+    })),
+  {
+    ssr: false,
+    loading: () => <Skeleton active paragraph={{ rows: 4 }} />,
+  },
+);
+const InsightsList = dynamic(
+  () =>
+    import('@widgets/ai-insights/insights-list').then((m) => ({
+      default: m.InsightsList,
+    })),
+  {
+    ssr: false,
+    loading: () => <Skeleton active paragraph={{ rows: 3 }} />,
+  },
+);
 
 /**
  * Object dashboard — landing inside the object workspace. The wrapping
