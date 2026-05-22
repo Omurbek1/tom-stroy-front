@@ -218,13 +218,16 @@ export function CreateStockIncomeDrawer({
     if (header.comment) headerBits.push(header.comment);
     const headerNote = headerBits.join(' · ');
 
+    // Locked context always wins — the field may be hidden from the UI.
+    const effectiveProjectId = defaultProject ?? header.projectId;
+
     const movements = valid.map((l) => ({
       itemId: l.itemId!,
       warehouseId: header.warehouseId!,
       movementType: 'INCOME' as const,
       qty: Number(l.qty),
       unitCost: Number(l.unitCost ?? 0),
-      projectId: header.projectId,
+      projectId: effectiveProjectId,
       note: [headerNote, l.comment?.trim() || null].filter(Boolean).join(' — '),
     }));
 

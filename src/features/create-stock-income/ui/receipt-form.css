@@ -16,6 +16,30 @@
   margin-bottom: 8px;
 }
 
+/* Locked context chip — replaces the project picker when the modal is
+   opened inside an object route. Renders as a static badge + hint so
+   the user sees the binding without an editable dropdown. */
+.rcpt-context-chip {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 10px;
+  background: var(--ant-color-fill-quaternary, #fafafa);
+  border: 1px dashed var(--ant-color-border-secondary, #e5e7eb);
+  border-radius: 8px;
+  min-height: 36px;
+  justify-content: center;
+}
+.rcpt-context-chip__tag {
+  margin: 0 !important;
+  align-self: flex-start;
+  font-size: 12px;
+}
+.rcpt-context-chip__hint {
+  font-size: 11px;
+  color: var(--ant-color-text-tertiary, #94a3b8);
+}
+
 /* ── Recent / frequently-used materials strip ────────────────────── */
 .rcpt-recent {
   display: flex;

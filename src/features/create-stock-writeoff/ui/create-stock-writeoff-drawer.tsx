@@ -37,7 +37,7 @@ import {
 } from '@entities/inventory-item/hooks';
 import { useBrigades } from '@entities/brigade/hooks';
 import { useEmployees } from '@entities/employee/hooks';
-import { useProjectsList } from '@entities/project/hooks';
+import { useProject, useProjectsList } from '@entities/project/hooks';
 import { formatMoney, formatNumber } from '@shared/lib/format';
 import './writeoff-form.css';
 
@@ -136,6 +136,14 @@ export function CreateStockWriteoffDrawer({
 
   const [lines, setLines] = useState<Line[]>([{ uid: newUid() }]);
   const [recentIds, setRecentIds] = useState<string[]>([]);
+
+  // Context-aware: caller passes `projectId` when the modal is opened
+  // inside an object route — we lock the binding, hide the editable
+  // selector, and inject the id directly into the payload. Avoids the
+  // dual-source-of-truth bug where the user accidentally re-picked a
+  // different object.
+  const lockedProject = Boolean(defaultProject);
+  const { data: lockedProjectData } = useProject(defaultProject ?? '');
 
   const warehouseId = Form.useWatch('warehouseId', headerForm);
 
@@ -282,7 +290,11 @@ export function CreateStockWriteoffDrawer({
       return;
     }
 
-    if (!header.projectId) {
+    // Locked context wins — the project field may be hidden from the UI
+    // when opened inside an object route.
+    const effectiveProjectId = defaultProject ?? header.projectId;
+
+    if (!effectiveProjectId) {
       // Soft confirm — writing off to "void" is legal but rarely intended.
       const proceed = window.confirm(
         'Объект не выбран — себестоимость не будет привязана к проекту. Продолжить?',
@@ -298,8 +310,9 @@ export function CreateStockWriteoffDrawer({
     const employeeName = header.employeeId
       ? employees?.data?.find((e) => e.id === header.employeeId)?.fullName
       : undefined;
-    const projectName = header.projectId
-      ? projects?.data?.find((p) => p.id === header.projectId)?.name
+    const projectName = effectiveProjectId
+      ? lockedProjectData?.name ??
+        projects?.data?.find((p) => p.id === effectiveProjectId)?.name
       : undefined;
 
     const headerBits: string[] = [
@@ -320,7 +333,7 @@ export function CreateStockWriteoffDrawer({
       // Don't override unitCost — backend uses WAC. We pass it only when
       // it differs from current avgCost for audit purposes; otherwise let
       // the server compute. Keeping out for safety.
-      projectId: header.projectId,
+      projectId: effectiveProjectId,
       note: [headerNote, l.comment?.trim() || null].filter(Boolean).join(' — '),
     }));
 
@@ -422,9 +435,22 @@ export function CreateStockWriteoffDrawer({
                 </Form.Item>
               </Col>
               <Col xs={24} md={8}>
-                <Form.Item name="projectId" label="На объект">
-                  <ProjectSelect placeholder="Без объекта" />
-                </Form.Item>
+                {lockedProject ? (
+                  <Form.Item label="На объект">
+                    <div className="wrof-context-chip">
+                      <Tag color="blue" className="wrof-context-chip__tag">
+                        {lockedProjectData?.name ?? 'Текущий объект'}
+                      </Tag>
+                      <span className="wrof-context-chip__hint">
+                        Списание привязывается к этому объекту автоматически
+                      </span>
+                    </div>
+                  </Form.Item>
+                ) : (
+                  <Form.Item name="projectId" label="На объект">
+                    <ProjectSelect placeholder="Без объекта" />
+                  </Form.Item>
+                )}
               </Col>
               <Col xs={24} md={8}>
                 <Form.Item name="brigadeId" label="Бригада">
