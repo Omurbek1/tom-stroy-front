@@ -141,6 +141,17 @@ export const apiRoutes = {
     update: (id: string) => `/vehicles/${id}`,
     usages: '/vehicles/usages',
   },
+  documentBuilder: {
+    templates: '/document-builder/templates',
+    template: (id: string) => `/document-builder/templates/${id}`,
+    documents: '/document-builder/documents',
+    document: (id: string) => `/document-builder/documents/${id}`,
+    duplicate: (id: string) => `/document-builder/documents/${id}/duplicate`,
+    archive: (id: string) => `/document-builder/documents/${id}/archive`,
+    restore: (id: string) => `/document-builder/documents/${id}/restore`,
+    versions: (id: string) => `/document-builder/documents/${id}/versions`,
+    pdf: (id: string) => `/document-builder/documents/${id}/pdf`,
+  },
 } as const;
 
 export const appRoutes = {
@@ -170,4 +181,10 @@ export const appRoutes = {
 
   analytics: '/analytics',
   settings: '/settings',
+
+  // Document builder (linked from /company hub)
+  documents: '/company/documents',
+  documentBuilder: '/company/documents/new',
+  documentEdit: (id: string) => `/company/documents/${id}`,
+  documentTemplates: '/company/documents/templates',
 } as const;

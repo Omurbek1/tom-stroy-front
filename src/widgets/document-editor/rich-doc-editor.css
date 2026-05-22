@@ -1,0 +1,156 @@
+/* =====================================================================
+   RichDocEditor — TipTap shell, toolbar, prose styles.
+   Tuned to match the .doc-page A4 preview so what users type matches
+   what they get when they print or export PDF.
+   ===================================================================== */
+
+.rde-shell {
+  display: flex;
+  flex-direction: column;
+  background: var(--ant-color-bg-container, #ffffff);
+  border: 1px solid var(--ant-color-border, #e5e7eb);
+  border-radius: 10px;
+  overflow: hidden;
+  min-height: 320px;
+}
+
+.rde-shell--loading {
+  height: 360px;
+}
+
+.rde-shell[data-disabled='true'] .rde-content {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* ---- Toolbar (sticky top of the editor) ------------------------- */
+.rde-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--ant-color-border-secondary, #f0f0f0);
+  background: var(--ant-color-bg-container, #ffffff);
+}
+
+.rde-toolbar__spacer {
+  flex: 1;
+}
+
+/* ---- Content area (the actual paper-like surface) --------------- */
+.rde-content {
+  flex: 1;
+  min-height: 320px;
+  background: #fff;
+}
+
+.rde-content .ProseMirror {
+  min-height: 320px;
+  padding: 18px 22px;
+  outline: none;
+  color: #111;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 14pt;
+  line-height: 1.6;
+}
+
+/* Empty-state placeholder */
+.rde-content .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #cbd5e1;
+  pointer-events: none;
+  height: 0;
+}
+
+/* ---- Prose ------------------------------------------------------- */
+.rde-content h1 {
+  font-size: 22pt;
+  line-height: 1.25;
+  text-align: center;
+  margin: 0 0 18px;
+  font-weight: 700;
+}
+.rde-content h2 {
+  font-size: 16pt;
+  line-height: 1.3;
+  margin: 18px 0 8px;
+  font-weight: 600;
+}
+.rde-content h3 {
+  font-size: 13pt;
+  margin: 12px 0 6px;
+  font-weight: 600;
+}
+.rde-content p { margin: 0 0 10px; }
+.rde-content ul,
+.rde-content ol { margin: 6px 0 14px 22px; padding: 0; }
+.rde-content li { margin-bottom: 4px; }
+.rde-content blockquote {
+  margin: 12px 0;
+  padding: 6px 14px;
+  border-left: 3px solid #d0d5dd;
+  color: #475569;
+  font-style: italic;
+}
+.rde-content hr {
+  border: none;
+  border-top: 1px solid #ccc;
+  margin: 14px 0;
+}
+.rde-content a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+/* Placeholders rendered by the markdown↔HTML bridge */
+.rde-content .tt-placeholder,
+.doc-page .tt-placeholder {
+  color: #fa8c16;
+  font-weight: 500;
+  background: rgba(250, 140, 22, 0.08);
+  padding: 0 3px;
+  border-radius: 3px;
+}
+
+/* ---- Tables (TipTap default) ------------------------------------ */
+.rde-content table,
+.doc-page table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 12px 0;
+  table-layout: fixed;
+}
+.rde-content th,
+.rde-content td,
+.doc-page th,
+.doc-page td {
+  border: 1px solid #cbd5e1;
+  padding: 6px 8px;
+  vertical-align: top;
+}
+.rde-content th,
+.doc-page th {
+  background: #f1f5f9;
+  font-weight: 600;
+  text-align: left;
+}
+
+/* ---- Dark theme -------------------------------------------------- */
+[data-theme='dark'] .rde-shell {
+  background: #0f1623;
+  border-color: #243244;
+}
+[data-theme='dark'] .rde-toolbar {
+  background: #0f1623;
+  border-bottom-color: #243244;
+}
+[data-theme='dark'] .rde-content,
+[data-theme='dark'] .rde-content .ProseMirror {
+  background: #0f1623;
+  color: #e2e8f0;
+}

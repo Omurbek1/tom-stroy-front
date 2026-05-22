@@ -1,0 +1,155 @@
+/* ============================================================
+   Document Builder — page layout + A4 preview + print styles.
+   The same `.doc-page` is reused in builder/new and edit pages
+   and is the only block kept on screen during `window.print()`.
+   ============================================================ */
+
+.doc-page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 24mm;
+  background: #fff;
+  color: #111;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 13pt;
+  line-height: 1.55;
+  margin: 0 auto 24px;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+  border-radius: 4px;
+}
+.doc-page h1 { font-size: 18pt; margin: 0 0 18px; text-align: center; }
+.doc-page h2 { font-size: 14pt; margin: 18px 0 8px; }
+.doc-page h3 { font-size: 12pt; margin: 12px 0 6px; }
+.doc-page p  { margin: 0 0 10px; }
+.doc-page ul { margin: 6px 0 14px 22px; }
+.doc-page li { margin-bottom: 4px; }
+.doc-page hr { border: none; border-top: 1px solid #ccc; margin: 14px 0; }
+
+/* Two-column builder layout */
+.doc-builder {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 1100px) {
+  .doc-builder { grid-template-columns: 1fr; }
+}
+
+.doc-builder__form .ant-card-body { padding: 16px; }
+.doc-builder__preview {
+  background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
+  border-radius: 12px;
+  padding: 24px 12px;
+  min-height: 320px;
+  overflow-x: auto;
+}
+
+.doc-builder__meta-row {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 6px 12px;
+  font-size: 13px;
+}
+.doc-builder__meta-row dt {
+  color: var(--ant-color-text-tertiary, #8c8c8c);
+}
+.doc-builder__meta-row dd {
+  margin: 0;
+  color: var(--ant-color-text, #1f1f1f);
+}
+
+/* Document list */
+.doc-list-card .ant-card-body { padding: 0; }
+
+/* Signature rows (edit page) */
+.doc-signature-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--ant-color-border-secondary, #f0f0f0);
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.doc-version-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+/* A4 signature block at the bottom of the preview */
+.doc-page__signatures {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  margin-top: 36px;
+  padding-top: 22px;
+  border-top: 1px dashed #d0d5dd;
+}
+
+.doc-page__sig-line {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  letter-spacing: 1px;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.doc-page__sig-name {
+  font-weight: 600;
+}
+
+.doc-page__sig-role {
+  font-size: 11pt;
+  color: #555;
+}
+
+@media (max-width: 640px) {
+  .doc-page__signatures {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Print: hide everything except `.doc-page` so a regular browser
+   print exports a clean A4 PDF. */
+@media print {
+  body { background: #fff !important; }
+  .app-shell__sidebar,
+  .uheader,
+  .page-header,
+  .page-toolbar,
+  .object-tabs,
+  .object-header,
+  .app-shell__mobile-chrome,
+  .doc-builder__form,
+  .ant-message,
+  .ant-notification {
+    display: none !important;
+  }
+  .app-shell,
+  .app-shell__main,
+  .app-shell__content,
+  .page-container,
+  .doc-builder {
+    display: block !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+  .doc-builder__preview {
+    background: #fff !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+  }
+  .doc-page {
+    box-shadow: none !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    width: auto !important;
+    min-height: 0 !important;
+    page-break-after: always;
+  }
+  @page { size: A4; margin: 0; }
+}
