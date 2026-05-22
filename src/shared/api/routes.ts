@@ -89,7 +89,7 @@ export const apiRoutes = {
     reservationRelease: (id: string) => `/inventory/reservations/${id}/release`,
   },
   attendance: { list: '/attendance' },
-  analytics: { overview: '/analytics/overview' },
+  analytics: { overview: '/analytics/overview', company: '/analytics/company' },
   payroll: {
     preview: '/payroll/preview',
     list: '/payroll',
