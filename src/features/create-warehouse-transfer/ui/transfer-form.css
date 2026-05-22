@@ -1,0 +1,164 @@
+/* =====================================================================
+   Transfer form — enterprise ERP layout (1C / MoySklad / Odoo).
+   Same grammar as rcpt and wrof; cyan accent (transfers are neutral —
+   neither income nor expense). Source-warehouse overdraft highlighted
+   inline so the user can't ship more than they own.
+   ===================================================================== */
+
+.trf-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 20px 20px;
+}
+
+.trf-header .ant-form-item { margin-bottom: 8px; }
+
+/* ── Recent ─────────────────────────────────────────────────────── */
+.trf-recent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--ant-color-fill-quaternary, #fafafa);
+  border: 1px solid var(--ant-color-border-secondary, #f0f0f0);
+  border-radius: 8px;
+  font-size: 12px;
+  flex-wrap: wrap;
+}
+.trf-recent__icon { color: #08979c; font-size: 13px; }
+.trf-recent__label { color: var(--ant-color-text-secondary, #8c8c8c); white-space: nowrap; }
+.trf-recent__chips { display: flex; gap: 4px; flex-wrap: wrap; }
+.trf-recent__chip { margin: 0 !important; cursor: pointer; user-select: none; transition: transform 0.1s ease; }
+.trf-recent__chip:hover { transform: translateY(-1px); }
+
+/* ── Table ──────────────────────────────────────────────────────── */
+.trf-table {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--ant-color-border-secondary, #f0f0f0);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--ant-color-bg-container, #ffffff);
+}
+
+.trf-table__head,
+.trf-table__row {
+  display: grid;
+  /* num | material | unit | avail | qty | price | sum | comment | actions */
+  grid-template-columns: 36px minmax(0, 1.6fr) 70px 110px 110px 120px 130px minmax(0, 1fr) 80px;
+  gap: 6px;
+  align-items: center;
+  padding: 6px 10px;
+}
+
+.trf-table__head {
+  background: var(--ant-color-fill-tertiary, #f5f7fa);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ant-color-text-secondary, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--ant-color-border-secondary, #f0f0f0);
+}
+
+.trf-table__row {
+  border-bottom: 1px solid var(--ant-color-border-secondary, #f5f5f5);
+  min-height: 36px;
+}
+.trf-table__row:last-child { border-bottom: none; }
+.trf-table__row:hover { background: var(--ant-color-fill-quaternary, #fafbfc); }
+
+.trf-table__row--over {
+  background: rgba(255, 77, 79, 0.06) !important;
+}
+.trf-table__row--over:hover {
+  background: rgba(255, 77, 79, 0.1) !important;
+}
+
+.trf-col { min-width: 0; display: flex; align-items: center; }
+.trf-col--num {
+  color: var(--ant-color-text-tertiary, #cbd5e1);
+  font-size: 12px;
+  justify-content: center;
+}
+.trf-col--material .ant-select { width: 100%; }
+.trf-col--unit, .trf-col--avail { justify-content: center; }
+.trf-col--avail .ant-tag { font-variant-numeric: tabular-nums; }
+.trf-col--qty .ant-input-number { width: 100% !important; }
+.trf-col--price { font-variant-numeric: tabular-nums; font-size: 12px; }
+.trf-col--sum {
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+  justify-content: flex-end;
+  color: var(--ant-color-text, #1f1f1f);
+  padding-right: 4px;
+}
+.trf-col--actions { display: flex; gap: 0; justify-content: flex-end; }
+
+.trf-actions { display: flex; gap: 8px; margin-top: -4px; }
+
+/* ── Sticky footer ──────────────────────────────────────────────── */
+.trf-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+.trf-footer__totals { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.trf-footer__cell { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.1; }
+.trf-footer__cell strong { font-size: 18px; font-variant-numeric: tabular-nums; color: var(--ant-color-text, #1f1f1f); }
+.trf-footer__cell--total strong { font-size: 20px; color: #08979c; }
+.trf-footer__label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ant-color-text-tertiary, #94a3b8);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .trf-table__head,
+  .trf-table__row {
+    grid-template-columns: 28px minmax(0, 1.6fr) 60px 100px 90px 110px 110px 60px;
+  }
+  .trf-col--comment { display: none; }
+}
+@media (max-width: 800px) {
+  .trf-table__head,
+  .trf-table__row {
+    grid-template-columns: 24px minmax(0, 1fr) 80px 90px 100px 60px;
+  }
+  .trf-col--unit, .trf-col--price, .trf-col--comment { display: none; }
+  .trf-footer { flex-direction: column; align-items: stretch; gap: 12px; }
+  .trf-footer__totals { justify-content: space-between; gap: 8px; }
+  .trf-footer__cell strong { font-size: 16px; }
+}
+
+/* ── Dark theme ─────────────────────────────────────────────────── */
+[data-theme='dark'] .trf-table {
+  background: var(--ant-color-bg-container, #111827);
+  border-color: var(--ant-color-border, #243244);
+}
+[data-theme='dark'] .trf-table__head {
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom-color: var(--ant-color-border, #243244);
+}
+[data-theme='dark'] .trf-table__row {
+  border-bottom-color: rgba(255, 255, 255, 0.04);
+}
+[data-theme='dark'] .trf-table__row:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+[data-theme='dark'] .trf-table__row--over {
+  background: rgba(255, 77, 79, 0.12) !important;
+}
+[data-theme='dark'] .trf-recent {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: var(--ant-color-border, #243244);
+}
