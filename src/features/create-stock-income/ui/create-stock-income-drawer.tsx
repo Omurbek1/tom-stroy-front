@@ -31,6 +31,7 @@ import { ProjectSelect } from '@shared/ui/project-select';
 import { MaterialSelect } from '@shared/ui/material-select';
 import { useCreateMovementsBatch } from '@entities/inventory-item/hooks';
 import { useInventoryItems } from '@entities/inventory-item/hooks';
+import { useProject } from '@entities/project/hooks';
 import { formatMoney, formatNumber } from '@shared/lib/format';
 import './receipt-form.css';
 
@@ -105,6 +106,14 @@ export function CreateStockIncomeDrawer({
   const [headerForm] = Form.useForm<HeaderShape>();
   const dirty = useFormDirty(headerForm);
   const mutation = useCreateMovementsBatch();
+
+  // Context-aware: when the drawer is opened from inside an object route
+  // (e.g. /objects/:id/warehouse) the caller passes a fixed `projectId`.
+  // In that case we hide the editable selector and show a readonly chip,
+  // injecting the locked id into the payload directly. Avoids dual-source-
+  // of-truth bugs where the user accidentally re-picks a different object.
+  const lockedProject = Boolean(defaultProject);
+  const { data: lockedProjectData } = useProject(defaultProject ?? '');
 
   // Lines kept in local state (faster reactivity than antd Form.List for
   // 20-50 row receipts). Header stays in Form for free validation.
@@ -312,9 +321,22 @@ export function CreateStockIncomeDrawer({
                 </Form.Item>
               </Col>
               <Col xs={24} md={8}>
-                <Form.Item name="projectId" label="Объект (опц.)">
-                  <ProjectSelect placeholder="Не выбран" />
-                </Form.Item>
+                {lockedProject ? (
+                  <Form.Item label="Для объекта">
+                    <div className="rcpt-context-chip">
+                      <Tag color="blue" className="rcpt-context-chip__tag">
+                        {lockedProjectData?.name ?? 'Текущий объект'}
+                      </Tag>
+                      <span className="rcpt-context-chip__hint">
+                        Привязка к объекту установлена автоматически
+                      </span>
+                    </div>
+                  </Form.Item>
+                ) : (
+                  <Form.Item name="projectId" label="Объект (опц.)">
+                    <ProjectSelect placeholder="Не выбран" />
+                  </Form.Item>
+                )}
               </Col>
               <Col xs={24} md={6}>
                 <Form.Item

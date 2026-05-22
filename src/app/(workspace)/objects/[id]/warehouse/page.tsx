@@ -30,7 +30,7 @@ export default function ObjectWarehousePage(props: { params: Promise<{ id: strin
         actions={
           <Space>
             <CreateInventoryItemButton />
-            <CreateStockIncomeDrawer />
+            <CreateStockIncomeDrawer projectId={id} />
             <CreateStockWriteoffDrawer projectId={id} />
             <ExportWarehouseButton projectId={id} />
           </Space>
