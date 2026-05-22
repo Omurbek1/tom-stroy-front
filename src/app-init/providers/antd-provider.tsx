@@ -118,6 +118,11 @@ export function AntdProvider({ children }: { children: ReactNode }) {
       token: {
         ...COMMON_TOKEN,
         ...(isDark ? DARK_TOKEN : LIGHT_TOKEN),
+        // Floating UI base z-index. Must be strictly above any sticky
+        // toolbar / page header (`--z-sticky-header: 30`) so dropdowns
+        // never disappear under a sticky layer. 1050 matches the global
+        // CSS scale (`--z-dropdown`) and AntD default.
+        zIndexPopupBase: 1050,
       },
       components: {
         ...COMPONENTS,
@@ -147,9 +152,19 @@ export function AntdProvider({ children }: { children: ReactNode }) {
     };
   }, [mode]);
 
+  // Render every popup at the document body — escapes any sticky /
+  // backdrop-filter / transform parent that would otherwise clip the
+  // dropdown or pull it into a lower stacking context.
+  const popupContainer = () =>
+    typeof document === 'undefined' ? (null as unknown as HTMLElement) : document.body;
+
   return (
     <AntdRegistry>
-      <ConfigProvider locale={ru_RU} theme={themeConfig}>
+      <ConfigProvider
+        locale={ru_RU}
+        theme={themeConfig}
+        getPopupContainer={popupContainer}
+      >
         <App>
           <AntdStaticBridge />
           {children}

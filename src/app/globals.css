@@ -111,6 +111,24 @@
   --sidebar-w: 240px;
   --sidebar-w-collapsed: 72px;
   --header-h: 56px;
+  --toolbar-h: 56px;
+
+  /* =================================================================
+     Z-index scale (Linear / Stripe Dashboard pattern). All sticky and
+     floating UI MUST use one of these tokens — never inline numbers,
+     never raw `z-index: 999`. Keep gaps wide so AntD's defaults sit
+     between layers without surprise overlap.
+     ================================================================= */
+  --z-content: 0;
+  --z-card: 1;
+  --z-card-hover: 2;
+  --z-sticky-toolbar: 20;
+  --z-sticky-header: 30;
+  --z-app-header: 40;
+  --z-drawer: 1000;       /* matches antd Drawer */
+  --z-dropdown: 1050;     /* matches antd Select / DatePicker popup */
+  --z-modal: 1100;
+  --z-notification: 1200;
 
   --color-sidebar-bg: #ffffff;
   --color-sidebar-text: #334155;
@@ -225,11 +243,18 @@ body {
 }
 
 .app-shell__content {
+  /* Page-level scroll viewport. Sticky elements inside (PageHeader /
+     page-toolbar) anchor to the top of THIS box, not the document. */
   flex: 1;
   min-width: 0;
   min-height: 0;
   overflow-y: auto;
-  overflow-x: hidden;
+  /* Critical: NO overflow-x: hidden, NO transform, NO filter — any of
+     those would clip sticky descendants or break AntD popups. Wide
+     content stays contained by `min-width: 0` on the column. */
+  overflow-x: clip;
+  position: relative;
+  z-index: var(--z-content);
 }
 
 /* Mobile: collapse sidebar to drawer, hide it permanently */
@@ -385,22 +410,23 @@ body {
 }
 
 /* ============================================================
-   Global Header — compact, page-agnostic workspace chrome
+   Global Header — compact, page-agnostic workspace chrome.
+   Lives outside the page scroll container (it's a sibling of
+   `.app-shell__content`), so `position: sticky` here is degenerate;
+   we keep it for parity and reserve the z-index for layering.
    ============================================================ */
 .uheader {
   flex-shrink: 0;
-  position: sticky;
-  top: 0;
-  z-index: 40;
+  position: relative;
+  z-index: var(--z-app-header);
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 10px;
   height: var(--header-h);
   padding: 0 14px;
-  background: color-mix(in srgb, var(--color-surface) 96%, transparent);
+  background: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
-  backdrop-filter: blur(10px);
   box-shadow: var(--shadow-header);
 }
 
@@ -447,8 +473,12 @@ a.uheader__crumb:hover {
   flex-shrink: 0;
 }
 
-.uheader__breadcrumbs > :last-child {
-  display: none;
+/* No-op kept to preserve cascade order. Current page is rendered as
+   the active crumb (not hidden) so the chrome matches the in-page
+   PageHeader crumbs. */
+.uheader__breadcrumbs > :last-child .uheader__crumb {
+  color: var(--color-text);
+  font-weight: 500;
 }
 
 .uheader__actions {
@@ -513,19 +543,81 @@ a.uheader__crumb:hover {
 }
 
 /* ============================================================
-   Page Header + Toolbar
+   Page Header — sticky, enterprise pattern
+   (Linear / Stripe / Notion)
    ============================================================ */
 .page-header {
+  background: var(--color-bg);
+  /* Solid bg — NO backdrop-filter / transform here, both create
+     stacking contexts that pin AntD popups under the sticky layer. */
+}
+
+.page-header--sticky {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky-header);
+}
+
+.page-header--bordered {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.page-header__inner {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px 24px 14px;
+}
+
+.page-header__crumbs {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0;
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-xs);
+  color: var(--color-text-muted);
+}
+
+.page-header__crumb-row {
+  display: inline-flex;
+  align-items: center;
+}
+
+.page-header__crumb {
+  color: var(--color-text-muted);
+  text-decoration: none;
+  padding: 2px 0;
+  border-radius: 4px;
+  transition: color 0.12s ease;
+}
+
+a.page-header__crumb:hover {
+  color: var(--color-primary);
+}
+
+.page-header__crumb--current {
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.page-header__crumb-sep {
+  font-size: 8px;
+  opacity: 0.45;
+  margin: 0 8px;
+}
+
+.page-header__main {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   gap: 16px;
-  padding: 18px 24px 14px;
-  background: var(--color-bg);
+  min-width: 0;
 }
 
-.page-header__main {
+.page-header__title-block {
   min-width: 0;
+  flex: 1 1 auto;
 }
 
 .page-header__title {
@@ -534,7 +626,7 @@ a.uheader__crumb:hover {
   line-height: var(--line-height-2xl);
   font-weight: var(--font-weight-strong);
   color: var(--color-text);
-  letter-spacing: 0;
+  letter-spacing: -0.01em;
 }
 
 .page-header__subtitle {
@@ -542,6 +634,51 @@ a.uheader__crumb:hover {
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
   line-height: var(--line-height-sm);
+}
+
+.page-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.page-header__filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 24px;
+  background: var(--color-bg);
+  border-top: 1px solid var(--color-border-secondary, var(--color-border));
+}
+
+.page-header--has-filters .page-header__inner {
+  padding-bottom: 12px;
+}
+
+@media (max-width: 900px) {
+  .page-header__inner {
+    padding: 14px 16px 10px;
+  }
+  .page-header__filters {
+    padding: 10px 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .page-header__main {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .page-header__title {
+    font-size: var(--font-size-xl);
+    line-height: var(--line-height-xl);
+  }
+  .page-header__actions {
+    width: 100%;
+  }
 }
 
 .page-header__stats {
@@ -552,16 +689,19 @@ a.uheader__crumb:hover {
 }
 
 .page-toolbar {
+  /* Lives inside .app-shell__content scroll viewport, so top = 0 sticks
+     it directly under the uheader (uheader is outside this scroll). */
   position: sticky;
-  top: var(--header-h);
-  z-index: 30;
+  top: 0;
+  z-index: var(--z-sticky-toolbar);
   min-width: 0;
-  height: 48px;
-  padding: 0 16px;
-  border-top: 1px solid var(--color-border);
+  min-height: var(--toolbar-h);
+  padding: 10px 24px;
   border-bottom: 1px solid var(--color-border);
-  background: color-mix(in srgb, var(--color-bg) 95%, transparent);
-  backdrop-filter: blur(10px);
+  background: var(--color-bg);
+  /* No backdrop-filter / transform here — both would create a stacking
+     context that clips AntD popups. Solid bg + getPopupContainer→body
+     is the safe enterprise pattern (see antd-provider.tsx). */
 }
 
 .page-toolbar__scroller {
@@ -569,11 +709,10 @@ a.uheader__crumb:hover {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  height: 100%;
   min-width: 0;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: thin;
+  /* No horizontal scroll here either — wrap on small screens instead,
+     so the date picker / chips never end up "off-screen". */
+  flex-wrap: wrap;
 }
 
 .page-toolbar__left,
@@ -1952,9 +2091,20 @@ a.uheader__crumb:hover {
 .object-tabs {
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: var(--z-sticky-toolbar);
   background: var(--color-bg);
   border-bottom: 1px solid var(--color-border);
+}
+
+/* PageHeader nested in an object workspace sticks BELOW the ObjectTabs
+   (Linear nested-sticky pattern). The variable lives on the parent so
+   it cascades to the PageHeader inside the page children. */
+.object-workspace {
+  --object-tabs-h: 44px;
+}
+
+.object-workspace .page-header--sticky {
+  top: var(--object-tabs-h);
 }
 
 .object-tabs__scroll {

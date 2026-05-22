@@ -34,7 +34,7 @@ export interface NavItem {
  *   /settings   — settings
  */
 export const GLOBAL_NAV: NavItem[] = [
-  { key: 'dashboard', href: '/dashboard', label: 'Аналитика', icon: createElement(BarChartOutlined), permission: 'analytics:view' },
+  { key: 'analytics', href: '/analytics', label: 'Аналитика', icon: createElement(BarChartOutlined), permission: 'analytics:view' },
   { key: 'objects',   href: '/objects',   label: 'Объекты',   icon: createElement(ProjectOutlined) },
   { key: 'company',   href: '/company',   label: 'Компания',  icon: createElement(ApartmentOutlined), permission: 'company:view' },
   { key: 'finance',   href: '/finance',   label: 'Финансы',   icon: createElement(DollarOutlined),    permission: 'finance:view' },
