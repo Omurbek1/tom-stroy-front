@@ -178,7 +178,8 @@ export default function CompanyHubPage() {
         subtitle="Центр управления ресурсами — справочники, активность, KPI"
         breadcrumbs={[{ label: 'Компания' }]}
         actions={
-          <Space>
+          <Space wrap size="small">
+            <CreateSupplierModal />
             <CreateWarehouseButton />
             <CreateVehicleButton />
             <CreateInventoryItemButton />
@@ -230,10 +231,6 @@ export default function CompanyHubPage() {
       <CreateBrigadeModal
         open={brigadeOpen}
         onClose={() => setBrigadeOpen(false)}
-      />
-      <CreateSupplierModal
-        open={supplierOpen}
-        onClose={() => setSupplierOpen(false)}
       />
     </>
   );
