@@ -1,10 +1,10 @@
 'use client';
 
-import { Alert, Button, Card, Empty, List, Skeleton, Space, Tag } from 'antd';
+import { Alert, Button, Card, Empty, List, Popconfirm, Skeleton, Space, Tag } from 'antd';
 import { message } from '@shared/lib/antd-static';
-import { ReloadOutlined, ThunderboltOutlined } from '@ant-design/icons';
+import { DeleteOutlined, ReloadOutlined, ThunderboltOutlined } from '@ant-design/icons';
 import Link from 'next/link';
-import { useInsights, useRunInsightsScan } from '@entities/ai-insight/hooks';
+import { useClearInsights, useInsights, useRunInsightsScan } from '@entities/ai-insight/hooks';
 import type { AiInsight, InsightKind } from '@entities/ai-insight/types';
 import { formatDate } from '@shared/lib/format';
 
@@ -84,6 +84,7 @@ export function InsightsList({ projectId, title = 'AI-инсайты', canScan =
     limit: 30,
   });
   const scan = useRunInsightsScan();
+  const clear = useClearInsights();
 
   const onScan = async () => {
     try {
@@ -91,6 +92,15 @@ export function InsightsList({ projectId, title = 'AI-инсайты', canScan =
       message.success(`Сканирование: ${result.scanned} объектов, найдено ${result.created} проблем`);
     } catch {
       message.error('Не удалось запустить сканирование');
+    }
+  };
+
+  const onClear = async () => {
+    try {
+      const result = await clear.mutateAsync({ projectId });
+      message.success(`Очищено инсайтов: ${result.deleted}`);
+    } catch {
+      message.error('Не удалось очистить инсайты');
     }
   };
 
@@ -107,6 +117,29 @@ export function InsightsList({ projectId, title = 'AI-инсайты', canScan =
       extra={
         <Space>
           <Button size="small" icon={<ReloadOutlined />} onClick={() => refetch()} />
+          {items.length > 0 && (
+            <Popconfirm
+              title="Очистить AI-инсайты?"
+              description={
+                projectId
+                  ? 'Будут удалены инсайты только этого объекта.'
+                  : 'Будут удалены все сохранённые AI-инсайты.'
+              }
+              okText="Очистить"
+              cancelText="Отмена"
+              okButtonProps={{ danger: true }}
+              onConfirm={onClear}
+            >
+              <Button
+                size="small"
+                danger
+                icon={<DeleteOutlined />}
+                loading={clear.isPending}
+              >
+                Очистить
+              </Button>
+            </Popconfirm>
+          )}
           {canScan && (
             <Button
               size="small"

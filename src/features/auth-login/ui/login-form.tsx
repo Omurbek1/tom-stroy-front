@@ -5,7 +5,7 @@ import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { message } from '@shared/lib/antd-static';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { login, LoginRequest } from '../api';
 import { useAuthStore } from '@app-init/store/auth-store';
 
@@ -25,8 +25,16 @@ const DEMO_ACCOUNTS: DemoAccount[] = [
 export function LoginForm() {
   const router = useRouter();
   const setSession = useAuthStore((s) => s.setSession);
+  const user = useAuthStore((s) => s.user);
+  const hasHydrated = useAuthStore((s) => s.hasHydrated);
   const [form] = Form.useForm<LoginRequest>();
   const [errorText, setErrorText] = useState<string | null>(null);
+
+  // If we land on /login already authenticated (browser back, manual nav,
+  // or "open new tab"), bounce to /dashboard instead of forcing re-login.
+  useEffect(() => {
+    if (hasHydrated && user) router.replace('/dashboard');
+  }, [hasHydrated, user, router]);
 
   const mutation = useMutation({
     mutationFn: login,

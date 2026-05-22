@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
+  clearInsights,
   listInsights,
   ListInsightsParams,
   runInsightsScan,
@@ -26,6 +27,16 @@ export function useRunInsightsScan() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['ai', 'insights'] });
       qc.invalidateQueries({ queryKey: ['notifications'] });
+    },
+  });
+}
+
+export function useClearInsights() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: clearInsights,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['ai', 'insights'] });
     },
   });
 }

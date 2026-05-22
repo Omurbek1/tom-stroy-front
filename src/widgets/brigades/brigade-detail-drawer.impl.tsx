@@ -63,11 +63,12 @@ const memberColumns: ColumnsType<BrigadeMember> = [
 
 interface Props {
   brigadeId: string | null;
+  projectId?: string;
   open: boolean;
   onClose: () => void;
 }
 
-export function BrigadeDetailDrawer({ brigadeId, open, onClose }: Props) {
+export function BrigadeDetailDrawer({ brigadeId, projectId, open, onClose }: Props) {
   const [preset, setPreset] = useState<Preset>('all');
   const [range, setRange] = useState<[Dayjs, Dayjs] | null>(null);
 
@@ -90,7 +91,7 @@ export function BrigadeDetailDrawer({ brigadeId, open, onClose }: Props) {
   const { data, isLoading } = useBrigade(open ? brigadeId ?? undefined : undefined);
   const { data: stats, isLoading: statsLoading } = useBrigadeStats(
     open ? brigadeId ?? undefined : undefined,
-    period,
+    { ...period, projectId },
   );
 
   return (
@@ -177,11 +178,15 @@ export function BrigadeDetailDrawer({ brigadeId, open, onClose }: Props) {
                   label: `Работы (${stats.works.count})`,
                   children: <WorksTab stats={stats} />,
                 },
-                {
-                  key: 'stock',
-                  label: `Склад бригады (${stats.stock.items.length})`,
-                  children: <StockTab stats={stats} />,
-                },
+                ...(!stats.isProjectScoped
+                  ? [
+                      {
+                        key: 'stock',
+                        label: `Склад бригады (${stats.stock.items.length})`,
+                        children: <StockTab stats={stats} />,
+                      },
+                    ]
+                  : []),
                 {
                   key: 'members',
                   label: `Состав (${data.members.length})`,
@@ -259,7 +264,9 @@ function FinanceTab({ stats }: { stats: BrigadeStats }) {
         </div>
       </div>
       <div style={{ fontSize: 12, color: 'var(--ant-color-text-secondary, #8c8c8c)' }}>
-        Цифры собираются из расчёток (Payroll) текущих участников бригады. Бывшие участники не учитываются.
+        {stats.isProjectScoped
+          ? 'Показаны только работы этого объекта. Выплаты по объекту появятся после привязки платежей к объекту или работам.'
+          : 'Цифры собираются из расчёток (Payroll) текущих участников бригады. Бывшие участники не учитываются.'}
       </div>
     </Space>
   );

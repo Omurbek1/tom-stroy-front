@@ -12,6 +12,8 @@ import { PnlCard } from '@widgets/finance/pnl-card';
 import { ExpensesTable } from '@widgets/finance/expenses-table';
 import { IncomesTable } from '@widgets/finance/incomes-table';
 import { FinanceTimeseriesChart } from '@widgets/finance/timeseries-chart';
+import { CompanyProjectFinanceWidget } from '@widgets/finance/company-project-finance';
+import { FinanceOperationsWidget } from '@widgets/finance/finance-operations';
 import { FinanceSubnav } from '@widgets/finance/finance-subnav';
 import { downloadFile } from '@shared/lib/download';
 import { apiRoutes } from '@shared/api/routes';
@@ -44,10 +46,15 @@ export default function FinancePage() {
 
   const tabs = useMemo(
     () => [
-      { key: 'incomes', label: 'Поступления', children: <IncomesTable /> },
+      { key: 'incomes', label: 'Поступления от клиентов', children: <IncomesTable /> },
       { key: 'expenses', label: 'Расходы', children: <ExpensesTable /> },
+      {
+        key: 'cashbook',
+        label: 'Операции и долги',
+        children: <FinanceOperationsWidget from={from} to={to} />,
+      },
     ],
-    [],
+    [from, to],
   );
 
   return (
@@ -77,6 +84,7 @@ export default function FinancePage() {
       <PageContainer>
         <PnlCard from={from} to={to} />
         <FinanceTimeseriesChart from={from} to={to} />
+        <CompanyProjectFinanceWidget from={from} to={to} />
         <Tabs defaultActiveKey="incomes" items={tabs} />
       </PageContainer>
     </>

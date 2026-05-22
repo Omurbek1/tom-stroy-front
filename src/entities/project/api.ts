@@ -63,6 +63,13 @@ export interface ProjectBrigadeRow {
     amount: number;
     rowsCount: number;
   }>;
+  materialBreakdown: Array<{
+    itemId: string;
+    itemName: string;
+    unit: string;
+    qty: number;
+    total: number;
+  }>;
 }
 
 export async function listProjectBrigades(projectId: string): Promise<ProjectBrigadeRow[]> {

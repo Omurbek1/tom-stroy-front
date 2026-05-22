@@ -67,4 +67,5 @@ export interface BrigadeStats {
     totalValue: number;
   };
   membersCount: number;
+  isProjectScoped?: boolean;
 }

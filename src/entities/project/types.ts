@@ -33,10 +33,16 @@ export interface ProjectAnalytics {
   planVolume: number;
   velocity7d: number;
   forecastDays: number | null;
+  revenue: number;
   materialsCost: number;
   laborCost: number;
+  equipmentCost: number;
+  otherExpensesTotal: number;
+  expensesByCategory: Record<string, number>;
   actualCost: number;
+  totalCost: number;
   budget: number;
   profit: number;
   margin: number;
+  budgetVariance: number;
 }

@@ -24,7 +24,7 @@ export function useBrigade(id: string | undefined) {
 
 export function useBrigadeStats(
   brigadeId: string | undefined,
-  params: { from?: string; to?: string } = {},
+  params: { from?: string; to?: string; projectId?: string } = {},
 ) {
   return useQuery({
     queryKey: ['brigades', 'stats', brigadeId, params],

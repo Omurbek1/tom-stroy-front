@@ -34,6 +34,7 @@ const STORAGE_KEY = 'tomstroy.sidebar-collapsed';
 export function AppShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
+  const hasHydrated = useAuthStore((s) => s.hasHydrated);
 
   const [collapsed, setCollapsed] = useState<boolean>(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -46,8 +47,11 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    // Wait for zustand to read localStorage — otherwise `user` is null
+    // for one tick after a hard reload and we bounce the user out.
+    if (!hasHydrated) return;
     if (!user) router.replace('/login');
-  }, [user, router]);
+  }, [hasHydrated, user, router]);
 
   const toggleCollapsed = useCallback(() => {
     setCollapsed((v) => {

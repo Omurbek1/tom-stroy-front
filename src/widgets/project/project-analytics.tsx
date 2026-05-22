@@ -33,22 +33,31 @@ export function ProjectAnalyticsBlock({ projectId }: { projectId: string }) {
           />
         </Col>
         <Col xs={12} md={8}>
+          <StatCard title="Доход" value={formatMoney(data.revenue)} />
+        </Col>
+        <Col xs={12} md={8}>
           <StatCard title="Материалы" value={formatMoney(data.materialsCost)} />
         </Col>
         <Col xs={12} md={8}>
-          <StatCard title="Зарплаты (работы)" value={formatMoney(data.laborCost)} />
+          <StatCard title="Работы" value={formatMoney(data.laborCost)} />
         </Col>
         <Col xs={12} md={8}>
-          <StatCard title="Бюджет" value={formatMoney(data.budget)} />
+          <StatCard title="Техника" value={formatMoney(data.equipmentCost)} />
         </Col>
-        <Col xs={12} md={12}>
-          <StatCard title="Факт. расходы" value={formatMoney(data.actualCost)} />
+        <Col xs={12} md={8}>
+          <StatCard title="Прочее" value={formatMoney(data.otherExpensesTotal)} />
+        </Col>
+        <Col xs={12} md={8}>
+          <StatCard title="Все расходы" value={formatMoney(data.totalCost)} />
         </Col>
         <Col xs={12} md={12}>
           <StatCard
-            title={`Прибыль (${formatNumber(data.margin)}%)`}
+            title={`Прибыль P&L (${formatNumber(data.margin)}%)`}
             value={formatMoney(data.profit)}
           />
+        </Col>
+        <Col xs={12} md={12}>
+          <StatCard title="Остаток бюджета" value={formatMoney(data.budgetVariance)} />
         </Col>
       </Row>
     </Card>

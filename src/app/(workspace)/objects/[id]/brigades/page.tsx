@@ -1,7 +1,7 @@
 'use client';
 
 import { use, useState } from 'react';
-import { Card, Empty, Skeleton, Table, Tag } from 'antd';
+import { Card, Empty, Skeleton, Space, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { PageMeta } from '@shared/ui/page-meta';
 import { PageContainer } from '@shared/ui/page-container';
@@ -71,6 +71,26 @@ export default function ObjectBrigadesPage(props: { params: Promise<{ id: string
       align: 'right',
     },
     {
+      title: 'Материалы',
+      key: 'materials',
+      width: 150,
+      align: 'right',
+      render: (_, r) => {
+        const qty = r.materialBreakdown.reduce((s, m) => s + m.qty, 0);
+        const total = r.materialBreakdown.reduce((s, m) => s + m.total, 0);
+        return r.materialBreakdown.length > 0 ? (
+          <div>
+            <div>{formatNumber(qty)}</div>
+            <div style={{ fontSize: 12, color: 'var(--ant-color-text-secondary, #8c8c8c)' }}>
+              {formatMoney(total)}
+            </div>
+          </div>
+        ) : (
+          '—'
+        );
+      },
+    },
+    {
       title: 'Последний визит',
       dataIndex: 'lastVisit',
       key: 'lastVisit',
@@ -92,15 +112,20 @@ export default function ObjectBrigadesPage(props: { params: Promise<{ id: string
       ),
     },
     {
-      title: 'Выплачено',
+      title: 'Выплачено по объекту',
       dataIndex: 'payrollPaid',
       key: 'payrollPaid',
-      width: 150,
+      width: 170,
       align: 'right',
-      render: (v: number) => formatMoney(v),
+      render: (v: number) =>
+        v > 0 ? (
+          formatMoney(v)
+        ) : (
+          <span style={{ color: 'var(--ant-color-text-secondary, #8c8c8c)' }}>—</span>
+        ),
     },
     {
-      title: 'Остаток',
+      title: 'К выплате',
       dataIndex: 'objectBalance',
       key: 'objectBalance',
       width: 150,
@@ -138,6 +163,24 @@ export default function ObjectBrigadesPage(props: { params: Promise<{ id: string
       render: (v: number) => <strong>{formatMoney(v)}</strong>,
     },
   ];
+  const materialColumns: ColumnsType<ProjectBrigadeRow['materialBreakdown'][number]> = [
+    { title: 'Материал / инструмент', dataIndex: 'itemName', key: 'itemName' },
+    {
+      title: 'Количество',
+      key: 'qty',
+      align: 'right',
+      width: 160,
+      render: (_, r) => `${formatNumber(r.qty)} ${r.unit}`,
+    },
+    {
+      title: 'Сумма',
+      dataIndex: 'total',
+      key: 'total',
+      align: 'right',
+      width: 160,
+      render: (v: number) => <strong>{formatMoney(v)}</strong>,
+    },
+  ];
 
   return (
     <>
@@ -166,15 +209,37 @@ export default function ObjectBrigadesPage(props: { params: Promise<{ id: string
               scroll={{ x: 1200 }}
               expandable={{
                 expandedRowRender: (record) => (
-                  <Table<ProjectBrigadeRow['workBreakdown'][number]>
-                    rowKey={(row) => `${row.workType}-${row.unit}`}
-                    size="small"
-                    columns={breakdownColumns}
-                    dataSource={record.workBreakdown}
-                    pagination={false}
-                  />
+                  <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                    {record.workBreakdown.length > 0 && (
+                      <div>
+                        <div style={{ fontWeight: 500, marginBottom: 8 }}>Работы на этом объекте</div>
+                        <Table<ProjectBrigadeRow['workBreakdown'][number]>
+                          rowKey={(row) => `${row.workType}-${row.unit}`}
+                          size="small"
+                          columns={breakdownColumns}
+                          dataSource={record.workBreakdown}
+                          pagination={false}
+                        />
+                      </div>
+                    )}
+                    {record.materialBreakdown.length > 0 && (
+                      <div>
+                        <div style={{ fontWeight: 500, marginBottom: 8 }}>
+                          Что бригада забрала / списала по этому объекту
+                        </div>
+                        <Table<ProjectBrigadeRow['materialBreakdown'][number]>
+                          rowKey="itemId"
+                          size="small"
+                          columns={materialColumns}
+                          dataSource={record.materialBreakdown}
+                          pagination={false}
+                        />
+                      </div>
+                    )}
+                  </Space>
                 ),
-                rowExpandable: (record) => record.workBreakdown.length > 0,
+                rowExpandable: (record) =>
+                  record.workBreakdown.length > 0 || record.materialBreakdown.length > 0,
               }}
               onRow={(record) => ({
                 onClick: () => setOpenBrigadeId(record.id),
@@ -185,6 +250,7 @@ export default function ObjectBrigadesPage(props: { params: Promise<{ id: string
         </Card>
         <BrigadeDetailDrawer
           brigadeId={openBrigadeId}
+          projectId={id}
           open={openBrigadeId !== null}
           onClose={() => setOpenBrigadeId(null)}
         />

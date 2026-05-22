@@ -33,7 +33,7 @@ export async function ensureBrigadeWarehouse(brigadeId: string): Promise<string>
 
 export async function fetchBrigadeStats(
   brigadeId: string,
-  params: { from?: string; to?: string } = {},
+  params: { from?: string; to?: string; projectId?: string } = {},
 ): Promise<BrigadeStats> {
   const res = await http.get<ItemResponse<BrigadeStats>>(apiRoutes.brigades.stats(brigadeId), {
     params,

@@ -25,6 +25,15 @@ export async function runInsightsScan(): Promise<{ scanned: number; created: num
   return res.data.data;
 }
 
+export async function clearInsights(
+  params: Pick<ListInsightsParams, 'projectId' | 'kind'> = {},
+): Promise<{ deleted: number }> {
+  const res = await http.delete<ItemResponse<{ deleted: number }>>(apiRoutes.ai.insights, {
+    params,
+  });
+  return res.data.data;
+}
+
 export interface SummarizeReportInput {
   projectId: string;
   summary?: string;

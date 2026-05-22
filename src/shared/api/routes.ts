@@ -103,6 +103,9 @@ export const apiRoutes = {
     incomes: '/finance/incomes',
     pnl: '/finance/pnl',
     timeseries: '/finance/timeseries',
+    breakdown: '/finance/breakdown',
+    projects: '/finance/projects',
+    operations: '/finance/operations',
   },
   ai: {
     projectBrief: (id: string) => `/ai/projects/${id}/brief`,

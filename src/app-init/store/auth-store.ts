@@ -28,6 +28,13 @@ export interface Tokens {
 interface AuthStore {
   user: CurrentUser | null;
   tokens: Tokens | null;
+  /**
+   * `true` after `persist` has read localStorage on the client. Until then
+   * `user`/`tokens` may be the SSR-safe defaults (null) — guards must wait
+   * for this flag before redirecting to /login, otherwise a hard reload
+   * bounces an authenticated user out.
+   */
+  hasHydrated: boolean;
   /** Kept for backwards-compat with AuthProvider; persist auto-hydrates. */
   hydrate: () => void;
   setSession: (user: CurrentUser, tokens: Tokens) => void;
@@ -73,6 +80,7 @@ export const useAuthStore = create<AuthStore>()(
     (set) => ({
       user: null,
       tokens: null,
+      hasHydrated: false,
       hydrate: () => {
         // No-op — `persist` middleware rehydrates synchronously on first
         // store access. Kept as a stable reference so old call sites compile.
@@ -99,6 +107,12 @@ export const useAuthStore = create<AuthStore>()(
           } as AuthStore;
         }
         return p as AuthStore;
+      },
+      onRehydrateStorage: () => (state) => {
+        // Fires after persist reads localStorage on the client. Without this
+        // flip, guards see `user: null` for one tick and redirect to /login.
+        if (state) state.hasHydrated = true;
+        else useAuthStore.setState({ hasHydrated: true });
       },
     },
   ),
