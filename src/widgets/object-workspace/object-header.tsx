@@ -3,6 +3,7 @@
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { Progress, Skeleton } from 'antd';
 import Link from 'next/link';
+import { memo } from 'react';
 import { useProject } from '@entities/project/hooks';
 import { ProjectStatus, StatusBadge } from '@shared/ui/status-badge';
 import { CreateDailyReportButton } from '@features/create-daily-report/ui/create-daily-report-button';
@@ -15,8 +16,11 @@ interface Props {
 /**
  * Wide header shown above ObjectTabs. Owns the object identity:
  * back-link, name, address, status, progress, deadline + primary action.
+ *
+ * Memoized — `projectId` is the only prop, so the header stays mounted
+ * and avoids a full re-render when the user switches tabs.
  */
-export function ObjectHeader({ projectId }: Props) {
+function ObjectHeaderImpl({ projectId }: Props) {
   const { data: project, isLoading } = useProject(projectId);
 
   if (isLoading || !project) {
@@ -71,3 +75,5 @@ export function ObjectHeader({ projectId }: Props) {
     </div>
   );
 }
+
+export const ObjectHeader = memo(ObjectHeaderImpl);

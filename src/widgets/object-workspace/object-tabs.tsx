@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useMemo, useRef } from 'react';
+import { memo, useEffect, useMemo, useRef } from 'react';
 import { useAuthStore } from '@app-init/store/auth-store';
 import { can, type Permission } from '@shared/config/permissions';
 
@@ -38,8 +38,11 @@ interface Props {
  *
  * Auto-scrolls the active tab into view (handy when navigating between
  * many tabs on a narrow viewport).
+ *
+ * Memoized (см. export below) — projectId is the only prop, so the tab
+ * bar doesn't re-render when the page body re-renders.
  */
-export function ObjectTabs({ projectId }: Props) {
+function ObjectTabsImpl({ projectId }: Props) {
   const pathname = usePathname() ?? '';
   const role = useAuthStore((s) => s.user?.role);
   const base = `/objects/${projectId}`;
@@ -85,3 +88,5 @@ export function ObjectTabs({ projectId }: Props) {
     </nav>
   );
 }
+
+export const ObjectTabs = memo(ObjectTabsImpl);
