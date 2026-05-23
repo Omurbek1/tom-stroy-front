@@ -29,10 +29,16 @@ function invalidateAll(qc: ReturnType<typeof useQueryClient>) {
   qc.invalidateQueries({ queryKey: ['inventory'] });
 }
 
+// PO lifecycle (PENDING → APPROVED → ORDERED → RECEIVED) goes through
+// mutations that invalidate the cache, so 2 min stale is safe and keeps
+// both list and detail snappy across navigation.
+const PO_STALE = 2 * 60_000;
+
 export function usePurchaseOrders(params: ListPurchaseOrdersParams = {}) {
   return useQuery({
     queryKey: purchaseOrderKeys.list(params),
     queryFn: () => listPurchaseOrders(params),
+    staleTime: PO_STALE,
   });
 }
 
@@ -41,6 +47,7 @@ export function usePurchaseOrder(id: string | undefined) {
     queryKey: purchaseOrderKeys.detail(id ?? ''),
     queryFn: () => getPurchaseOrder(id as string),
     enabled: !!id,
+    staleTime: PO_STALE,
   });
 }
 

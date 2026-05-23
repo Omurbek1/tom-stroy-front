@@ -11,5 +11,7 @@ export function useAttendance(params: ListAttendanceParams = {}) {
   return useQuery({
     queryKey: attendanceKeys.list(params),
     queryFn: () => listAttendance(params),
+    // Attendance updates a few times a day; 5 min is plenty.
+    staleTime: 5 * 60_000,
   });
 }

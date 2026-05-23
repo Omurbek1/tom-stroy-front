@@ -19,6 +19,9 @@ export function useExpenses(params: ListExpensesParams = {}) {
   return useQuery({
     queryKey: expenseKeys.list(params),
     queryFn: () => listExpenses(params),
+    // Expenses list is one of the heavier reads (joins project +
+    // ordered by date). 2 min stale; mutations invalidate ['expenses'].
+    staleTime: 2 * 60_000,
   });
 }
 

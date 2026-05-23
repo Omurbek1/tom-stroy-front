@@ -9,10 +9,16 @@ export const employeeKeys = {
   list: (search?: string) => ['employees', 'list', { search }] as const,
 };
 
+// Headcount changes a few times per week, not per minute. 10 min stale
+// time means dropdowns / EmployeeSelect that mount repeatedly across
+// pages reuse the cached list, dramatically cutting Supabase hits.
+const EMPLOYEE_STALE = 10 * 60_000;
+
 export function useEmployees(search?: string) {
   return useQuery({
     queryKey: employeeKeys.list(search),
     queryFn: () => listEmployees({ search, limit: 200 }),
+    staleTime: EMPLOYEE_STALE,
   });
 }
 

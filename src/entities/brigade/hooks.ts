@@ -10,8 +10,16 @@ export const brigadeKeys = {
   detail: (id: string) => ['brigades', 'detail', id] as const,
 };
 
+// Brigades are a slow-changing directory; bumped to 10 min so BrigadeSelect
+// across writeoff / transfer / receipt forms doesn't refetch on each open.
+const BRIGADE_STALE = 10 * 60_000;
+
 export function useBrigades() {
-  return useQuery({ queryKey: brigadeKeys.list, queryFn: () => listBrigades({ limit: 100 }) });
+  return useQuery({
+    queryKey: brigadeKeys.list,
+    queryFn: () => listBrigades({ limit: 100 }),
+    staleTime: BRIGADE_STALE,
+  });
 }
 
 export function useBrigade(id: string | undefined) {
@@ -19,6 +27,7 @@ export function useBrigade(id: string | undefined) {
     queryKey: brigadeKeys.detail(id ?? ''),
     queryFn: () => getBrigade(id as string),
     enabled: !!id,
+    staleTime: BRIGADE_STALE,
   });
 }
 

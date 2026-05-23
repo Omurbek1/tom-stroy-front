@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
   Button,
   Card,
@@ -53,93 +53,107 @@ export function IncomesTable({ projectId }: { projectId?: string } = {}) {
     [filtered],
   );
 
-  const handleDelete = async (id: string) => {
-    try {
-      await deleteMutation.mutateAsync(id);
-      message.success('Поступление удалено');
-    } catch {
-      message.error('Не удалось удалить');
-    }
-  };
+  const handleDelete = useCallback(
+    async (id: string) => {
+      try {
+        await deleteMutation.mutateAsync(id);
+        message.success('Поступление удалено');
+      } catch {
+        message.error('Не удалось удалить');
+      }
+    },
+    [deleteMutation],
+  );
 
-  const columns: ColumnsType<Income> = [
-    {
-      title: 'Дата',
-      dataIndex: 'date',
-      key: 'date',
-      width: 110,
-      sorter: (a, b) => +new Date(a.date) - +new Date(b.date),
-      defaultSortOrder: 'descend',
-      render: (v: string) => formatDate(v),
+  const onEdit = useCallback(
+    (e: React.MouseEvent, r: Income) => {
+      e.stopPropagation();
+      setEditTarget(r);
     },
-    {
-      title: 'Клиент',
-      key: 'client',
-      ellipsis: true,
-      render: (_, r) => r.client?.name ?? '—',
-    },
-    {
-      title: 'Объект',
-      key: 'project',
-      ellipsis: true,
-      render: (_, r) => r.project?.name ?? '—',
-    },
-    {
-      title: 'Сумма',
-      dataIndex: 'amount',
-      key: 'amount',
-      width: 160,
-      align: 'right',
-      sorter: (a, b) => Number(a.amount) - Number(b.amount),
-      render: (v: number) => (
-        <strong style={{ color: 'var(--finance-income, #389e0d)' }}>
-          +{formatMoney(v)}
-        </strong>
-      ),
-    },
-    {
-      title: 'Назначение',
-      dataIndex: 'comment',
-      key: 'comment',
-      ellipsis: true,
-      render: (v: string | null | undefined) => v || '—',
-    },
-    {
-      title: '',
-      key: 'actions',
-      width: 90,
-      align: 'right',
-      render: (_, r) => (
-        <Space size={0}>
-          <Button
-            type="text"
-            size="small"
-            icon={<EditOutlined />}
-            onClick={(e) => {
-              e.stopPropagation();
-              setEditTarget(r);
-            }}
-          />
-          <Popconfirm
-            title="Удалить поступление?"
-            description="Это снимет его из P&L и отчётов"
-            onConfirm={() => handleDelete(r.id)}
-            okButtonProps={{ danger: true }}
-            okText="Удалить"
-            cancelText="Отмена"
-          >
+    [],
+  );
+  const stopProp = useCallback((e: React.MouseEvent) => e.stopPropagation(), []);
+
+  // Memoize columns — without this AntD Table re-keys every cell whenever
+  // filters / search / edit state changes in the parent.
+  const columns: ColumnsType<Income> = useMemo(
+    () => [
+      {
+        title: 'Дата',
+        dataIndex: 'date',
+        key: 'date',
+        width: 110,
+        sorter: (a, b) => +new Date(a.date) - +new Date(b.date),
+        defaultSortOrder: 'descend',
+        render: (v: string) => formatDate(v),
+      },
+      {
+        title: 'Клиент',
+        key: 'client',
+        ellipsis: true,
+        render: (_, r) => r.client?.name ?? '—',
+      },
+      {
+        title: 'Объект',
+        key: 'project',
+        ellipsis: true,
+        render: (_, r) => r.project?.name ?? '—',
+      },
+      {
+        title: 'Сумма',
+        dataIndex: 'amount',
+        key: 'amount',
+        width: 160,
+        align: 'right',
+        sorter: (a, b) => Number(a.amount) - Number(b.amount),
+        render: (v: number) => (
+          <strong style={{ color: 'var(--finance-income, #389e0d)' }}>
+            +{formatMoney(v)}
+          </strong>
+        ),
+      },
+      {
+        title: 'Назначение',
+        dataIndex: 'comment',
+        key: 'comment',
+        ellipsis: true,
+        render: (v: string | null | undefined) => v || '—',
+      },
+      {
+        title: '',
+        key: 'actions',
+        width: 90,
+        align: 'right',
+        render: (_, r) => (
+          <Space size={0}>
             <Button
               type="text"
               size="small"
-              danger
-              icon={<DeleteOutlined />}
-              onClick={(e) => e.stopPropagation()}
+              icon={<EditOutlined />}
+              onClick={(e) => onEdit(e, r)}
             />
-          </Popconfirm>
-        </Space>
-      ),
-    },
-  ];
+            <Popconfirm
+              title="Удалить поступление?"
+              description="Это снимет его из P&L и отчётов"
+              onConfirm={() => handleDelete(r.id)}
+              okButtonProps={{ danger: true }}
+              okText="Удалить"
+              cancelText="Отмена"
+            >
+              <Button
+                type="text"
+                size="small"
+                danger
+                icon={<DeleteOutlined />}
+                onClick={stopProp}
+              />
+            </Popconfirm>
+          </Space>
+        ),
+      },
+    ],
+    [onEdit, stopProp, handleDelete],
+  );
 
   return (
     <>

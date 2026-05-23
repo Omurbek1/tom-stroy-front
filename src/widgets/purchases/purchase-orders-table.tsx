@@ -19,7 +19,7 @@ import {
   ShoppingOutlined,
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   useApprovePurchaseOrder,
   useCancelPurchaseOrder,

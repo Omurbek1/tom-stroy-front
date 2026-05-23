@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
   Button,
   Card,
@@ -103,106 +103,125 @@ export function ExpensesTable({ projectId }: { projectId?: string } = {}) {
     return [...map.entries()].sort((a, b) => b[1] - a[1]);
   }, [filtered]);
 
-  const handleDelete = async (id: string) => {
-    try {
-      await deleteMutation.mutateAsync(id);
-      message.success('Расход удалён');
-    } catch {
-      message.error('Не удалось удалить');
-    }
-  };
+  const handleDelete = useCallback(
+    async (id: string) => {
+      try {
+        await deleteMutation.mutateAsync(id);
+        message.success('Расход удалён');
+      } catch {
+        message.error('Не удалось удалить');
+      }
+    },
+    [deleteMutation],
+  );
 
-  const columns: ColumnsType<Expense> = [
-    {
-      title: 'Дата',
-      dataIndex: 'date',
-      key: 'date',
-      width: 110,
-      sorter: (a, b) => +new Date(a.date) - +new Date(b.date),
-      defaultSortOrder: 'descend',
-      render: (v: string) => formatDate(v),
+  // Stable callbacks — avoid recreating handlers on every render so
+  // AntD Table can memo cells.
+  const onEdit = useCallback(
+    (e: React.MouseEvent, r: Expense) => {
+      e.stopPropagation();
+      setEditTarget(r);
     },
-    ...(lockedScope
-      ? []
-      : [
-          {
-            title: 'Тип',
-            dataIndex: 'scope',
-            key: 'scope',
-            width: 130,
-            render: (s: ExpenseScope) => {
-              const meta = SCOPE_LABEL[s] ?? { label: s, color: 'default' };
-              return <Tag color={meta.color}>{meta.label}</Tag>;
-            },
-          } as const,
-        ]),
-    {
-      title: 'Категория',
-      dataIndex: 'category',
-      key: 'category',
-      width: 150,
-      filters: CAT_OPTIONS.map((c) => ({ text: c.label, value: c.value })),
-      onFilter: (value, r) => r.category === value,
-      render: (c: ExpenseCategory) => <Tag>{CAT_LABEL[c] ?? c}</Tag>,
-    },
-    {
-      title: 'Объект',
-      key: 'project',
-      ellipsis: true,
-      render: (_, r) => r.project?.name ?? '—',
-    },
-    {
-      title: 'Сумма',
-      dataIndex: 'amount',
-      key: 'amount',
-      width: 150,
-      align: 'right',
-      sorter: (a, b) => Number(a.amount) - Number(b.amount),
-      render: (v: number) => <strong>{formatMoney(v)}</strong>,
-    },
-    {
-      title: 'Комментарий',
-      dataIndex: 'comment',
-      key: 'comment',
-      ellipsis: true,
-      render: (v: string | null | undefined) => v || '—',
-    },
-    {
-      title: '',
-      key: 'actions',
-      width: 90,
-      align: 'right',
-      render: (_, r) => (
-        <Space size={0}>
-          <Button
-            type="text"
-            size="small"
-            icon={<EditOutlined />}
-            onClick={(e) => {
-              e.stopPropagation();
-              setEditTarget(r);
-            }}
-          />
-          <Popconfirm
-            title="Удалить расход?"
-            description="Это снимет его из P&L и отчётов"
-            onConfirm={() => handleDelete(r.id)}
-            okButtonProps={{ danger: true }}
-            okText="Удалить"
-            cancelText="Отмена"
-          >
+    [],
+  );
+  const stopProp = useCallback(
+    (e: React.MouseEvent) => e.stopPropagation(),
+    [],
+  );
+
+  // Memoize the columns array — without this AntD Table re-keys every
+  // cell whenever the parent re-renders (filters, search, edit state).
+  const columns: ColumnsType<Expense> = useMemo(
+    () => [
+      {
+        title: 'Дата',
+        dataIndex: 'date',
+        key: 'date',
+        width: 110,
+        sorter: (a, b) => +new Date(a.date) - +new Date(b.date),
+        defaultSortOrder: 'descend',
+        render: (v: string) => formatDate(v),
+      },
+      ...(lockedScope
+        ? []
+        : [
+            {
+              title: 'Тип',
+              dataIndex: 'scope',
+              key: 'scope',
+              width: 130,
+              render: (s: ExpenseScope) => {
+                const meta = SCOPE_LABEL[s] ?? { label: s, color: 'default' };
+                return <Tag color={meta.color}>{meta.label}</Tag>;
+              },
+            } as const,
+          ]),
+      {
+        title: 'Категория',
+        dataIndex: 'category',
+        key: 'category',
+        width: 150,
+        filters: CAT_OPTIONS.map((c) => ({ text: c.label, value: c.value })),
+        onFilter: (value, r) => r.category === value,
+        render: (c: ExpenseCategory) => <Tag>{CAT_LABEL[c] ?? c}</Tag>,
+      },
+      {
+        title: 'Объект',
+        key: 'project',
+        ellipsis: true,
+        render: (_, r) => r.project?.name ?? '—',
+      },
+      {
+        title: 'Сумма',
+        dataIndex: 'amount',
+        key: 'amount',
+        width: 150,
+        align: 'right',
+        sorter: (a, b) => Number(a.amount) - Number(b.amount),
+        render: (v: number) => <strong>{formatMoney(v)}</strong>,
+      },
+      {
+        title: 'Комментарий',
+        dataIndex: 'comment',
+        key: 'comment',
+        ellipsis: true,
+        render: (v: string | null | undefined) => v || '—',
+      },
+      {
+        title: '',
+        key: 'actions',
+        width: 90,
+        align: 'right',
+        render: (_, r) => (
+          <Space size={0}>
             <Button
               type="text"
               size="small"
-              danger
-              icon={<DeleteOutlined />}
-              onClick={(e) => e.stopPropagation()}
+              icon={<EditOutlined />}
+              onClick={(e) => onEdit(e, r)}
             />
-          </Popconfirm>
-        </Space>
-      ),
-    },
-  ];
+            <Popconfirm
+              title="Удалить расход?"
+              description="Это снимет его из P&L и отчётов"
+              onConfirm={() => handleDelete(r.id)}
+              okButtonProps={{ danger: true }}
+              okText="Удалить"
+              cancelText="Отмена"
+            >
+              <Button
+                type="text"
+                size="small"
+                danger
+                icon={<DeleteOutlined />}
+                onClick={stopProp}
+              />
+            </Popconfirm>
+          </Space>
+        ),
+      },
+    ],
+    [lockedScope, onEdit, stopProp, handleDelete],
+  );
 
   return (
     <>

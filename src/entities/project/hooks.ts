@@ -18,10 +18,19 @@ export const projectKeys = {
   analytics: (id: string) => ['projects', 'analytics', id] as const,
 };
 
+// Project list = portfolio dashboard data — projects don't appear/
+// disappear every minute. Mutations invalidate `['projects']`. 5 min
+// stale eliminates a hit on every workspace page mount.
+const PROJECT_LIST_STALE = 5 * 60_000;
+// Per-project detail/analytics are written by daily reports and
+// movements — keep at 60s so the dashboard reflects reality quickly.
+const PROJECT_DETAIL_STALE = 60_000;
+
 export function useProjectsList(filters: ProjectFilters = {}) {
   return useQuery({
     queryKey: projectKeys.list(filters),
     queryFn: () => listProjects(filters),
+    staleTime: PROJECT_LIST_STALE,
   });
 }
 
@@ -30,6 +39,7 @@ export function useProject(id: string) {
     queryKey: projectKeys.detail(id),
     queryFn: () => getProject(id),
     enabled: !!id,
+    staleTime: PROJECT_DETAIL_STALE,
   });
 }
 
@@ -38,6 +48,7 @@ export function useProjectAnalytics(id: string) {
     queryKey: projectKeys.analytics(id),
     queryFn: () => getProjectAnalytics(id),
     enabled: !!id,
+    staleTime: PROJECT_DETAIL_STALE,
   });
 }
 

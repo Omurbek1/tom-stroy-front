@@ -19,6 +19,9 @@ export function useIncomes(params: ListIncomesParams = {}) {
   return useQuery({
     queryKey: incomeKeys.list(params),
     queryFn: () => listIncomes(params),
+    // Same logic as expenses — 2 min stale; mutations invalidate
+    // ['incomes'] so the cache stays correct.
+    staleTime: 2 * 60_000,
   });
 }
 

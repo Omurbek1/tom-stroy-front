@@ -166,8 +166,12 @@ export function BalancesTable() {
         dataSource={rows}
         loading={isLoading}
         pagination={false}
-        scroll={{ y: 'calc(100vh - 360px)' }}
+        scroll={{ y: 'calc(100vh - 360px)', x: 'max-content' }}
         sticky
+        // AntD virtual rendering — only visible rows mount into the DOM.
+        // Cuts hydration cost dramatically when limit=500 inventory rows
+        // pour in. Both `scroll.y` and `virtual` must be set.
+        virtual
       />
     </Card>
   );

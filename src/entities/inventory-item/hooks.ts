@@ -47,10 +47,17 @@ export const inventoryKeys = {
   txns: (params: ListTxnsParams) => ['inventory', 'txns', params] as const,
 };
 
+// Catalog data — stock changes only via mutations that invalidate
+// the cache (`['inventory']`). Push staleTime up so repeat opens of the
+// receipt / writeoff modals don't re-fetch the same 200-row list every
+// time the user reopens within a few minutes.
+const INVENTORY_STALE = 5 * 60_000;
+
 export function useInventoryItems(params: ListItemsParams = {}) {
   return useQuery({
     queryKey: inventoryKeys.items(params),
     queryFn: () => listInventoryItems(params),
+    staleTime: INVENTORY_STALE,
   });
 }
 
@@ -58,6 +65,9 @@ export function useInventoryTransactions(params: ListTxnsParams = {}) {
   return useQuery({
     queryKey: inventoryKeys.txns(params),
     queryFn: () => listInventoryTransactions(params),
+    // Transactions = audit log, updated on every movement, but reading
+    // is rarely time-critical. 5 min keeps the tab snappy.
+    staleTime: INVENTORY_STALE,
   });
 }
 
@@ -75,6 +85,7 @@ export function useInventoryBalances(params: ListBalancesParams = {}) {
   return useQuery({
     queryKey: inventoryKeys.balances(params),
     queryFn: () => listBalances(params),
+    staleTime: INVENTORY_STALE,
   });
 }
 
