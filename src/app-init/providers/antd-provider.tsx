@@ -1,6 +1,5 @@
 'use client';
 
-import '@ant-design/v5-patch-for-react-19';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { App, ConfigProvider, theme } from 'antd';
 import ru_RU from 'antd/locale/ru_RU';
